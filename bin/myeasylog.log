@@ -1,0 +1,48 @@
+2022-08-27 17:55:49,107 INFO [default] Program initialization started
+2022-08-27 17:55:49,109 INFO [default] Start loading config.ini file
+2022-08-27 17:55:49,110 INFO [default] config.ini successfully loaded
+2022-08-27 17:55:49,851 INFO [default] Type loaded, FreeType library terminated
+2022-08-27 17:55:49,852 INFO [default] Start loading config.json config file
+2022-08-27 17:55:49,863 INFO [default] Shader mainShader successfully registered
+2022-08-27 17:55:49,866 INFO [default] Shader uiShader successfully registered
+2022-08-27 17:55:49,867 INFO [default] Shaders loaded
+2022-08-27 17:55:49,867 INFO [default] Model data: Backpack; "C:/Users/Anton/GitHub/Labs/Labs/C++ labs/OpenGLDrawer/res/assets/backpack/backpack.obj"
+2022-08-27 17:55:51,165 INFO [default] Actor Backpack successfully registered
+2022-08-27 17:55:51,166 INFO [default] Models loaded
+2022-08-27 17:55:51,166 INFO [default] Player camera successfully created
+2022-08-27 17:55:51,166 INFO [default] Directional light was successfully set
+2022-08-27 17:55:51,166 INFO [default] Point light was successfully added
+2022-08-27 17:55:51,166 INFO [default] Program successfully loaded in 2.05863 seconds
+2022-08-27 17:59:34,995 INFO [default] Window terminated, program finished
+2022-08-27 18:31:39,594 INFO [default] Program initialization started
+2022-08-27 18:31:39,596 INFO [default] Start loading config.ini file
+2022-08-27 18:31:39,596 INFO [default] config.ini successfully loaded
+2022-08-27 18:31:40,280 INFO [default] Type loaded, FreeType library terminated
+2022-08-27 18:31:40,281 INFO [default] Start loading config.json config file
+2022-08-27 18:31:40,283 INFO [default] Shader mainShader successfully registered
+2022-08-27 18:31:40,284 INFO [default] Shader uiShader successfully registered
+2022-08-27 18:31:40,284 INFO [default] Shaders loaded
+2022-08-27 18:31:40,284 INFO [default] Model data: Backpack; "C:/Users/Anton/GitHub/Labs/Labs/C++ labs/OpenGLDrawer/res/assets/backpack/backpack.obj"
+2022-08-27 18:31:41,894 INFO [default] Actor Backpack successfully registered
+2022-08-27 18:31:41,895 INFO [default] Models loaded
+2022-08-27 18:31:41,895 INFO [default] Player camera successfully created
+2022-08-27 18:31:41,895 INFO [default] Directional light was successfully set
+2022-08-27 18:31:41,895 INFO [default] Point light was successfully added
+2022-08-27 18:31:41,896 INFO [default] Program successfully loaded in 2.30125 seconds
+2022-08-27 18:31:58,406 INFO [default] Window terminated, program finished
+2022-08-27 18:35:51,215 INFO [default] Program initialization started
+2022-08-27 18:35:51,217 INFO [default] Start loading config.ini file
+2022-08-27 18:35:51,218 INFO [default] config.ini successfully loaded
+2022-08-27 18:35:51,901 INFO [default] Type loaded, FreeType library terminated
+2022-08-27 18:35:51,901 INFO [default] Start loading config.json config file
+2022-08-27 18:35:51,903 INFO [default] Shader mainShader successfully registered
+2022-08-27 18:35:51,905 INFO [default] Shader uiShader successfully registered
+2022-08-27 18:35:51,905 INFO [default] Shaders loaded
+2022-08-27 18:35:51,905 INFO [default] Model data: Backpack; "C:/Users/Anton/GitHub/Labs/Labs/C++ labs/OpenGLDrawer/res/assets/backpack/backpack.obj"
+2022-08-27 18:35:53,472 INFO [default] Actor Backpack successfully registered
+2022-08-27 18:35:53,472 INFO [default] Models loaded
+2022-08-27 18:35:53,472 INFO [default] Player camera successfully created
+2022-08-27 18:35:53,473 INFO [default] Directional light was successfully set
+2022-08-27 18:35:53,473 INFO [default] Point light was successfully added
+2022-08-27 18:35:53,473 INFO [default] Program successfully loaded in 2.25821 seconds
+2022-08-27 18:36:32,197 INFO [default] Window terminated, program finished

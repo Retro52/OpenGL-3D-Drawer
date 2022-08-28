@@ -1,0 +1,11 @@
+{
+  "Shaders":
+  {
+    "mainShader": ["../res/shaders/mainv.glsl", "../res/shaders/mainf.glsl"],
+    "uiShader" : ["../res/shaders/uiv.glsl", "../res/shaders/uif.glsl"]
+  },
+  "Models" :
+  {
+    "Backpack" : "C:/Users/Anton/GitHub/Labs/Labs/C++ labs/OpenGLDrawer/res/assets/backpack/backpack.obj"
+  }
+}
