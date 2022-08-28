@@ -101,7 +101,7 @@ void Global::Tick()
 
     if (elapsedTime >= 0.33)
     {
-        curFPS = frame * 3;
+        curFPS = (int) ((double) frame / elapsedTime);
         frame = 0;
         elapsedTime = 0.0;
     }
