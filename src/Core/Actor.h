@@ -1,5 +1,5 @@
 //
-// Created by Anton on 14.08.2022.
+// Created by Anton on 14.06.2022.
 //
 
 #ifndef GRAPHICS_ACTOR_H
@@ -105,7 +105,7 @@ public:
     virtual void Draw(const Shader& shader) {};
 
     /**
-     * Updates actor based on user inputs
+     * Updates actor based on user inputs, called every frame
      */
     virtual void UpdateControls() {};
 

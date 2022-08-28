@@ -574,33 +574,6 @@ src/Render/Shader.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Render/Shader.cpp.s
 .PHONY : src/Render/Shader.cpp.s
 
-src/UI/UIBase.obj: src/UI/UIBase.cpp.obj
-
-.PHONY : src/UI/UIBase.obj
-
-# target to build an object file
-src/UI/UIBase.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/UI/UIBase.cpp.obj
-.PHONY : src/UI/UIBase.cpp.obj
-
-src/UI/UIBase.i: src/UI/UIBase.cpp.i
-
-.PHONY : src/UI/UIBase.i
-
-# target to preprocess a source file
-src/UI/UIBase.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/UI/UIBase.cpp.i
-.PHONY : src/UI/UIBase.cpp.i
-
-src/UI/UIBase.s: src/UI/UIBase.cpp.s
-
-.PHONY : src/UI/UIBase.s
-
-# target to generate assembly for a file
-src/UI/UIBase.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/UI/UIBase.cpp.s
-.PHONY : src/UI/UIBase.cpp.s
-
 src/UI/UIHandler.obj: src/UI/UIHandler.cpp.obj
 
 .PHONY : src/UI/UIHandler.obj
@@ -712,9 +685,6 @@ help:
 	@echo ... src/Render/Shader.obj
 	@echo ... src/Render/Shader.i
 	@echo ... src/Render/Shader.s
-	@echo ... src/UI/UIBase.obj
-	@echo ... src/UI/UIBase.i
-	@echo ... src/UI/UIBase.s
 	@echo ... src/UI/UIHandler.obj
 	@echo ... src/UI/UIHandler.i
 	@echo ... src/UI/UIHandler.s

@@ -25,7 +25,7 @@ void Application::Create()
     }
 }
 
-int Application::Run()
+void Application::Run()
 {
     try
     {
@@ -44,9 +44,11 @@ int Application::Run()
     catch(const std::exception& exp)
     {
         LOG(ERROR) << "Exception caught, terminating program. What: " << exp.what();
-        return EXIT_FAILURE;
     }
+}
+
+void Application::Destroy()
+{
     Window::Terminate();
     LOG(INFO) << "Window terminated, program finished";
-    return EXIT_SUCCESS;
 }

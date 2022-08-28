@@ -72,6 +72,7 @@ void Global::Initialize()
                     glm::vec3(0.5f, 0.5f, 0.5f),
                     glm::vec3(0.5f, 0.5f, 0.5f));
 
+    // point lights
     ResourcesManager::RegisterLight(
             glm::vec3(0, 0, 3),
             glm::vec3(0.05f, 0.05f, 0.05f),
@@ -79,6 +80,14 @@ void Global::Initialize()
             glm::vec3(1.0f, 1.0f, 1.0f),
             1.0f, 0.09f, 0.032f
             );
+
+    ResourcesManager::RegisterLight(
+            glm::vec3(0, 0, -3),
+            glm::vec3(0.05f, 0.05f, 0.05f),
+            glm::vec3(0.8f, 0.8f, 0.8f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            1.0f, 0.09f, 0.032f
+    );
 }
 
 void Global::Tick()
@@ -169,17 +178,17 @@ void Global::Draw(const std::unique_ptr<PerspectiveCamera> &camera)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
+    mainShader->Use();
+    mainShader->setInt("drawMode", drawMode);
+    mainShader->setMat4("view", camera->GetView());
+    mainShader->setMat4("projection", camera->GetProjection());
+    mainShader->setVec3("ProjPos", camera->GetPosition());
+    mainShader->setDirLight(ResourcesManager::GetDirectionalLight());
+    mainShader->setPointLights(ResourcesManager::GetPointLights());
+
     for(auto &m : ResourcesManager::GetActors())
     {
         // apply data to main shader
-        mainShader->Use();
-        mainShader->setInt("drawMode", drawMode);
-        mainShader->setMat4("view", camera->GetView());
-        mainShader->setMat4("projection", camera->GetProjection());
-        mainShader->setVec3("ProjPos", camera->GetPosition());
-        mainShader->setDirLight(ResourcesManager::GetDirectionalLight());
-        mainShader->setPointLights(ResourcesManager::GetPointLights());
-
         m->Tick();
         m->UpdateControls();
         m->Draw(* mainShader);

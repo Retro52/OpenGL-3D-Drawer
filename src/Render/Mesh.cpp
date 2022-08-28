@@ -30,6 +30,7 @@ void Mesh::Draw(const Shader &shader) const
         std::string number;
         std::string name = textures[i].type;
         std::string res = "material.";
+
         if(name == "texture_diffuse")
         {
             number = std::to_string(diffuseNr++);

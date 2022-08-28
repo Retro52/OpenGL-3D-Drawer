@@ -1,5 +1,5 @@
 //
-// Created by Anton on 14.08.2022.
+// Created by Anton on 14.05.2022.
 //
 
 #ifndef GRAPHICS_GLOBAL_H

@@ -1,7 +1,6 @@
 #define GLEW_STATIC
 
 #include "Core/Application.h"
-
 #include "Logging/easylogging++.h"
 INITIALIZE_EASYLOGGINGPP;
 
@@ -14,5 +13,6 @@ INITIALIZE_EASYLOGGINGPP;
 int main(int argc, char ** argv)
 {
     Application::Create();
-    return Application::Run();
+    Application::Run();
+    Application::Destroy();
 }

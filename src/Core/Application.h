@@ -1,5 +1,5 @@
 //
-// Created by Anton on 27.08.2022.
+// Created by Anton on 27.06.2022.
 //
 
 #ifndef GRAPHICS_APPLICATION_H
@@ -23,7 +23,9 @@ public:
      * Runs created application
      * @return exit status
      */
-    static int Run();
+    static void Run();
+
+    static void Destroy();
 };
 
 
