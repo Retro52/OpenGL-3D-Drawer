@@ -5,6 +5,7 @@
 #include "Global.h"
 #include "Config.h"
 #include "../UI/UIHandler.h"
+#include "../Lighting/ShadowsHandler.h"
 
 double Global::lastTime;
 double Global::deltaTime;
@@ -53,6 +54,7 @@ void Global::Initialize()
     {
         Config::LoadIni("config.ini");
         EventsHandler::Initialize();
+        ShadowsHandler::Initialize();
     }
     catch (InGameException& e)
     {
@@ -60,34 +62,6 @@ void Global::Initialize()
         throw InGameException("Global initialization error");
     }
     EventsHandler::ToggleCursor();
-
-    // registering world camera
-    ResourcesManager::RegisterPlayerCamera(glm::vec3(0, 0, 5), glm::radians(90.0f));
-    ResourcesManager::GetPlayerCamera()->Rotate(glm::vec3(0, 0, 1.57));
-
-    // setting directional light
-    ResourcesManager::RegisterLight(
-                    glm::vec3(-0.2f, -1.0f, -0.3f),
-                    glm::vec3(0.5f, 0.5f, 0.5f),
-                    glm::vec3(0.5f, 0.5f, 0.5f),
-                    glm::vec3(0.5f, 0.5f, 0.5f));
-
-    // point lights
-    ResourcesManager::RegisterLight(
-            glm::vec3(0, 0, 3),
-            glm::vec3(0.05f, 0.05f, 0.05f),
-            glm::vec3(0.8f, 0.8f, 0.8f),
-            glm::vec3(1.0f, 1.0f, 1.0f),
-            1.0f, 0.09f, 0.032f
-            );
-
-    ResourcesManager::RegisterLight(
-            glm::vec3(0, 0, -3),
-            glm::vec3(0.05f, 0.05f, 0.05f),
-            glm::vec3(0.8f, 0.8f, 0.8f),
-            glm::vec3(1.0f, 1.0f, 1.0f),
-            1.0f, 0.09f, 0.032f
-    );
 }
 
 void Global::Tick()
@@ -143,19 +117,13 @@ void Global::Tick()
     {
         drawMode = 9;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_ADD))
-    {
-        ResourcesManager::GetPlayerCamera()->SetFieldOfView(ResourcesManager::GetPlayerCamera()->GetFieldOfView() - .01f);
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_SUBTRACT))
-    {
-        ResourcesManager::GetPlayerCamera()->SetFieldOfView(ResourcesManager::GetPlayerCamera()->GetFieldOfView() + .01f);
-    }
 
-    /* Update camera controls */
-    ResourcesManager::GetPlayerCamera()->UpdateControls();
     /* Update window controls */
     Window::Tick();
+
+    /* TODO: Move to the Scene class */
+    /* Update camera controls */
+    ResourcesManager::GetPlayerScene()->GetPlayerCamera()->UpdateControls();
 }
 
 double Global::GetWorldDeltaTime()
@@ -163,44 +131,18 @@ double Global::GetWorldDeltaTime()
     return deltaTime;
 }
 
-void Global::Draw(const std::unique_ptr<PerspectiveCamera> &camera)
+void Global::Draw()
 {
-    glm::mat4 projView = camera->GetProjection() * camera->GetView();
-
-    glClearColor(0.203f, 0.76f, 0.938f,1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    Shader * mainShader = ResourcesManager::GetShader("mainShader");
     Shader * uiShader = ResourcesManager::GetShader("uiShader");
 
-    if (drawMode == 4)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-
-    mainShader->Use();
-    mainShader->setInt("drawMode", drawMode);
-    mainShader->setMat4("view", camera->GetView());
-    mainShader->setMat4("projection", camera->GetProjection());
-    mainShader->setVec3("ProjPos", camera->GetPosition());
-    mainShader->setDirLight(ResourcesManager::GetDirectionalLight());
-    mainShader->setPointLights(ResourcesManager::GetPointLights());
-
-    for(auto &m : ResourcesManager::GetActors())
-    {
-        // apply data to main shader
-        m->Tick();
-        m->UpdateControls();
-        m->Draw(* mainShader);
-
-    }
+    ResourcesManager::GetPlayerScene()->Draw(drawMode);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0f, (float) Window::GetHeight() - 24.0f, 1.0, glm::vec3(1.0, 1.0, 1.0));
     UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0f, (float) Window::GetHeight() - 48.0f, 1.0, glm::vec3(1.0, 1.0, 0.0));
     UIHandler::RenderText(* uiShader, "WASD to move, KeyPad +- to zoom in/out, 1-8 to switch view Modes", 0.0f, (float) Window::GetHeight() - 72.0f, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "FOV: " + std::to_string((ResourcesManager::GetPlayerCamera()->GetFieldOfView() / 3.1415) * 180), 0.0f, (float) Window::GetHeight() - 96.0f, 1.0, glm::vec3(1.0, 0.5, 0.5));
+    UIHandler::RenderText(* uiShader, "FOV: " + std::to_string((ResourcesManager::GetPlayerScene()->GetPlayerCamera()->GetFieldOfView() / 3.14159265358979) * 180), 0.0f, (float) Window::GetHeight() - 96.0f, 1.0, glm::vec3(1.0, 0.5, 0.5));
 }
 
 void Global::EndFrame()

@@ -16,14 +16,15 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
     SetUpMesh();
 }
 
-void Mesh::Draw(const Shader &shader) const
+void Mesh::Draw(const Shader &shader, GLuint shadowMap) const
 {
     // bind appropriate textures
     unsigned int diffuseNr  = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr   = 1;
     unsigned int heightNr   = 1;
-    for(unsigned int i = 0; i < textures.size(); i++)
+    unsigned int i;
+    for(i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
         // retrieve texture number (the N in diffuse_textureN)
@@ -55,9 +56,41 @@ void Mesh::Draw(const Shader &shader) const
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
 
+    // activate shadow texture
+    i++;
+    glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+    shader.setInt("material.texture_shadow", (int) i++);
+    glBindTexture(GL_TEXTURE_2D, shadowMap);
+
+    // get rid of overlapping textures
+    if (specularNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_specular1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (normalNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_normal1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (diffuseNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_diffuse1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (heightNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_height1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.

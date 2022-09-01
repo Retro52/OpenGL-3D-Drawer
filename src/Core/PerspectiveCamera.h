@@ -52,6 +52,8 @@ public:
      * @return vield of view, in degrees
      */
     float GetFieldOfView() const;
+
+    void SetDirection(const glm::vec3& direction);
 private:
     float fov, zoom;
     double posX, posY;

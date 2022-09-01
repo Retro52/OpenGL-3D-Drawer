@@ -2,6 +2,7 @@
 
 out vec4 FragColor;
 
+in vec4 FragPosLight;
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
@@ -35,6 +36,7 @@ struct Material
 	sampler2D texture_height1;
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
+	sampler2D texture_shadow;
 };
 
 uniform vec3 ProjPos;
@@ -70,7 +72,7 @@ void main()
 	}
 	else if (drawMode == 9)
 	{
-		result = texture(material.texture_height1, TexCoords).rgb;
+		result = texture(material.texture_shadow, TexCoords).rgb;
 	}
 	else
 	{
@@ -124,7 +126,39 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	{
 		ambient = ambient * vec3(1.0f, 1.0f, 1.0f);
 		diffuse = diffuse * vec3(1.0f, 1.0f, 1.0f);
-		return (ambient + diffuse);
+
+		float shadow = 0.0f;
+		vec3 lightCoords = FragPosLight.xyz / FragPosLight.w;
+
+		if(lightCoords.z <= 1.0f)
+		{
+
+			// Get from [-1, 1] range to [0, 1] range just like the shadow map
+			lightCoords = (lightCoords + 1.0f) / 2.0f;
+			float currentDepth = lightCoords.z;
+
+			// Prevents shadow acne
+			float bias = max(0.025f * (1.0f - dot(normal, lightDir)), 0.0005f);
+
+			// Smoothens out the shadows
+			int sampleRadius = 2;
+			vec2 pixelSize = 1.0 / textureSize(material.texture_shadow, 0);
+			for(int y = -sampleRadius; y <= sampleRadius; y++)
+			{
+				for(int x = -sampleRadius; x <= sampleRadius; x++)
+				{
+					float closestDepth = texture(material.texture_shadow, lightCoords.xy + vec2(x, y) * pixelSize).r;
+					if (currentDepth - bias > closestDepth)
+					{
+						shadow += 0.8f;
+					}
+				}
+			}
+			// Get average shadow
+			shadow /= pow((sampleRadius * 2 + 1), 2);
+		}
+
+		return (ambient * (1.0f - shadow) + diffuse * (1.0f - shadow));
 	}
 	else
 	{
@@ -133,13 +167,44 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 		specular = specular * vec3(texture(material.texture_specular1, TexCoords));
 	}
 
-	return (ambient + diffuse + specular);
+	float shadow = 0.0f;
+	vec3 lightCoords = FragPosLight.xyz / FragPosLight.w;
+
+	if(lightCoords.z <= 1.0f)
+	{
+
+		// Get from [-1, 1] range to [0, 1] range just like the shadow map
+		lightCoords = (lightCoords + 1.0f) / 2.0f;
+		float currentDepth = lightCoords.z;
+
+		// Prevents shadow acne
+		float bias = max(0.025f * (1.0f - dot(normal, lightDir)), 0.0005f);
+
+		// Smoothens out the shadows
+		int sampleRadius = 2;
+		vec2 pixelSize = 1.0 / textureSize(material.texture_shadow, 0);
+		for(int y = -sampleRadius; y <= sampleRadius; y++)
+		{
+			for(int x = -sampleRadius; x <= sampleRadius; x++)
+			{
+				float closestDepth = texture(material.texture_shadow, lightCoords.xy + vec2(x, y) * pixelSize).r;
+				if (currentDepth - bias > closestDepth)
+				{
+					shadow += 1.0f;
+				}
+			}
+		}
+		// Get average shadow
+		shadow /= pow((sampleRadius * 2 + 1), 2);
+	}
+
+	return (diffuse * (1.0f - shadow) + ambient * (1.0f - shadow) + specular * (1.0f - shadow));
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
 	vec3 lightDir;
-	lightDir = normalize(light.position * TBN - FragPos);
+	lightDir = normalize(light.position - FragPos);
 
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);

@@ -6,7 +6,9 @@
 #include "Window.h"
 #include "EventsHandler.h"
 #include "InGameException.h"
+#include "ResourcesManager.h"
 #include <iostream>
+#include <thread>
 
 GLFWwindow * Window::window;
 int Window::width = 0;
@@ -23,11 +25,12 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
     glfwWindowHint(GLFW_SAMPLES, 4);
     if (fullScreen)
     {
-        Window::window = glfwCreateWindow(w, h, name.c_str(), glfwGetPrimaryMonitor(), nullptr);
+        Window::window = glfwCreateWindow(w, h, name.c_str(), nullptr, nullptr);
     }
     else
     {
-        Window::window = glfwCreateWindow(w, h, name.c_str(), nullptr, nullptr);
+        Window::window = glfwCreateWindow(w, h, name.c_str(), glfwGetPrimaryMonitor(), nullptr);
+        glfwSetWindowSize(window, glfwGetVideoMode(glfwGetPrimaryMonitor())->width, glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
     }
 
     if (Window::window == nullptr)
@@ -50,6 +53,7 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
     glViewport(0, 0, w, h);
     glClearColor(0.0f,0.0f,0.0f,1);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
@@ -129,6 +133,15 @@ void Window::Tick()
     {
         EventsHandler::ToggleCursor();
     }
+
+    if(EventsHandler::IsJustPressed(GLFW_KEY_R))
+    {
+        ResourcesManager::RegisterPlayerScene("../res/scenes/defaultScene.json");
+    }
+//    if (EventsHandler::_cursor_locked)
+//    {
+//        glfwSetCursorPos(window, static_cast<int>(width / 2), static_cast<int>(height / 2));
+//    }
 }
 
 void Window::Update()

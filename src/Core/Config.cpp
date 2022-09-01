@@ -17,11 +17,11 @@ void Config::LoadIni(const std::string &configPath)
     LOG(INFO) << "Start loading "<< configPath << " file";
     int windowHeight, windowWidth, defaultFontSize;
     bool windowFullScreen;
-    std::string windowName, shadersConfigPath, defaultFontPath;
+    std::string windowName, shadersConfigPath, defaultFontPath, defaultScenePath;
 
     std::ifstream is(configPath);
 
-    /* TODO: check of this even makes sense */
+    /* TODO: check if this even makes sense */
     /* Set variables to default values */
     windowWidth = 1200;
     windowHeight = 900;
@@ -32,6 +32,7 @@ void Config::LoadIni(const std::string &configPath)
     defaultFontPath = "../res/fonts/arial/arial.ttf";
 
     shadersConfigPath = "config.json";
+    defaultScenePath = "../res/scenes/defaultScene.json";
 
     if (!is.is_open())
     {
@@ -53,6 +54,7 @@ void Config::LoadIni(const std::string &configPath)
         inipp::get_value(ini.sections["DEFAULT"], "windowFullScreen", windowFullScreen);
         inipp::get_value(ini.sections["DEFAULT"], "defaultFontSize", defaultFontSize);
         inipp::get_value(ini.sections["DEFAULT"], "defaultFontPath", defaultFontPath);
+        inipp::get_value(ini.sections["DEFAULT"], "defaultScenePath", defaultScenePath);
 
         windowWidth = windowWidth > 399 ? windowWidth : 400;
         windowHeight = windowHeight > 399 ? windowHeight : 400;
@@ -65,8 +67,10 @@ void Config::LoadIni(const std::string &configPath)
     LOG(INFO) << configPath << " successfully loaded";
     /* All the exceptions are handled in Global::Init method */
     Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen);
-    UIHandler::Initialize(defaultFontPath, defaultFontSize);
+
     Config::LoadJson(shadersConfigPath);
+    UIHandler::Initialize(defaultFontPath, defaultFontSize);
+    ResourcesManager::RegisterPlayerScene(defaultScenePath);
 }
 
 void Config::LoadJson(const std::string &jsonConfigPath)
@@ -97,16 +101,4 @@ void Config::LoadJson(const std::string &jsonConfigPath)
             ResourcesManager::RegisterShader(shader.key(), shader.value()[0], shader.value()[1]);
         }
     }
-    LOG(INFO) << "Shaders loaded";
-    for (const auto& model : data["Models"].items())
-    {
-        std::string path = std::string(model.value());
-        std::string directory = path.substr(0, path.find_last_of('/'));
-        LOG(INFO) << "Model data: " << model.key() << "; " << model.value();
-        ResourcesManager::RegisterModel(model.key(), model.value());
-    }
-    LOG(INFO) << "Models loaded";
-
-    is.close();
-    data.clear();
 }

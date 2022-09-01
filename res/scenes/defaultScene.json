@@ -1,0 +1,45 @@
+{
+  "SceneName" : "Default scene",
+  "Models" :
+  {
+    "Castle" :
+    {
+      "Path" : "../res/assets/TownScaper/source/model.obj",
+      "Position" : [0, 10.5, 0],
+      "Rotation" : [0, 0, 0],
+      "Scale" : [1, 1, 1]
+    },
+    "Floor" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [0, -3, 0],
+      "Rotation" : [0, 0, 0],
+      "Scale" : [20, 20, 20]
+    }
+  },
+  "Camera" :
+  {
+    "Position" : [0, 0, 5],
+    "FOV" : 60.0
+  },
+  "Directional light" :
+  {
+    "Direction" : [-1, -0.5, -0.5],
+    "Diffuse" : [0.5, 0.5, 0.5],
+    "Ambient" : [0.5, 0.5, 0.5],
+    "Specular" : [0.5, 0.5, 0.5]
+  },
+  "Point lights" :
+  {
+    "PL1" :
+    {
+      "Position" : [0, 2, 1.5],
+      "Diffuse" : [0.5, 0.5, 0.5],
+      "Ambient" : [0.5, 0.5, 0.5],
+      "Specular" : [0.5, 0.5, 0.5],
+      "Constant" : 0.3,
+      "Linear" : 0.09,
+      "Quadratic" : 0.012
+    }
+  }
+}

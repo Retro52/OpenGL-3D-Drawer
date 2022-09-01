@@ -2,10 +2,8 @@
   "Shaders":
   {
     "mainShader": ["../res/shaders/mainv.glsl", "../res/shaders/mainf.glsl"],
-    "uiShader" : ["../res/shaders/uiv.glsl", "../res/shaders/uif.glsl"]
-  },
-  "Models" :
-  {
-    "Backpack" : "../res/assets/backpack/backpack.obj"
+    "uiShader" : ["../res/shaders/uiv.glsl", "../res/shaders/uif.glsl"],
+    "shadowShader" : ["../res/shaders/shadowv.glsl", "../res/shaders/shadowf.glsl"],
+    "shadowVolumeShader" : ["../res/shaders/shadow_volumev.glsl", "../res/shaders/shadow_volumef.glsl", "../res/shaders/shadow_volumeg.glsl"]
   }
 }

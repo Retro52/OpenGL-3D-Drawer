@@ -102,7 +102,7 @@ public:
      * Draws actor
      * @param shader shader to be applied for drawing
      */
-    virtual void Draw(const Shader& shader) {};
+    virtual void Draw(const Shader& shader, GLuint shadowMap) {};
 
     /**
      * Updates actor based on user inputs, called every frame

@@ -5,6 +5,7 @@ layout (location = 2) in vec2 aTexCoords;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
 
+out vec4 FragPosLight;
 out vec3 Normal;
 out vec3 FragPos;
 out vec2 TexCoords;
@@ -13,12 +14,12 @@ out mat3 TBN;
 uniform mat4 view;
 uniform mat4 model;
 uniform mat4 projection;
+uniform mat4 lightProjection;
 
 void main()
 {
 	FragPos      = vec3(model * vec4(aPos, 1.0));
 	TexCoords    = aTexCoords;
-
 	Normal       = mat3(transpose(inverse(model))) * aNormal;
 
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -28,5 +29,6 @@ void main()
 	vec3 B = cross(N, T);
 	TBN = transpose(mat3(T, B, N));
 
+	FragPosLight = lightProjection * vec4(FragPos, 1.0f);
 	gl_Position  = projection * view * model * vec4(aPos, 1.0);
 }

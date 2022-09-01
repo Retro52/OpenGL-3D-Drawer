@@ -12,13 +12,13 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-void Model::Draw(const Shader &shader)
+void Model::Draw(const Shader &shader, GLuint shadowMap)
 {
     Update();
     shader.setMat4("model", model);
     for(auto & mesh : meshes)
     {
-        mesh.Draw(shader);
+        mesh.Draw(shader, shadowMap);
     }
 }
 

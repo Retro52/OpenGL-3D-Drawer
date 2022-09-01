@@ -53,7 +53,7 @@ public:
      * Draws mesh instance
      * @param shader shader to be applied to the instance when drawing
      */
-    void Draw(const Shader &shader) const;
+    void Draw(const Shader &shader, GLuint shadowMap) const;
 private:
     unsigned int VBO{}, EBO{};
 

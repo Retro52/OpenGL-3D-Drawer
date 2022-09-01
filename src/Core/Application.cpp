@@ -35,7 +35,7 @@ void Application::Run()
             /* Global tick events */
             Global::Tick();
 
-            Global::Draw(ResourcesManager::GetPlayerCamera());
+            Global::Draw();
 
             /* Swapping buffers and pulling user inputs */
             Global::EndFrame();

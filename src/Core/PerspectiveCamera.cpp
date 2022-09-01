@@ -5,6 +5,8 @@
 #include "Window.h"
 #include "Global.h"
 #include "../include/OpenGL/include/glm/ext.hpp"
+#include "PerspectiveCamera.h"
+
 
 PerspectiveCamera::PerspectiveCamera(const glm::vec3& position, float fov) : fov(fov), zoom(1.0f), posX(0.0), posY(0.0)
 {
@@ -132,4 +134,9 @@ void PerspectiveCamera::SetFieldOfView(float newFOV)
 float PerspectiveCamera::GetFieldOfView() const
 {
     return fov;
+}
+
+void PerspectiveCamera::SetDirection(const glm::vec3 &direction)
+{
+    dir = direction;
 }

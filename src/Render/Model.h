@@ -31,7 +31,7 @@ public:
      * Draws all model meshes
      * @param shader shader to use for drawing
      */
-    void Draw(const Shader &shader) override;
+    void Draw(const Shader &shader, GLuint shadowMap) override;
 
     /**
      * Loads textures from file

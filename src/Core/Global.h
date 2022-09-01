@@ -37,7 +37,7 @@ public:
      * Draws the scene
      * @param camera player camera
      */
-    static void Draw(const std::unique_ptr<PerspectiveCamera> &camera);
+    static void Draw();
 
     /**
      * Ends frame by swapping buffers and more

@@ -3,37 +3,11 @@
 //
 
 #include <iostream>
-#include <vector>
 #include "ResourcesManager.h"
-#include "../Logging/easylogging++.h"
 
-std::unique_ptr<PerspectiveCamera> ResourcesManager::pCamera;
-std::unique_ptr<DirectionalLight> ResourcesManager::dLights;
+std::unique_ptr<Scene> ResourcesManager::pScene;
 std::map<std::string, std::unique_ptr<Shader>> ResourcesManager::shaders;
-std::vector<std::unique_ptr<Actor>> ResourcesManager::actors;
-std::vector<std::unique_ptr<PointLight>> ResourcesManager::pLights;
 std::mutex ResourcesManager::m;
-
-void ResourcesManager::RegisterLight(const glm::vec3& dir, const glm::vec3& amb, const glm::vec3& diff, const glm::vec3& spec)
-{
-    const std::lock_guard<std::mutex> lock(m);
-    dLights = std::make_unique<DirectionalLight> (dir, amb, diff, spec);
-    LOG(INFO) << "Directional light was successfully set";
-}
-
-void ResourcesManager::RegisterLight(const glm::vec3 &pos, const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad)
-{
-    const std::lock_guard<std::mutex> lock(m);
-    pLights.push_back(std::make_unique<PointLight>(pos, amb, diff, spec, con, lin, quad));
-    LOG(INFO) << "Point light was successfully added";
-}
-
-void ResourcesManager::RegisterPlayerCamera(const glm::vec3 &position, float fov)
-{
-    const std::lock_guard<std::mutex> lock(m);
-    pCamera = std::make_unique<PerspectiveCamera>(position, fov);
-    LOG(INFO) << "Player camera successfully created";
-}
 
 void ResourcesManager::RegisterShader(const std::string &name, const std::string &vFile, const std::string &fFile, const std::string &gFile)
 {
@@ -56,36 +30,6 @@ void ResourcesManager::RegisterShader(const std::string &name, const std::string
     }
 }
 
-
-void ResourcesManager::RegisterModel(const std::string &name, const std::string &path)
-{
-    const std::lock_guard<std::mutex> lock(m);
-    try
-    {
-        actors.push_back(std::make_unique<Model>(path));
-        LOG(INFO) << "Actor " << name << " successfully registered";
-    }
-    catch (InGameException& e)
-    {
-        LOG(WARNING) << "Failed to register actor. Reason: " << e.what();
-    }
-}
-
-std::unique_ptr<PerspectiveCamera>& ResourcesManager::GetPlayerCamera()
-{
-    return pCamera;
-}
-
-std::unique_ptr<DirectionalLight>& ResourcesManager::GetDirectionalLight()
-{
-    return dLights;
-}
-
-std::vector<std::unique_ptr<PointLight>>& ResourcesManager::GetPointLights()
-{
-    return pLights;
-}
-
 Shader * ResourcesManager::GetShader(const std::string& name)
 {
     const std::lock_guard<std::mutex> lock(m);
@@ -106,7 +50,20 @@ Shader * ResourcesManager::GetShader(const std::string& name)
     return shaders[name].get();
 }
 
-std::vector<std::unique_ptr<Actor>>& ResourcesManager::GetActors()
+void ResourcesManager::RegisterPlayerScene(const std::string &path)
 {
-    return actors;
+    const std::lock_guard<std::mutex> lock(m);
+    try
+    {
+        pScene = std::make_unique<Scene>(path);
+    }
+    catch(std::exception& e)
+    {
+        std::cerr << e.what();
+    }
+}
+
+std::unique_ptr<Scene>& ResourcesManager::GetPlayerScene()
+{
+    return pScene;
 }
