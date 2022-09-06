@@ -13,7 +13,8 @@ double Global::elapsedTime;
 
 int Global::curFPS, Global::drawMode = 1;
 
-long Global::frame;
+unsigned long Global::frame = 0;
+unsigned long Global::frames = 0;
 
 
 std::string drawModeToString(int drawMode)
@@ -67,6 +68,7 @@ void Global::Initialize()
 void Global::Tick()
 {
     frame++;
+    frames++;
     /* Updating delta time */
     double curTime = glfwGetTime();
     deltaTime = curTime - lastTime;
@@ -123,7 +125,7 @@ void Global::Tick()
 
     /* TODO: Move to the Scene class */
     /* Update camera controls */
-    ResourcesManager::GetPlayerScene()->GetPlayerCamera()->UpdateControls();
+    ResourcesManager::GetPlayerScene()->GetPrimaryCamera()->UpdateControls();
 }
 
 double Global::GetWorldDeltaTime()
@@ -135,14 +137,14 @@ void Global::Draw()
 {
     Shader * uiShader = ResourcesManager::GetShader("uiShader");
 
-    ResourcesManager::GetPlayerScene()->Draw(drawMode);
+    ResourcesManager::GetPlayerScene()->Render();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0f, (float) Window::GetHeight() - 24.0f, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0f, (float) Window::GetHeight() - 48.0f, 1.0, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(* uiShader, "WASD to move, KeyPad +- to zoom in/out, 1-8 to switch view Modes", 0.0f, (float) Window::GetHeight() - 72.0f, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "FOV: " + std::to_string((ResourcesManager::GetPlayerScene()->GetPlayerCamera()->GetFieldOfView() / 3.14159265358979) * 180), 0.0f, (float) Window::GetHeight() - 96.0f, 1.0, glm::vec3(1.0, 0.5, 0.5));
+    UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 24.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
+    UIHandler::RenderText(* uiShader, "WASD to move, KeyPad +- to zoom in/out, 1-8 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, "FOV: " + std::to_string((ResourcesManager::GetPlayerScene()->GetPlayerCamera()->GetFieldOfView() / 3.14159265358979) * 180), 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 0.5, 0.5));
 }
 
 void Global::EndFrame()
@@ -150,4 +152,9 @@ void Global::EndFrame()
     /* Swapping OpenGL buffers and pulling this frame events */
     Window::SwapBuffers();
     EventsHandler::PullEvents();
+}
+
+unsigned long Global::GetTotalFrames()
+{
+    return frames;
 }

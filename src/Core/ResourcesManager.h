@@ -13,7 +13,7 @@
 #include "../Lighting/PointLight.h"
 #include "../Lighting/DirectionalLight.h"
 #include "PerspectiveCamera.h"
-#include "Scene.h"
+#include "../Entity/Scene.h"
 
 
 class ResourcesManager

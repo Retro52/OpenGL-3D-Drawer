@@ -2,8 +2,11 @@
 // Created by Anton on 20.12.2021.
 //
 
+#include <memory>
 #include <iostream>
 #include "ResourcesManager.h"
+#include "../Logging/easylogging++.h"
+#include "../Entity/Entity.h"
 
 std::unique_ptr<Scene> ResourcesManager::pScene;
 std::map<std::string, std::unique_ptr<Shader>> ResourcesManager::shaders;
@@ -34,18 +37,10 @@ Shader * ResourcesManager::GetShader(const std::string& name)
 {
     const std::lock_guard<std::mutex> lock(m);
 #if __cplusplus >= 202002L
-    if(!shaders.contains(name))
-    {
-        LOG(ERROR) << "Shader " + name + " is not registered at ResourcesManager";
-        throw InGameException("Trying to receive unregistered shader");
-    }
+    GAME_ASSERT(shaders.contains(name), "Trying to receive unregistered shader " + name);
 #else
     /* Count returns number of elements with specified key, so we can use it like bool (non 0 - present, 0 - absent) */
-    if(!shaders.count(name))
-    {
-        LOG(ERROR) << "Shader " + name + " is not registered at ResourcesManager";
-        throw InGameException("Trying to receive unregistered shader");
-    }
+    GAME_ASSERT(shaders.count(name) != 0, "Trying to receive unregistered shader " + name);
 #endif
     return shaders[name].get();
 }

@@ -49,8 +49,10 @@ public:
      * @return delta time, in seconds
      */
     static double GetWorldDeltaTime();
+
+    static unsigned long GetTotalFrames();
 private:
-    static long frame;
+    static unsigned long frame, frames;
     static double lastTime, deltaTime, elapsedTime;
     static bool shouldDrawMesh, shouldDrawLights, shouldDrawAxis, shouldDrawOutline;
     static int curFPS, drawMode;

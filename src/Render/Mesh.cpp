@@ -6,12 +6,8 @@
 
 #include <utility>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : vertices(std::move(vertices)), indices(std::move(indices)), textures(std::move(textures))
 {
-    this->vertices = std::move(vertices);
-    this->indices = std::move(indices);
-    this->textures = std::move(textures);
-
     // now that we have all the required data, set the vertex buffers and its attribute pointers.
     SetUpMesh();
 }
@@ -140,4 +136,15 @@ void Mesh::SetUpMesh()
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
     glBindVertexArray(0);
+}
+
+void Mesh::DrawIntoDepth() const
+{
+    // draw mesh
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+
+    // always good practice to set everything back to defaults once configured.
+    glActiveTexture(GL_TEXTURE0);
 }

@@ -12,23 +12,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-void Model::Draw(const Shader &shader, GLuint shadowMap)
-{
-    Update();
-    shader.setMat4("model", model);
-    for(auto & mesh : meshes)
-    {
-        mesh.Draw(shader, shadowMap);
-    }
-}
 
 Model::Model(const std::string& path)
 {
     gammaCorrection = false;
-    model    = glm::mat4(1.0f);
-    position = glm::vec3(0.0f);
-    rotation = glm::vec3(0.0f);
-    scale    = glm::vec3(1.0f);
     LoadModel(path);
 }
 
@@ -237,13 +224,4 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
     }
 
     return textureID;
-}
-
-void Model::Update()
-{
-    model = glm::translate(position);
-    model = glm::scale(model, scale);
-    model = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
-    model = glm::rotate(model, rotation.y, glm::vec3(0, 1, 0));
-    model = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
 }

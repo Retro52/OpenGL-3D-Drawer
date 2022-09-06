@@ -12,7 +12,6 @@
 
 #include "Mesh.h"
 #include "Shader.h"
-#include "../Core/Actor.h"
 #include "../Core/InGameException.h"
 
 #include <string>
@@ -22,7 +21,7 @@
 #include <map>
 #include <vector>
 
-class Model : public Actor
+class Model
 {
 public:
     explicit Model(const std::string& path);
@@ -31,7 +30,23 @@ public:
      * Draws all model meshes
      * @param shader shader to use for drawing
      */
-    void Draw(const Shader &shader, GLuint shadowMap) override;
+    void Draw(const Shader &shader, const glm::mat4& model) const
+    {
+        shader.setMat4("model", model);
+        for(const auto& mesh : meshes)
+        {
+            mesh.Draw(shader, 0);
+        }
+    };
+
+    void DrawIntoDepth(const Shader& shader, const glm::mat4& model) const
+    {
+        shader.setMat4("model", model);
+        for(const auto& mesh : meshes)
+        {
+            mesh.DrawIntoDepth();
+        }
+    };
 
     /**
      * Loads textures from file
@@ -71,11 +86,6 @@ private:
      * @return vector of loaded textures
      */
     std::vector<Texture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName);
-
-    /**
-     * Updates model matrix every frame
-     */
-    void Update() override;
 
 public:
     bool gammaCorrection;

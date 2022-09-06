@@ -4,8 +4,7 @@
 
 #include "ShadowsHandler.h"
 #include "../Core/InGameException.h"
-#include "../Core/ResourcesManager.h"
-#include "../Core/Window.h"
+
 
 GLuint ShadowsHandler::depthTexture, ShadowsHandler::framebufferName = 0;
 
@@ -24,8 +23,8 @@ void ShadowsHandler::Initialize()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    float clampColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, clampColor);
+    float clampColor[] = { 1.0F, 1.0F, 1.0F, 1.0F };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, (float *) clampColor);
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferName);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
@@ -45,20 +44,33 @@ GLuint ShadowsHandler::RenderShadowMap()
 {
     // Depth testing needed for Shadow Map
     glEnable(GL_DEPTH_TEST);
+
+    //disabling face culling
     glDisable(GL_CULL_FACE);
 
-    // Preparations for the Shadow Map
+    // enabling polygon offset
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.1F, 4.0F);
+
+    // Creating separate viewport for shadow map
     glViewport(0, 0, shadowMapWidth, shadowMapHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferName);
     glClear(GL_DEPTH_BUFFER_BIT);
-    for (auto & m : ResourcesManager::GetPlayerScene()->GetActors())
+    #pragma unroll
+    for (auto & model : ResourcesManager::GetPlayerScene()->GetActors())
     {
-        m->Draw(* ResourcesManager::GetShader("shadowShader"), 0);
+        model->DrawIntoDepth(* ResourcesManager::GetShader("shadowShader"));
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
 
-    glDisable(GL_CULL_FACE);
+    // re-enabling cull faces
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    // disabling polygon offset
+    glPolygonOffset(0, 0);
+    glDisable(GL_POLYGON_OFFSET_FILL);
 
     return depthTexture;
 }

@@ -147,3 +147,48 @@ void UIHandler::RenderText(Shader shader, const std::string &text, float x, floa
 
     glEnable(GL_DEPTH_TEST);
 }
+
+void UIHandler::RenderTexture(Shader shader, float x, float y, float w, float h, unsigned int texture)
+{
+    glDisable(GL_DEPTH_TEST);
+
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(Window::GetWidth()), 0.0f, static_cast<float>(Window::GetHeight()));
+
+    // activate corresponding render state
+    shader.Use();
+    shader.setMat4("projection", projection);
+//    shader.setVec3("textColor", color);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+
+    float xpos = x;
+    float ypos = y;
+
+    // update VBO for each character
+    float vertices[6][4] = {
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos,     ypos,       0.0f, 1.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+            { xpos + w, ypos + h,   1.0f, 0.0f }
+    };
+
+    // render glyph texture over quad
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // update content of VBO memory
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // render quad
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glEnable(GL_DEPTH_TEST);
+}

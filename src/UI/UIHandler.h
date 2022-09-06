@@ -28,13 +28,14 @@ private:
     static std::map<char, Character> Characters;
     static unsigned int VAO, VBO;
 
-private:
-    // render state
 public:
     /* Restriction to create an instance of this class */
     UIHandler() = delete;
     UIHandler(UIHandler&&) = delete;
     UIHandler(const UIHandler&) = delete;
+    ~UIHandler() = delete;
+    UIHandler operator = (const UIHandler& ) = delete;
+    UIHandler operator = (UIHandler&& ) = delete;
 
     /**
      * Loads default font into textures
@@ -53,6 +54,8 @@ public:
      * @param color color of the text
      */
     static void RenderText(Shader shader, const std::string &text, float x, float y, float scale, const glm::vec3 &color);
+
+    static void RenderTexture(Shader shader, float x, float y, float w, float h, unsigned int texture);
 };
 
 

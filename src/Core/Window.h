@@ -98,6 +98,8 @@ public:
      * Updates window width and height
      */
     static void Update();
+
+    inline static float GetAspectRatio() { return static_cast<float> (width) / static_cast<float> (height); }
 };
 
 

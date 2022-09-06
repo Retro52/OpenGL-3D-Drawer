@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 
+
 class InGameException : public std::exception
 {
 private:
@@ -23,8 +24,9 @@ public:
      * Get error message
      * @return c-style const char array containing error message
      */
-    const char * what() const noexcept override;
+    [[nodiscard]] const char * what() const noexcept override;
 };
 
+constexpr void GAME_ASSERT(bool var, const std::string& message) { if (!var) { throw InGameException(message); } }
 
 #endif //GRAPHICS_INGAMEEXCEPTION_H

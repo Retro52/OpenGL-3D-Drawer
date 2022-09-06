@@ -6,16 +6,15 @@
 #define GRAPHICS_PERSPECTIVECAMERA_H
 
 #include "../include/OpenGL/include/glm/glm.hpp"
-#include "Actor.h"
 #include <iostream>
 
-class PerspectiveCamera : public Actor
+class PerspectiveCamera
 {
 public:
     /**
      * Camera constructor
      * @param position camera position
-     * @param fov camera field of view (60 - 100 range is recommended)
+     * @param fov camera field of view (60 - 100 range is recommended), in degrees
      */
     PerspectiveCamera(const glm::vec3& position, float fov);
 
@@ -54,9 +53,14 @@ public:
     float GetFieldOfView() const;
 
     void SetDirection(const glm::vec3& direction);
+
+    float GetFarPlane()  const { return farPlane; }
+
+    float GetNearPlane() const { return nearPlane; }
 private:
     float fov, zoom;
     double posX, posY;
+    const float nearPlane = 0.05f, farPlane = 1500.0f;
 
 };
 
