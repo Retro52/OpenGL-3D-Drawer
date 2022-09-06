@@ -28,44 +28,17 @@ PerspectiveCamera::PerspectiveCamera(const glm::vec3& position, float fov) : fov
     }
 }
 
-glm::mat4 PerspectiveCamera::GetProjection()
+glm::mat4 PerspectiveCamera::GetProjection() const
 {
-    Update();
     float aspect = ((float) Window::GetWidth()) / (float) Window::GetHeight();
     return glm::perspective(fov * zoom, aspect, nearPlane, farPlane);
 }
 
-glm::mat4 PerspectiveCamera::GetView()
+glm::mat4 PerspectiveCamera::GetView() const
 {
-    Update();
     return glm::lookAt(position, position + front, up);
 }
 
-void PerspectiveCamera::Update()
-{
-    model = glm::mat4(1.0F);
-    /* Yaw axis rotation */
-    model = glm::rotate(model, rotation.z, glm::vec3(0,0,1));
-    /* Pitch axis rotation */
-    model = glm::rotate(model, rotation.y, glm::vec3(0,1,0));
-//    /* Roll axis rotation */
-    model = glm::rotate(model, rotation.x, glm::vec3(1,0,0));
-
-    front = glm::vec3(model * glm::vec4(0,0,-1,1));
-    right = glm::vec3(model * glm::vec4(1,0,0,1));
-    up = glm::vec3(model * glm::vec4(0,1,0,1));
-    dir = glm::vec3(model * glm::vec4(0,0,-1,1));
-
-    dir.y = 0;
-
-    float len = glm::length(dir);
-
-    if (len > 0.0F)
-    {
-        dir.x /= len;
-        dir.z /= len;
-    }
-}
 
 void PerspectiveCamera::UpdateControls()
 {
@@ -89,19 +62,19 @@ void PerspectiveCamera::UpdateControls()
     /* PerspectiveCamera world position */
     if (EventsHandler::IsPressed(GLFW_KEY_W))
     {
-        Translate(GetFront() * delta * speed);
+        position += front * delta * speed;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_S))
     {
-        Translate(- GetFront() * delta * speed);
+        position += - front * delta * speed;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_D))
     {
-        Translate(GetRight() * delta * speed);
+        position += right * delta * speed;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_A))
     {
-        Translate(- GetRight() * delta * speed);
+        position += - right * delta * speed;
     }
 
     float mouseSensitivity = 150.0F;
@@ -120,8 +93,7 @@ void PerspectiveCamera::UpdateControls()
             posY = glm::radians(89.0F);
         }
 
-        RotateTo(glm::vec3(posY, posX, 0.0F));
-
+        rotation = glm::vec3(posY, posX, 0.0F);
         Update();
     }
 }
@@ -139,4 +111,30 @@ float PerspectiveCamera::GetFieldOfView() const
 void PerspectiveCamera::SetDirection(const glm::vec3 &direction)
 {
     dir = direction;
+}
+
+void PerspectiveCamera::Update()
+{
+    model = glm::mat4(1.0f);
+    /* Yaw axis rotation */
+    model = glm::rotate(model, rotation.z, glm::vec3(0,0,1));
+    /* Pitch axis rotation */
+    model = glm::rotate(model, rotation.y, glm::vec3(0,1,0));
+    /* Roll axis rotation */
+    model = glm::rotate(model, rotation.x, glm::vec3(1,0,0));
+
+    front = glm::vec3(model * glm::vec4(0,0,-1,1));
+    right = glm::vec3(model * glm::vec4(1,0,0,1));
+    up = glm::vec3(model * glm::vec4(0,1,0,1));
+    dir = glm::vec3(model * glm::vec4(0,0,-1,1));
+
+    dir.y = 0;
+
+    float len = glm::length(dir);
+
+    if (len > 0.0f)
+    {
+        dir.x /= len;
+        dir.z /= len;
+    }
 }

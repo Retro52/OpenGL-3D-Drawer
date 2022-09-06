@@ -16,10 +16,21 @@
 class Renderer
 {
 public:
-    static void Prepare(const Entity& camera);
+    static void Prepare(const PerspectiveCamera& camera)
+    {
+        Shader mShader = * ResourcesManager::GetShader("mainShader");
+        mShader.Use();
+        mShader.setInt("drawMode", 1);
+        mShader.setMat4("view", camera.GetView());
+        mShader.setVec3("ProjPos", camera.GetPosition());
+        mShader.setMat4("projection", camera.GetProjection());
+        mShader.setMat4("lightProjection", lightProjection);
+        mShader.setPointLights(pLights);
+        mShader.setDirLight(dLight);
+    }
     static void Render(const TransformComponent& t, const Model3DComponent& m)
     {
-        m.model.Draw(* ResourcesManager::GetShader("mainShader"), t.GetTransform());
+        m.model.Draw(* ResourcesManager::GetShader("mShader"), t.GetTransform());
     }
 
     static void RenderToDepthBuffer(const TransformComponent& t, const Model3DComponent& m)

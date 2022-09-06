@@ -21,24 +21,24 @@ public:
     /**
      * Updates camera matrices every frame
      */
-    void Update() override;
+    void Update();
 
     /**
      * Updates camera based on the inputs
      */
-    void UpdateControls() override;
+    void UpdateControls();
 
     /**
      * Get camera projection matrix
      * @return projection matrix
      */
-    glm::mat4 GetProjection();
+    glm::mat4 GetProjection() const;
 
     /**
      * Get camera view matrix
      * @return view matrix
      */
-    glm::mat4 GetView();
+    glm::mat4 GetView() const;
 
     /**
      * Set new field of view
@@ -61,7 +61,8 @@ private:
     float fov, zoom;
     double posX, posY;
     const float nearPlane = 0.05f, farPlane = 1500.0f;
-
+    glm::vec3 front, right, dir, up, position, rotation;
+    glm::mat4 model;
 };
 
 #endif //GRAPHICS_PERSPECTIVECAMERA_H

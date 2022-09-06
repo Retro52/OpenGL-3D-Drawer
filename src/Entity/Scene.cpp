@@ -10,57 +10,6 @@
 #include "../Render/Renderer.h"
 #include "../Logging/easylogging++.h"
 
-Entity Scene::CreateEntity(const std::string& name)
-{
-    Entity e = { registry.create(), this };
-    e.AddComponent<TransformComponent>();
-    e.AddComponent<NameComponent>(name);
-    return e;
-}
-
-
-Entity Scene::GetPrimaryCamera()
-{
-    auto view = registry.view<CameraComponent>();
-    for (auto entity : view)
-    {
-        const auto& camera = view.get<CameraComponent>(entity);
-        if (camera.isPrimary)
-        {
-            return Entity { entity, this };
-        }
-    }
-    return {  };
-}
-
-
-
-void Scene::Render() const
-{
-    auto view = registry.view<TransformComponent, Model3DComponent>();
-
-    for (const auto& entity : view)
-    {
-        auto [transform, model] = view.get<TransformComponent, Model3DComponent>(entity);
-        Renderer::Render(transform, model);
-    }
-
-}
-
-/** @not_implemented yet */
-void Scene::OverridePrimaryCamera(Entity entity)
-{
-    GAME_ASSERT(entity.HasComponent<CameraComponent>(), "Camera was not overridden. Reason: entity does not have CameraComponent");
-    auto view = registry.view<CameraComponent>();
-    for (const auto& entt : view)
-    {
-        auto camera = view.get<CameraComponent>(entt);
-        if (camera.isPrimary)
-        {
-            camera.isPrimary = false;
-        }
-    }
-}
 
 Scene::Scene(const std::string &path) : path(path)
 {
@@ -97,5 +46,72 @@ void Scene::LoadScene(const std::string &loadPath)
             LOG(WARNING) << "Failed to load model " << model.key() << " . Reason: " << e.what();
         }
     }
+}
+
+Entity Scene::CreateEntity(const std::string& name)
+{
+    Entity e = { registry.create(), this };
+    e.AddComponent<TransformComponent>();
+    e.AddComponent<NameComponent>(name);
+    return e;
+}
+
+
+CameraComponent Scene::GetPrimaryCamera() const
+{
+    auto view = registry.view<CameraComponent>();
+    for (auto entity : view)
+    {
+        const auto& camera = view.get<CameraComponent>(entity);
+        if (camera.isPrimary)
+        {
+            return camera;
+        }
+    }
+    throw InGameException("There are no primary cameras");
+}
+
+
+void Scene::Render() const
+{
+    Renderer::Prepare(GetPrimaryCamera().camera);
+
+    auto view = registry.view<TransformComponent, Model3DComponent>();
+
+    for (const auto& entity : view)
+    {
+        auto [transform, model] = view.get<TransformComponent, Model3DComponent>(entity);
+        Renderer::Render(transform, model);
+    }
+}
+
+/** @not_implemented yet */
+void Scene::OverridePrimaryCamera(Entity entity)
+{
+    GAME_ASSERT(entity.HasComponent<CameraComponent>(), "Camera was not overridden. Reason: entity does not have CameraComponent");
+    auto view = registry.view<CameraComponent>();
+    for (const auto& entt : view)
+    {
+        auto camera = view.get<CameraComponent>(entt);
+        if (camera.isPrimary)
+        {
+            camera.isPrimary = false;
+        }
+    }
+}
+
+std::vector<PointLightComponent> Scene::GetPointLights()
+{
+    std::vector<PointLightComponent> pLights;
+    pLights.reserve(16);
+
+    auto view = registry.view<PointLightComponent>();
+
+    for (const auto& entity : view)
+    {
+        const auto& pLight = view.get<PointLightComponent>(entity);
+        pLights.emplace_back(pLight);
+    }
+    return pLights;
 }
 

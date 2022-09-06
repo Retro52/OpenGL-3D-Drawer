@@ -54,11 +54,35 @@ struct Model3DComponent
     Model model;
 };
 
+/* Absolutely useless TODO: think to move Shader from separate component to the Model3DComponent */
 struct ShaderComponent
 {
     ShaderComponent()  = default;
     ~ShaderComponent() = default;
 
     Shader shader;
+};
+
+
+struct DirectionalLightComponent
+{
+    DirectionalLightComponent() = default;
+    ~DirectionalLightComponent() = default;
+
+    DirectionalLight directionalLight;
+};
+
+
+struct PointLightComponent
+{
+    PointLightComponent() = default;
+    ~PointLightComponent() = default;
+
+    PointLight pointLight;
+};
+/* Maybe I will figure out how to make it useful instead of ...  */
+struct ControllerComponent
+{
+
 };
 #endif //GRAPHICS_COMPONENTS_H

@@ -6,6 +6,7 @@
 #define GRAPHICS_SCENE_H
 
 #include "../include/entt/entt.hpp"
+#include "Components.h"
 
 class Entity;
 
@@ -17,7 +18,10 @@ public:
 
     Entity CreateEntity(const std::string& name = "");
 
-    Entity GetPrimaryCamera();
+    Entity GetDirectionalLight();
+    CameraComponent GetPrimaryCamera() const;
+    std::vector<PointLightComponent> GetPointLights();
+
     void OverridePrimaryCamera(Entity entity);
 
     void OnUpdate(float deltaTime);
