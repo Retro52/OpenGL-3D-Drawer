@@ -39,7 +39,10 @@ struct NameComponent
 struct CameraComponent
 {
     CameraComponent() : camera(PerspectiveCamera(glm::vec3(0), 60)) {};
+    CameraComponent(const glm::vec3& pos, float FOV) : camera(PerspectiveCamera(pos, FOV)) {};
     CameraComponent(const CameraComponent&) = default;
+
+    ~CameraComponent() = default;
 
     PerspectiveCamera camera;
     bool isPrimary = true;
@@ -53,34 +56,29 @@ struct Model3DComponent
 
     Model model;
 };
+/* TODO: move shader to the Material class , add Material to the Model3DComponent(TODO: create Material class) */
 
-/* Absolutely useless TODO: think to move Shader from separate component to the Model3DComponent */
-struct ShaderComponent
-{
-    ShaderComponent()  = default;
-    ~ShaderComponent() = default;
-
-    Shader shader;
-};
-
-
+/* TODO: remove direction from DirectionalLight, calculate using rotation from TransformComponent */
 struct DirectionalLightComponent
 {
-    DirectionalLightComponent() = default;
+    DirectionalLightComponent(const glm::vec3& dir, const glm::vec3& amb, const glm::vec3& diff, const glm::vec3& spec)
+        : directionalLight(dir, amb, diff, spec) {};
     ~DirectionalLightComponent() = default;
 
     DirectionalLight directionalLight;
 };
 
-
+/* TODO: remove position, we have Transform Component for that */
 struct PointLightComponent
 {
-    PointLightComponent() = default;
+    PointLightComponent(const glm::vec3 &pos, const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad)
+        : pointLight(PointLight(pos, amb, diff, spec, con, lin, quad)) {};
     ~PointLightComponent() = default;
 
     PointLight pointLight;
 };
-/* Maybe I will figure out how to make it useful instead of ...  */
+
+/* Maybe I will figure out how to make it useful */
 struct ControllerComponent
 {
 

@@ -17,26 +17,26 @@ public:
     Entity(entt::entity entity, Scene * scene);
 
     template<typename T, typename... Args>
-    T& AddComponent(Args&&... args)
+    T& AddComponent(Args&&... args) const
     {
         return scene->registry.template emplace<T>(thisEntity, std::forward<Args>(args)...);
     }
 
     template<typename T>
-    T& GetComponent()
+    T& GetComponent() const
     {
         GAME_ASSERT(HasComponent<T>(), "Trying to get unregistered component");
         return scene->registry.template get<T>(thisEntity);
     }
 
     template<typename T>
-    bool HasComponent()
+    bool HasComponent() const
     {
         return scene->registry.all_of<T>(thisEntity);
     }
 
     template<typename T>
-    void RemoveComponent()
+    void RemoveComponent() const
     {
         GAME_ASSERT(HasComponent<T>(), "Trying to remove unregistered component");
         scene->registry.template remove<T>(thisEntity);

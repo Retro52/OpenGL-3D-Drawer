@@ -57,10 +57,9 @@ void Global::Initialize()
         EventsHandler::Initialize();
         ShadowsHandler::Initialize();
     }
-    catch (InGameException& e)
+    catch (std::exception& e)
     {
-        LOG(FATAL) << "Error during program initialization. Reason: " << e.what();
-        throw InGameException("Global initialization error");
+        throw InGameException("Error during program initialization. Reason: " + std::string(e.what()));
     }
     EventsHandler::ToggleCursor();
 }
@@ -125,7 +124,7 @@ void Global::Tick()
 
     /* TODO: Move to the Scene class */
     /* Update camera controls */
-    ResourcesManager::GetPlayerScene()->GetPrimaryCamera()->UpdateControls();
+//    ResourcesManager::GetPlayerScene()->GetPrimaryCamera()->UpdateControls();
 }
 
 double Global::GetWorldDeltaTime()
@@ -143,8 +142,7 @@ void Global::Draw()
 
     UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 24.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
     UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(* uiShader, "WASD to move, KeyPad +- to zoom in/out, 1-8 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "FOV: " + std::to_string((ResourcesManager::GetPlayerScene()->GetPlayerCamera()->GetFieldOfView() / 3.14159265358979) * 180), 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 0.5, 0.5));
+    UIHandler::RenderText(* uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
 }
 
 void Global::EndFrame()

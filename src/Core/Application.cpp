@@ -5,6 +5,7 @@
 #include "Application.h"
 #include "Global.h"
 
+// Temp, I swear it is temp, I will remove that ASAP, this is very, very bad, I know
 namespace var{
     double start = 0.0;
 }

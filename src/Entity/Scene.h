@@ -19,14 +19,14 @@ public:
     Entity CreateEntity(const std::string& name = "");
 
     Entity GetDirectionalLight();
-    CameraComponent GetPrimaryCamera() const;
+    Entity GetPrimaryCamera();
     std::vector<PointLightComponent> GetPointLights();
 
     void OverridePrimaryCamera(Entity entity);
 
     void OnUpdate(float deltaTime);
 
-    void Render() const;
+    void Render();
     void SaveScene(const std::string& path) const;
 
 private:

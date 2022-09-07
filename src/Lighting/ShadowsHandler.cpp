@@ -56,11 +56,7 @@ GLuint ShadowsHandler::RenderShadowMap()
     glViewport(0, 0, shadowMapWidth, shadowMapHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferName);
     glClear(GL_DEPTH_BUFFER_BIT);
-    #pragma unroll
-    for (auto & model : ResourcesManager::GetPlayerScene()->GetActors())
-    {
-        model->DrawIntoDepth(* ResourcesManager::GetShader("shadowShader"));
-    }
+    ResourcesManager::GetPlayerScene()->Render();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
 
