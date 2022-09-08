@@ -4,6 +4,7 @@
 
 #include "ShadowsHandler.h"
 #include "../Core/InGameException.h"
+#include "../Render/Renderer.h"
 
 
 GLuint ShadowsHandler::depthTexture, ShadowsHandler::framebufferName = 0;
@@ -56,7 +57,7 @@ GLuint ShadowsHandler::RenderShadowMap()
     glViewport(0, 0, shadowMapWidth, shadowMapHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferName);
     glClear(GL_DEPTH_BUFFER_BIT);
-    ResourcesManager::GetPlayerScene()->Render();
+    Renderer::Render(* ResourcesManager::GetPlayerScene());
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
 

@@ -113,40 +113,41 @@ float CalcDirShadows(vec3 lightDir, vec3 normal)
 	float ambientShadow = 0.7f;
 	vec3 lightCoords = FragPosLight.xyz / FragPosLight.w;
 
-	if (dot(Normal, lightDir) <= 0)
-	{
-		shadow = 9 * ambientShadow * (1 + dot(Normal, lightDir));
-		// Get average shadow
-		shadow /= 9.0f;
-
-	}
-	else if(lightCoords.z <= 1.0f)
-	{
-		// Get from [-1, 1] range to [0, 1] range just like the shadow map
-		lightCoords = (lightCoords + 1.0f) / 2.0f;
-		float currentDepth = lightCoords.z;
-
-		// Prevents shadow acne
-		float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001);
-
-		// Smoothens out the shadowsWAS
-		int sampleRadius = 1;
-		vec2 pixelSize = 1.0 / vec2(textureSize(material.texture_shadow, 0));
-
-		for(int y = -sampleRadius; y <= sampleRadius; y++)
-		{
-			for(int x = -sampleRadius; x <= sampleRadius; x++)
-			{
-				float pcfDepth = texture(material.texture_shadow, lightCoords.xy + vec2(x, y) * pixelSize).r;
-				shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
-
-			}
-		}
-
-		// Get average shadow
-		shadow /= 9.0f;
-	}
-	return shadow;
+//	if (dot(Normal, lightDir) <= 0)
+//	{
+//		shadow = 9 * ambientShadow * (1 + dot(Normal, lightDir));
+//		// Get average shadow
+//		shadow /= 9.0f;
+//
+//	}
+//	else if(lightCoords.z <= 1.0f)
+//	{
+//		// Get from [-1, 1] range to [0, 1] range just like the shadow map
+//		lightCoords = (lightCoords + 1.0f) / 2.0f;
+//		float currentDepth = lightCoords.z;
+//
+//		// Prevents shadow acne
+//		float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001);
+//
+//		// Smoothens out the shadowsWAS
+//		int sampleRadius = 1;
+//		vec2 pixelSize = 1.0 / vec2(textureSize(material.texture_shadow, 0));
+//
+//		for(int y = -sampleRadius; y <= sampleRadius; y++)
+//		{
+//			for(int x = -sampleRadius; x <= sampleRadius; x++)
+//			{
+//				float pcfDepth = texture(material.texture_shadow, lightCoords.xy + vec2(x, y) * pixelSize).r;
+//				shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
+//
+//			}
+//		}
+//
+//		// Get average shadow
+//		shadow /= 9.0f;
+//	}
+//	return shadow;
+	return 0.0f;
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 FragPos)

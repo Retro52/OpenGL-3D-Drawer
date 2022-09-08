@@ -7,6 +7,7 @@
 #include "../UI/UIHandler.h"
 #include "../Lighting/ShadowsHandler.h"
 #include "../Entity/Entity.h"
+#include "../Render/Renderer.h"
 
 double Global::lastTime;
 double Global::deltaTime;
@@ -184,7 +185,8 @@ void Global::Draw()
 {
     Shader * uiShader = ResourcesManager::GetShader("uiShader");
 
-    ResourcesManager::GetPlayerScene()->Render();
+    Renderer::Prepare(* ResourcesManager::GetPlayerScene(), drawMode);
+    Renderer::Render(* ResourcesManager::GetPlayerScene());
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 

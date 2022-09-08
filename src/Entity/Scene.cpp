@@ -131,20 +131,6 @@ Entity Scene::GetPrimaryCamera()
     throw InGameException("There are no primary cameras");
 }
 
-
-void Scene::Render()
-{
-    Renderer::Prepare(* this);
-
-    auto view = registry.view<TransformComponent, Model3DComponent>();
-
-    for (const auto& entity : view)
-    {
-        auto [transform, model] = view.get<TransformComponent, Model3DComponent>(entity);
-        Renderer::Render(transform, model);
-    }
-}
-
 /** @not_implemented yet */
 void Scene::OverridePrimaryCamera(Entity entity)
 {
@@ -159,6 +145,17 @@ void Scene::OverridePrimaryCamera(Entity entity)
         }
     }
 }
+
+Entity Scene::GetDirectionalLight()
+{
+    auto view = registry.view<DirectionalLightComponent>();
+    for (auto entity : view)
+    {
+        return { entity, this };
+    }
+    throw InGameException("There is no directional light");
+}
+
 
 std::vector<PointLightComponent> Scene::GetPointLights()
 {
@@ -179,4 +176,3 @@ void Scene::SaveScene(const std::string& path) const
 {
 
 }
-

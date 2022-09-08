@@ -35,6 +35,7 @@ private:
     std::string path;
     entt::registry registry;
     friend class Entity;
+    friend class Renderer;
 };
 
 
