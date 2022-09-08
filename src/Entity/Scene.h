@@ -18,8 +18,8 @@ public:
 
     Entity CreateEntity(const std::string& name = "");
 
-    Entity GetDirectionalLight();
     Entity GetPrimaryCamera();
+    Entity GetDirectionalLight();
     std::vector<PointLightComponent> GetPointLights();
 
     void OverridePrimaryCamera(Entity entity);

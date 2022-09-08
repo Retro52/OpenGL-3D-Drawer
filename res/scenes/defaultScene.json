@@ -26,8 +26,8 @@
   },
   "Camera" :
   {
-    "Position" : [-3, 5, 5],
-    "FOV" : 60.0,
+    "Position" : [0, -5, 0],
+    "FOV" : 1.04,
     "isPrimary" : true
   },
   "Directional light" :

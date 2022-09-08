@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "../UI/UIHandler.h"
 #include "../Lighting/ShadowsHandler.h"
+#include "../Entity/Entity.h"
 
 double Global::lastTime;
 double Global::deltaTime;
@@ -122,6 +123,53 @@ void Global::Tick()
     /* Update window controls */
     Window::Tick();
 
+    auto& c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
+    auto& t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
+
+    if (EventsHandler::IsPressed(GLFW_KEY_W))
+    {
+        t.translation += static_cast<float>(deltaTime) * c.camera.front;
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_S))
+    {
+        t.translation -= static_cast<float>(deltaTime) * c.camera.front;
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_D))
+    {
+        t.translation += static_cast<float>(deltaTime) * c.camera.right;
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_A))
+    {
+        t.translation -= static_cast<float>(deltaTime) * c.camera.right;
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_Q))
+    {
+        t.translation += static_cast<float>(deltaTime) * c.camera.up;
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_E))
+    {
+        t.translation -= static_cast<float>(deltaTime) * c.camera.up;
+    }
+
+    float mouseSensitivity = 150.0f;
+    /* PerspectiveCamera world orientation */
+    if (EventsHandler::_cursor_locked)
+    {
+        c.camera.posX += -EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2;
+        c.camera.posY += -EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2;
+        if (c.camera.posY < - glm::radians(89.0f))
+        {
+            c.camera.posY = - glm::radians(89.0f);
+        }
+        if (c.camera.posY > glm::radians(89.0f))
+        {
+            c.camera.posY = glm::radians(89.0f);
+        }
+        c.camera.rotation = glm::vec3(c.camera.posY, c.camera.posX, 0.0f);
+        c.camera.Update();
+    }
+
+
     /* TODO: Move to the Scene class */
     /* Update camera controls */
 //    ResourcesManager::GetPlayerScene()->GetPrimaryCamera()->UpdateControls();
@@ -140,9 +188,13 @@ void Global::Draw()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    TransformComponent t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
+
+    std::string res = "Position" + std::to_string(t.translation.x) + "; " + std::to_string(t.translation.y) + "; " + std::to_string(t.translation.z);
     UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 24.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
     UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
     UIHandler::RenderText(* uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, res, 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
 }
 
 void Global::EndFrame()

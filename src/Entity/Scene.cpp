@@ -134,7 +134,7 @@ Entity Scene::GetPrimaryCamera()
 
 void Scene::Render()
 {
-    Renderer::Prepare(GetPrimaryCamera());
+    Renderer::Prepare(* this);
 
     auto view = registry.view<TransformComponent, Model3DComponent>();
 

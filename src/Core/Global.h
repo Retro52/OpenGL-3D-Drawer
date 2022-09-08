@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include "Window.h"
-#include "EventsHandler.h"
+#include "../Input/EventsHandler.h"
 #include "ResourcesManager.h"
 #include "PerspectiveCamera.h"
 #include "../Render/Shader.h"

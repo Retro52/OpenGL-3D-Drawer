@@ -161,37 +161,39 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
     glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::setDirLight(const std::unique_ptr<DirectionalLight> &dirLight) const
+void Shader::setDirLight(const DirectionalLight& dirLight) const
 {
-    setVec3("dirLight.direction", dirLight->direction);
-    setVec3("dirLight.specular", dirLight->specular);
-    setVec3("dirLight.ambient", dirLight->ambient);
-    setVec3("dirLight.diffuse", dirLight->diffuse);
+    setVec3("dirLight.direction", dirLight.direction);
+    setVec3("dirLight.specular", dirLight.specular);
+    setVec3("dirLight.ambient", dirLight.ambient);
+    setVec3("dirLight.diffuse", dirLight.diffuse);
 }
 
-void Shader::setPointLight(int idx, const std::unique_ptr<PointLight> &pointLight) const
+void Shader::setPointLight(int idx, const PointLight& pointLight) const
 {
     std::ostringstream pointLightName;
     pointLightName << "pointLights[" << idx << "].";
     std::string strName = pointLightName.str();
 
-    setVec3(strName + "ambient", pointLight->ambient);
-    setVec3(strName + "diffuse", pointLight->diffuse);
-    setVec3(strName + "specular", pointLight->specular);
-    setVec3(strName + "position", pointLight->position);
-    setFloat(strName + "quadratic", pointLight->quadratic);
-    setFloat(strName + "constant", pointLight->constant);
-    setFloat(strName + "linear", pointLight->linear);
+    setVec3(strName + "ambient", pointLight.ambient);
+    setVec3(strName + "diffuse", pointLight.diffuse);
+    setVec3(strName + "specular", pointLight.specular);
+    setVec3(strName + "position", pointLight.position);
+    setFloat(strName + "quadratic", pointLight.quadratic);
+    setFloat(strName + "constant", pointLight.constant);
+    setFloat(strName + "linear", pointLight.linear);
 }
 
-void Shader::setPointLights(const std::vector<std::unique_ptr<PointLight>> &pointLights) const
+void Shader::setPointLights(const std::vector<PointLight>& pointLights) const
 {
     int max_affected_light = 16;
     int size = pointLights.size() > max_affected_light ? max_affected_light : (int) pointLights.size();
     setInt("NR_POINT_LIGHTS", size);
-    for (int i = 0; i < size; ++i)
+    int i = 0;
+    for (const auto& pLight : pointLights)
     {
-        setPointLight(i, pointLights[i]);
+        setPointLight(i, pLight);
+        i++;
     }
 }
 

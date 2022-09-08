@@ -16,12 +16,13 @@
 class Renderer
 {
 public:
-    static void Prepare(const Entity& camera)
+    static void Prepare(Scene& scene)
     {
         Shader mShader = * ResourcesManager::GetShader("mainShader");
-        PerspectiveCamera pCamera = camera.GetComponent<CameraComponent>().camera;
-        TransformComponent cameraTransform = camera.GetComponent<TransformComponent>();
+        auto& pCamera = scene.GetPrimaryCamera().GetComponent<CameraComponent>().camera;
+        auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
 
+        pCamera.position = cameraTransform.translation;
         // Temporary
         glm::mat4 lightOrtho = glm::ortho(-35.0f, 35.0f, 35.0f, -35.0f, 0.1f, 75.0f);
         glm::mat4 lightView = glm::lookAt(20.f * (- glm::vec3(-1.0, -0.2, -0.2)), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -37,10 +38,15 @@ public:
         glClearColor(0.203f, 0.76f, 0.938f,1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        mShader.setPointLights(pLights);
-//        mShader.setDirLight(dLight);
+        mShader.setDirLight(scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight);
+//        mShader.setPointLights(scene.GetPointLights());
     }
     static void Render(const TransformComponent& t, const Model3DComponent& m)
+    {
+        m.model.Draw(* ResourcesManager::GetShader("mainShader"), t.GetTransform());
+    }
+
+    static void Render(Scene& scene)
     {
         m.model.Draw(* ResourcesManager::GetShader("mainShader"), t.GetTransform());
     }

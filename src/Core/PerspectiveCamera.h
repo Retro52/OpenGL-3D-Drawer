@@ -57,7 +57,7 @@ public:
     float GetFarPlane()  const { return farPlane; }
 
     float GetNearPlane() const { return nearPlane; }
-private:
+public:
     float fov, zoom;
     double posX, posY;
     const float nearPlane = 0.05f, farPlane = 1500.0f;

@@ -65,11 +65,11 @@ public:
     // ------------------------------------------------------------------------
     void setMat4(const std::string &name, const glm::mat4 &mat) const;
 
-    void setDirLight(const std::unique_ptr<DirectionalLight>& dirLight) const;
+    void setDirLight(const DirectionalLight& dirLight) const;
 
-    void setPointLight(int idx, const std::unique_ptr<PointLight> &pointLight) const;
+    void setPointLight(int idx, const PointLight& pointLight) const;
 
-    void setPointLights(const std::vector<std::unique_ptr<PointLight>> &pointLights) const;
+    void setPointLights(const std::vector<PointLight>& pointLights) const;
 
 private:
     /**
