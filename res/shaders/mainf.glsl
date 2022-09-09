@@ -1,4 +1,4 @@
-#version 330 core
+#version 460 core
 
 out vec4 FragColor;
 
@@ -45,6 +45,17 @@ uniform DirLight dirLight;
 uniform int NR_POINT_LIGHTS;
 uniform PointLight pointLights[16];
 uniform int drawMode;
+
+layout (std140, binding = 0) uniform LightSpaceMatrices
+{
+	mat4 lightSpaceMatrices[16];
+};
+
+uniform float cascadePlaneDistances[16];
+uniform sampler2DArray shadowMap;
+uniform int cascadeCount;   // number of frusta - 1
+uniform float farPlane;
+
 
 vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 normal, vec3 fragPos, vec3 viewDir);
 

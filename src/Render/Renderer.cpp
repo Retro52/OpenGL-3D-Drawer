@@ -3,3 +3,5 @@
 //
 
 #include "Renderer.h"
+
+unsigned int Renderer::shadowsUBO;

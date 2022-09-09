@@ -9,15 +9,17 @@
 #include "../Entity/Entity.h"
 #include "../Render/Renderer.h"
 
+
 double Global::lastTime;
 double Global::deltaTime;
 double Global::elapsedTime;
 
+
 int Global::curFPS, Global::drawMode = 1;
+
 
 unsigned long Global::frame = 0;
 unsigned long Global::frames = 0;
-
 
 std::string drawModeToString(int drawMode)
 {
@@ -57,7 +59,8 @@ void Global::Initialize()
     {
         Config::LoadIni("config.ini");
         EventsHandler::Initialize();
-        ShadowsHandler::Initialize();
+        ShadowsHandler::Initialize(4);
+        Renderer::Initialize();
     }
     catch (std::exception& e)
     {
