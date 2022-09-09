@@ -130,29 +130,32 @@ void Global::Tick()
     auto& c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
     auto& t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
 
+
+    float speed = 10.0f;
+
     if (EventsHandler::IsPressed(GLFW_KEY_W))
     {
-        t.translation += static_cast<float>(deltaTime) * c.camera.front;
+        t.translation += static_cast<float>(deltaTime) * speed* c.camera.front;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_S))
     {
-        t.translation -= static_cast<float>(deltaTime) * c.camera.front;
+        t.translation -= static_cast<float>(deltaTime) * speed* c.camera.front;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_D))
     {
-        t.translation += static_cast<float>(deltaTime) * c.camera.right;
+        t.translation += static_cast<float>(deltaTime) * speed* c.camera.right;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_A))
     {
-        t.translation -= static_cast<float>(deltaTime) * c.camera.right;
+        t.translation -= static_cast<float>(deltaTime) * speed* c.camera.right;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_Q))
     {
-        t.translation += static_cast<float>(deltaTime) * c.camera.up;
+        t.translation += static_cast<float>(deltaTime) * speed* c.camera.up;
     }
     if (EventsHandler::IsPressed(GLFW_KEY_E))
     {
-        t.translation -= static_cast<float>(deltaTime) * c.camera.up;
+        t.translation -= static_cast<float>(deltaTime) * speed* c.camera.up;
     }
 
     float mouseSensitivity = 150.0f;
@@ -189,7 +192,8 @@ void Global::Draw()
     Shader * uiShader = ResourcesManager::GetShader("uiShader");
 
     Renderer::Prepare(* ResourcesManager::GetPlayerScene(), drawMode);
-    Renderer::Render(* ResourcesManager::GetPlayerScene());
+    unsigned int shadowTexture = ShadowsHandler::RenderShadowMap();
+    Renderer::Render(* ResourcesManager::GetPlayerScene(), shadowTexture);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -200,6 +204,7 @@ void Global::Draw()
     UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
     UIHandler::RenderText(* uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
     UIHandler::RenderText(* uiShader, res, 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderTexture(* uiShader, 0.0f, 0.0f, 500.0f, 500.0f, shadowTexture);
 }
 
 void Global::EndFrame()

@@ -65,23 +65,25 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     }
-    static void Render(Scene& scene)
+    static void Render(Scene& scene, const unsigned int shadowMap)
     {
+        ResourcesManager::GetShader("mainShader")->Use();
         const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
         for (const auto& entity : view)
         {
             auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
-            m.model.Draw(* ResourcesManager::GetShader("mainShader"), t.GetTransform());
+            m.model.Draw(* ResourcesManager::GetShader("mainShader"), t.GetTransform(), shadowMap);
         }
     }
 
     static void RenderToDepthBuffer(Scene& scene)
     {
+        ResourcesManager::GetShader("shadowShader")->Use();
         const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
         for (const auto& entity : view)
         {
             auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
-            m.model.Draw(* ResourcesManager::GetShader("shadowShader"), t.GetTransform());
+            m.model.DrawIntoDepth(* ResourcesManager::GetShader("shadowShader"), t.GetTransform());
         }
     }
 private:
@@ -115,7 +117,7 @@ private:
 
     static glm::mat4 getLightSpaceMatrix(const float nearPlane, const float farPlane, const float zoom, const glm::vec3& lightDir, const glm::mat4& viewMatrix)
     {
-        const auto proj = glm::perspective(glm::radians(zoom), Window::GetAspectRatio(), nearPlane, farPlane);
+        const auto proj = glm::perspective(zoom, Window::GetAspectRatio(), nearPlane, farPlane);
         const auto corners = getFrustumCornersWorldSpace(proj, viewMatrix);
 
         glm::vec3 center = glm::vec3(0, 0, 0);
@@ -125,7 +127,7 @@ private:
         }
         center /= corners.size();
 
-        const auto lightView = glm::lookAt(center + lightDir, center, glm::vec3(0.0f, 1.0f, 0.0f));
+        const auto lightView = glm::lookAt(center - lightDir, center, glm::vec3(0.0f, 1.0f, 0.0f));
 
         float minX = std::numeric_limits<float>::max();
         float maxX = std::numeric_limits<float>::min();

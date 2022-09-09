@@ -30,12 +30,12 @@ public:
      * Draws all model meshes
      * @param shader shader to use for drawing
      */
-    void Draw(const Shader &shader, const glm::mat4& model) const
+    void Draw(const Shader &shader, const glm::mat4& model, unsigned int shadowMap) const
     {
         shader.setMat4("model", model);
         for(const auto& mesh : meshes)
         {
-            mesh.Draw(shader, 0);
+            mesh.Draw(shader, shadowMap);
         }
     };
 

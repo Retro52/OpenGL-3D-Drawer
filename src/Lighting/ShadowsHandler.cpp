@@ -9,9 +9,6 @@
 
 GLuint ShadowsHandler::shadowTexture, ShadowsHandler::shadowFBO = 0;
 
-//void ShadowsHandler::Initialize()
-//{
-//}
 
 GLuint ShadowsHandler::RenderShadowMap()
 {
@@ -29,7 +26,7 @@ GLuint ShadowsHandler::RenderShadowMap()
     glViewport(0, 0, shadowMapResolution, shadowMapResolution);
     glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
-    Renderer::Render(* ResourcesManager::GetPlayerScene());
+    Renderer::RenderToDepthBuffer(* ResourcesManager::GetPlayerScene());
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
 

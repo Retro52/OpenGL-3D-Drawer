@@ -56,7 +56,7 @@ void Mesh::Draw(const Shader &shader, GLuint shadowMap) const
     i++;
     glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
     shader.setInt("material.texture_shadow", (int) i++);
-    glBindTexture(GL_TEXTURE_2D, shadowMap);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, shadowMap);
 
     // get rid of overlapping textures
     if (specularNr == 1)
