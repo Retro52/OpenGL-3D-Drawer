@@ -188,7 +188,7 @@ void Shader::setPointLights(const std::vector<PointLight>& pointLights) const
 {
     int max_affected_light = 16;
     int size = pointLights.size() > max_affected_light ? max_affected_light : (int) pointLights.size();
-    setInt("NR_POINT_LIGHTS", size);
+    setInt("pointLightsCount", size);
     int i = 0;
     for (const auto& pLight : pointLights)
     {

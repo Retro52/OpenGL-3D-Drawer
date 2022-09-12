@@ -3,7 +3,6 @@
 out vec4 FragColor;
 
 in mat3 TBN;
-in mat4 view;
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
@@ -38,23 +37,30 @@ struct Material
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
 	sampler2DArray texture_shadow;
+
+	vec4 colorDiffuse;
 };
 
+uniform int drawMode;
+uniform int cascadeCount;
+uniform int pointLightsCount;
+
+uniform float farPlane;
+uniform float cascadePlaneDistances[16];
+
 uniform vec3 ProjPos;
+
+uniform mat4 view;
+
 uniform Material material;
 uniform DirLight dirLight;
-uniform int NR_POINT_LIGHTS;
 uniform PointLight pointLights[16];
-uniform int drawMode;
 
 layout (std140, binding = 0) uniform LightSpaceMatrices
 {
 	mat4 lightSpaceMatrices[16];
 };
 
-uniform float cascadePlaneDistances[16];
-uniform int cascadeCount;   
-uniform float farPlane;
 
 
 vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 normal, vec3 fragPos, vec3 viewDir);
@@ -68,7 +74,7 @@ void main()
 	vec3 result;
 	vec3 norm;
 	vec3 viewDir;
-
+	float gamma = 1.0f;
 	/* Unlit */
 	if (drawMode == 2 || drawMode == 4)
 	{
@@ -82,19 +88,18 @@ void main()
 	{
 		result = texture(material.texture_normal1, TexCoords).rgb;
 	}
-	else if (drawMode == 9)
-	{
-		result = texture(material.texture_shadow, vec3(TexCoords, 0)).rgb;
-	}
 	else
 	{
 		norm = normalize(texture( material.texture_normal1, TexCoords ).rgb * 2.0 - 1.0);
 		viewDir = normalize(TBN * ProjPos - TBN * FragPos);
 		result = CalcLight(dirLight, pointLights, norm, FragPos, viewDir);
 	}
+	if (drawMode == 9)
+	{
+		gamma = 2.2f;
+	}
 	FragColor = vec4(result, 1.0f);
-//	float gamma = 2.2;
-//	FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
+	FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
 }
 
 vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 FragPos, vec3 viewDir)
@@ -109,7 +114,7 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 	if (drawMode != 5)
 	{
 		// calculating point lights impact
-		for(int i = 0; i < NR_POINT_LIGHTS; i++)
+		for(int i = 0; i < pointLightsCount; i++)
 		{
 			result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
 		}
@@ -166,11 +171,11 @@ float ShadowCalculation(vec3 lightDir, vec3 nnormal)
 		}
 		// calculate bias (based on depth map resolution and slope)
 		vec3 normal = normalize(nnormal);
-		float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001);
-		const float biasModifier = 0.5f;
+		float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
+		const float biasModifier = 0.3f;
 		if (layer == cascadeCount)
 		{
-			bias *= 1 / (farPlane * biasModifier);
+			bias *= 10 / (farPlane * biasModifier);
 		}
 		else
 		{

@@ -28,6 +28,7 @@ public:
     }
     static void Prepare(Scene& scene, int drawMode)
     {
+        // TODO: change this
         Shader mShader = * ResourcesManager::GetShader("mainShader");
         auto& pCamera = scene.GetPrimaryCamera().GetComponent<CameraComponent>().camera;
         auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
@@ -39,7 +40,6 @@ public:
         mShader.setMat4("view", pCamera.GetView());
         mShader.setVec3("ProjPos", cameraTransform.translation);
         mShader.setMat4("projection", pCamera.GetProjection());
-//        mShader.setMat4("lightProjection", lightProjection);
         mShader.setDirLight(scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight);
 //        mShader.setPointLights(scene.GetPointLights());
 
