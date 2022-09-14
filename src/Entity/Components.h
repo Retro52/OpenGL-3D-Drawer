@@ -80,8 +80,8 @@ struct DirectionalLightComponent
 /* TODO: remove position, we have Transform Component for that */
 struct PointLightComponent
 {
-    PointLightComponent(const glm::vec3 &pos, const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad)
-        : pointLight(PointLight(pos, amb, diff, spec, con, lin, quad)) {};
+    PointLightComponent(const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad)
+        : pointLight(PointLight(amb, diff, spec, con, lin, quad)) {};
     ~PointLightComponent() = default;
 
     PointLight pointLight;

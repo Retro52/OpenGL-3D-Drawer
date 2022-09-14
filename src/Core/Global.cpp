@@ -173,20 +173,14 @@ void Global::Tick()
     }
 
     float mouseSensitivity = 150.0f;
+
     /* PerspectiveCamera world orientation */
     if (EventsHandler::_cursor_locked)
     {
-        c.camera.posX += -EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2;
-        c.camera.posY += -EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2;
-        if (c.camera.posY < - glm::radians(89.0f))
-        {
-            c.camera.posY = - glm::radians(89.0f);
-        }
-        if (c.camera.posY > glm::radians(89.0f))
-        {
-            c.camera.posY = glm::radians(89.0f);
-        }
-        t.rotation = glm::vec3(c.camera.posY, c.camera.posX, 0.0f);
+        t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2),
+                                  - glm::radians(89.0f),
+                                  glm::radians(89.0f));
+        t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetWidth() * 2);
         c.camera.Update(t.rotation);
     }
 }
@@ -210,12 +204,12 @@ void Global::Draw()
     CameraComponent c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
 
     std::string res = "Position" + std::to_string(t.translation.x) + "; " + std::to_string(t.translation.y) + "; " + std::to_string(t.translation.z);
-    UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 24.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(* uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "FOV (radians): " + std::to_string(c.camera.GetFieldOfView()), 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "FOV (degrees): " + std::to_string(glm::degrees(c.camera.GetFieldOfView())), 0.0F, (float) Window::GetHeight() - 128.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, res, 0.0F, (float) Window::GetHeight() - 144.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    std::string res2 = "Rotation" + std::to_string(t.rotation.x) + std::to_string(t.rotation.y) + std::to_string(t.rotation.z);
+    UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 64.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
+    UIHandler::RenderText(* uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 80.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, res2, 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, res, 0.0F, (float) Window::GetHeight() - 112.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
 }
 
 void Global::EndFrame()

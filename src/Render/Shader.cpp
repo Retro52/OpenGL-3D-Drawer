@@ -169,7 +169,7 @@ void Shader::setDirLight(const DirectionalLight& dirLight) const
     setVec3("dirLight.diffuse", dirLight.GetDiffuse());
 }
 
-void Shader::setPointLight(int idx, const PointLight& pointLight) const
+void Shader::setPointLight(int idx, const PointLight& pointLight, const glm::vec3& position) const
 {
     std::ostringstream pointLightName;
     pointLightName << "pointLights[" << idx << "].";
@@ -178,33 +178,21 @@ void Shader::setPointLight(int idx, const PointLight& pointLight) const
     setVec3(strName + "ambient", pointLight.ambient);
     setVec3(strName + "diffuse", pointLight.diffuse);
     setVec3(strName + "specular", pointLight.specular);
-    setVec3(strName + "position", pointLight.position);
+    setVec3(strName + "position", position);
     setFloat(strName + "quadratic", pointLight.quadratic);
     setFloat(strName + "constant", pointLight.constant);
     setFloat(strName + "linear", pointLight.linear);
 }
 
-void Shader::setPointLights(const std::vector<PointLight>& pointLights) const
-{
-    int max_affected_light = 16;
-    int size = pointLights.size() > max_affected_light ? max_affected_light : (int) pointLights.size();
-    setInt("pointLightsCount", size);
-    int i = 0;
-    for (const auto& pLight : pointLights)
-    {
-        setPointLight(i, pLight);
-        i++;
-    }
-}
 
 void Shader::checkCompileErrors(GLuint shader, const std::string &type)
 {
-    GLint success;
+    GLint success = 0;
     GLchar infoLog[1024];
     if(type != "PROGRAM")
     {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if(!success)
+        if(success == 0)
         {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
@@ -214,7 +202,7 @@ void Shader::checkCompileErrors(GLuint shader, const std::string &type)
     else
     {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
-        if(!success)
+        if(success == 0)
         {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;

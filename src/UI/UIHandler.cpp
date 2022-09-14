@@ -94,6 +94,7 @@ void UIHandler::Initialize(const std::string& fontPath, int fontSize)
     glBindVertexArray(0);
 }
 
+/*TODO: change, so shader is not deleted every frame*/
 void UIHandler::RenderText(Shader shader, const std::string &text, float x, float y, float scale, const glm::vec3 &color)
 {
     glDisable(GL_DEPTH_TEST);

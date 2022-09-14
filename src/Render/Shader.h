@@ -18,7 +18,6 @@
 class Shader
 {
 public:
-    unsigned int id;
     /**
      * Shader class constructor, which loads, compiles and links shader to the OpenGL program
      * @param vertexPath path to the vertex shader
@@ -27,6 +26,10 @@ public:
      */
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
 
+    ~Shader()
+    {
+        glDeleteProgram(id);
+    }
     /**
      * Binds this shader
      */
@@ -67,10 +70,7 @@ public:
 
     void setDirLight(const DirectionalLight& dirLight) const;
 
-    void setPointLight(int idx, const PointLight& pointLight) const;
-
-    void setPointLights(const std::vector<PointLight>& pointLights) const;
-
+    void setPointLight(int idx, const PointLight& pointLight, const glm::vec3& position) const;
 private:
     /**
      * Checks if there were any compilation errors
@@ -78,5 +78,8 @@ private:
      * @param type type of the shader ("VERTEX", "FRAGMENT", "GEOMETRY")
      */
     static void checkCompileErrors(GLuint shader, const std::string& type);
+
+    unsigned int id;
+
 };
 #endif

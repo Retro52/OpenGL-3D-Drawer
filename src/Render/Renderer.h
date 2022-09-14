@@ -25,12 +25,12 @@ public:
 
     static void Prepare(Scene& scene, int drawMode)
     {
-        // TODO: change this
         Shader * mShader = ResourcesManager::GetShader("mainShader");
         
         auto& cameraComponent = scene.GetPrimaryCamera().GetComponent<CameraComponent>();
         auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
-        
+
+        cameraComponent.UpdateCamera(cameraTransform.rotation);
         glm::mat4 cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
         
         mShader->Use();
@@ -39,7 +39,16 @@ public:
         mShader->setMat4("projection", cameraComponent.GetCameraProjection());
         mShader->setVec3("ProjPos", cameraTransform.translation);
         mShader->setDirLight(scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight);
-//        mShader->setPointLights(scene.GetPointLights());
+
+        int idx = -1;
+        const auto& view = scene.registry.view<TransformComponent, PointLightComponent>();
+        for (const auto& entity : view)
+        {
+            idx++;
+            auto [t, p] = view.get<TransformComponent, PointLightComponent>(entity);
+            mShader->setPointLight(idx, p.pointLight, t.translation);
+        }
+        mShader->setInt("pointLightsCount", idx + 1);
 
         std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(cameraComponent.camera.GetNearPlane(), cameraComponent.camera.GetFarPlane(), cameraComponent.camera.GetFieldOfView(), scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.GetDirection(), cameraView, cascadeLevels);
 

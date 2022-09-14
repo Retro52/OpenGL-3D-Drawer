@@ -5,7 +5,7 @@
     "BackPack" :
     {
       "Path" : "../res/assets/backpack/backpack.obj",
-      "Position" : [0, -1.3, 0],
+      "Position" : [0, -1.3, -5],
       "Rotation" : [0, 0, 0],
       "Scale" : [1, 1, 1]
     },
@@ -16,25 +16,81 @@
       "Rotation" : [0, 0, 0],
       "Scale" : [20, 20, 20]
     },
-    "Wall" :
+    "Wall1" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [9, 2, 10],
+      "Rotation" : [0, 1.57, 1.57],
+      "Scale" : [5, 5, 5]
+    },
+    "Wall2" :
     {
       "Path" : "../res/assets/brickwall/plane.obj",
       "Position" : [10, 2, 10],
-      "Rotation" : [0, -1.57, 1.57],
+      "Rotation" : [0, 1.57, -1.57],
       "Scale" : [5, 5, 5]
     },
-    "Another test" :
+    "Wall3" :
     {
-      "Path" : "../res/assets/wallrock/WallRock_obj.obj",
-      "Position" : [-5, 0, -10],
-      "Rotation" : [0, 0.5, 0],
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [0, 2, 10],
+      "Rotation" : [0, 1.57, 1.57],
+      "Scale" : [5, 5, 5]
+    },
+    "Wall4" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [1, 2, 10],
+      "Rotation" : [0, 1.57, -1.57],
+      "Scale" : [5, 5, 5]
+    },
+    "Wall5" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [5, 2, 5],
+      "Rotation" : [-1.57, 0, 0],
+      "Scale" : [5, 5, 5]
+    },
+    "Wall6" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [5, 2, 6],
+      "Rotation" : [1.57, 0, 0],
+      "Scale" : [5, 5, 5]
+    },
+    "Wall7" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [5, 2, 14],
+      "Rotation" : [-1.57, 0, 0],
+      "Scale" : [5, 5, 5]
+    },
+    "Wall8" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [5, 2, 15],
+      "Rotation" : [1.57, 0, 0],
+      "Scale" : [5, 5, 5]
+    },
+    "Roof1" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [5, 7, 10],
+      "Rotation" : [0, 0, 0],
+      "Scale" : [5, 5, 5]
+    },
+    "Roof2" :
+    {
+      "Path" : "../res/assets/brickwall/plane.obj",
+      "Position" : [5, 7, 10],
+      "Rotation" : [-3.1415, 0, 0],
       "Scale" : [5, 5, 5]
     }
   },
   "Camera" :
   {
     "Position" : [-3, 10, -2],
-    "Rotation" : [0, 0, 0],
+    "Rotation" : [-1.48, -2.02, 0],
     "FOV" : 60,
     "isPrimary" : true
   },
@@ -47,5 +103,15 @@
   },
   "Point lights" :
   {
+    "PL1" :
+    {
+      "Position" : [0, 2, 1.5],
+      "Diffuse" : [0.5, 0.5, 0.5],
+      "Ambient" : [0.5, 0.5, 0.5],
+      "Specular" : [0.5, 0.5, 0.5],
+      "Constant" : 0.3,
+      "Linear" : 0.09,
+      "Quadratic" : 0.012
+    }
   }
 }

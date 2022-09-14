@@ -73,6 +73,8 @@ public:
      * @return right vector
      */
     [[nodiscard]] inline const glm::vec3& GetRightVector() const { return right; };
+
+    [[nodiscard]] inline const glm::vec3& GetDirection() const { return dir; };
 public:
     double posX, posY;
 

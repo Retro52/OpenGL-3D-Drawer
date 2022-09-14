@@ -126,7 +126,7 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 float ShadowCalculation(vec3 lightDir, vec3 normal)
 {
 	float shadow = 0.0f;
-	float ambientShadow = 0.8;
+	float ambientShadow = 0.9f;
 
 	// lightDir and normal vectors are normalized, so we are getting just a cosin value there
 	float lDirnormDot = dot(normal, lightDir);
@@ -134,7 +134,7 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
 
 	if (lDirNormDot <= 0 && lDirnormDot <= 0)
 	{
-		shadow = ambientShadow * abs(lDirnormDot);
+		shadow = ambientShadow * mix(0.0f, 1.5f, abs(lDirnormDot));
 	}
 	else
 	{

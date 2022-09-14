@@ -62,7 +62,7 @@ void Scene::LoadScene(const std::string &loadPath)
             float quad = model.value()["Quadratic"];
 
             e.GetComponent<TransformComponent>().translation = pos;
-            e.AddComponent<PointLightComponent>(pos, amb, diff, spec, con, lin, quad);
+            e.AddComponent<PointLightComponent>(amb, diff, spec, con, lin, quad);
 
             LOG(INFO) << "Model " << model.key() << " loaded";
         }
