@@ -19,6 +19,7 @@ public:
     template<typename T, typename... Args>
     T& AddComponent(Args&&... args) const
     {
+        GAME_ASSERT(!HasComponent<T>(), "Trying to add already registered component");
         return scene->registry.template emplace<T>(thisEntity, std::forward<Args>(args)...);
     }
 

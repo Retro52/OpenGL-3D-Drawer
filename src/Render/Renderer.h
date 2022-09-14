@@ -27,26 +27,27 @@ public:
     {
         // TODO: change this
         Shader * mShader = ResourcesManager::GetShader("mainShader");
-        auto& pCamera = scene.GetPrimaryCamera().GetComponent<CameraComponent>().camera;
+        
+        auto& cameraComponent = scene.GetPrimaryCamera().GetComponent<CameraComponent>();
         auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
-
-        pCamera.position = cameraTransform.translation;
-
+        
+        glm::mat4 cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
+        
         mShader->Use();
         mShader->setInt("drawMode", drawMode);
-        mShader->setMat4("view", pCamera.GetView());
+        mShader->setMat4("view", cameraView);
+        mShader->setMat4("projection", cameraComponent.GetCameraProjection());
         mShader->setVec3("ProjPos", cameraTransform.translation);
-        mShader->setMat4("projection", pCamera.GetProjection());
         mShader->setDirLight(scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight);
 //        mShader->setPointLights(scene.GetPointLights());
 
-        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(pCamera.nearPlane, pCamera.farPlane, pCamera.fov, scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.GetDirection(), pCamera.GetView(), cascadeLevels);
+        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(cameraComponent.camera.GetNearPlane(), cameraComponent.camera.GetFarPlane(), cameraComponent.camera.GetFieldOfView(), scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.GetDirection(), cameraView, cascadeLevels);
 
         lightMatricesUBO->Bind();
         lightMatricesUBO->FillData(lightMatrices);
         lightMatricesUBO->Reset();
 
-        mShader->setFloat("farPlane", pCamera.farPlane);
+        mShader->setFloat("farPlane", cameraComponent.camera.GetFarPlane());
         mShader->setInt("cascadeCount", (int) cascadeLevels.size());
         for (size_t i = 0; i < cascadeLevels.size(); ++i)
         {

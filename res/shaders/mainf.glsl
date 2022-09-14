@@ -125,12 +125,14 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 
 float ShadowCalculation(vec3 lightDir, vec3 normal)
 {
-	float shadow = 0.0;
+	float shadow = 0.0f;
 	float ambientShadow = 0.8;
 
 	// lightDir and normal vectors are normalized, so we are getting just a cosin value there
 	float lDirnormDot = dot(normal, lightDir);
-	if (lDirnormDot <= 0 && dot(Normal, lightDir) <= 0)
+	float lDirNormDot = dot(Normal, lightDir);
+
+	if (lDirNormDot <= 0 && lDirnormDot <= 0)
 	{
 		shadow = ambientShadow * abs(lDirnormDot);
 	}
@@ -178,7 +180,7 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
 		}
 		else
 		{
-			bias *= 1 / (cascadePlaneDistances[layer] * biasModifier);
+			bias *= (layer + 1) / (cascadePlaneDistances[layer] * biasModifier);
 		}
 
 		// PCF

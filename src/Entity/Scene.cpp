@@ -97,7 +97,10 @@ void Scene::LoadScene(const std::string &loadPath)
         const auto & pCameraData = data["Camera"];
         Entity e = CreateEntity("Directional light");
 
-        e.AddComponent<CameraComponent>(glm::vec3(pCameraData["Position"][0], pCameraData["Position"][1], pCameraData["Position"][2]), pCameraData["FOV"]);
+        e.GetComponent<TransformComponent>().translation = glm::vec3(pCameraData["Position"][0], pCameraData["Position"][1], pCameraData["Position"][2]);
+        e.GetComponent<TransformComponent>().rotation = glm::vec3(pCameraData["Rotation"][0], pCameraData["Rotation"][1], pCameraData["Rotation"][2]);
+
+        e.AddComponent<CameraComponent>(glm::radians(static_cast<float>(pCameraData["FOV"])));
         e.GetComponent<CameraComponent>().isPrimary = pCameraData["isPrimary"];
 
         LOG(INFO) << "Camera loaded";

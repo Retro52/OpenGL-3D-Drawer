@@ -51,10 +51,8 @@ public:
 private:
     static GLuint shadowTexture, shadowFBO;
 
-    static const int shadowMultiSampler = 1;
+    static const int shadowMultiSampler = 2;
     static const int shadowMapResolution = 1024 * shadowMultiSampler;
-
-    constexpr static const float shadowDistance = 500.0F;
 };
 
 

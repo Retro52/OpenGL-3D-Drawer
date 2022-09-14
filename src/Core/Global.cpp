@@ -132,35 +132,44 @@ void Global::Tick()
     /* Update window controls */
     Window::Tick();
 
-    auto& c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
+    
     auto& t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
-
+    auto& c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
 
     float speed = 10.0f;
 
+    if (EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT))
+    {
+        speed *= 10;
+    }
+    else if (EventsHandler::IsPressed(GLFW_KEY_LEFT_CONTROL))
+    {
+        speed /= 10;
+    }
+
     if (EventsHandler::IsPressed(GLFW_KEY_W))
     {
-        t.translation += static_cast<float>(deltaTime) * speed* c.camera.front;
+        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
     }
     if (EventsHandler::IsPressed(GLFW_KEY_S))
     {
-        t.translation -= static_cast<float>(deltaTime) * speed* c.camera.front;
+        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
     }
     if (EventsHandler::IsPressed(GLFW_KEY_D))
     {
-        t.translation += static_cast<float>(deltaTime) * speed* c.camera.right;
+        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
     }
     if (EventsHandler::IsPressed(GLFW_KEY_A))
     {
-        t.translation -= static_cast<float>(deltaTime) * speed* c.camera.right;
+        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
     }
     if (EventsHandler::IsPressed(GLFW_KEY_Q))
     {
-        t.translation += static_cast<float>(deltaTime) * speed* c.camera.up;
+        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
     }
     if (EventsHandler::IsPressed(GLFW_KEY_E))
     {
-        t.translation -= static_cast<float>(deltaTime) * speed* c.camera.up;
+        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
     }
 
     float mouseSensitivity = 150.0f;
@@ -177,8 +186,8 @@ void Global::Tick()
         {
             c.camera.posY = glm::radians(89.0f);
         }
-        c.camera.rotation = glm::vec3(c.camera.posY, c.camera.posX, 0.0f);
-        c.camera.Update();
+        t.rotation = glm::vec3(c.camera.posY, c.camera.posX, 0.0f);
+        c.camera.Update(t.rotation);
     }
 }
 
@@ -198,12 +207,15 @@ void Global::Draw()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     TransformComponent t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
+    CameraComponent c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
 
     std::string res = "Position" + std::to_string(t.translation.x) + "; " + std::to_string(t.translation.y) + "; " + std::to_string(t.translation.z);
     UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 24.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
     UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
     UIHandler::RenderText(* uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, res, 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, "FOV (radians): " + std::to_string(c.camera.GetFieldOfView()), 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, "FOV (degrees): " + std::to_string(glm::degrees(c.camera.GetFieldOfView())), 0.0F, (float) Window::GetHeight() - 128.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(* uiShader, res, 0.0F, (float) Window::GetHeight() - 144.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
 }
 
 void Global::EndFrame()

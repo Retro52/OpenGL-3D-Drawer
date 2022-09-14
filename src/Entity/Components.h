@@ -38,11 +38,21 @@ struct NameComponent
 
 struct CameraComponent
 {
-    CameraComponent() : camera(PerspectiveCamera(glm::vec3(0), 60)) {};
-    CameraComponent(const glm::vec3& pos, float FOV) : camera(PerspectiveCamera(pos, FOV)) {};
+    explicit CameraComponent() : camera(PerspectiveCamera(glm::radians(60.0f))) {};
+    explicit CameraComponent(float FOV) : camera(PerspectiveCamera(FOV)) {};
     CameraComponent(const CameraComponent&) = default;
 
     ~CameraComponent() = default;
+
+    /**
+     * Updates camera
+     * @param rotation camera rotation
+     */
+    inline void UpdateCamera(const glm::vec3& rotation) { return camera.Update(rotation); }
+
+    [[nodiscard]] inline glm::mat4 GetCameraProjection() const { return camera.GetProjection(); }
+
+    [[nodiscard]] inline glm::mat4 GetCameraView(const glm::vec3& position) { return camera.GetView(position); }
 
     PerspectiveCamera camera;
     bool isPrimary = true;
@@ -56,7 +66,6 @@ struct Model3DComponent
 
     Model model;
 };
-/* TODO: move shader to the Material class , add Material to the Model3DComponent(TODO: create Material class) */
 
 /* TODO: remove direction from DirectionalLight, calculate using rotation from TransformComponent */
 struct DirectionalLightComponent
