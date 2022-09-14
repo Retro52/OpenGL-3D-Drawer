@@ -10,7 +10,7 @@
 
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "../Loaders/stb_image.h"
 
 
 Model::Model(const std::string& path)

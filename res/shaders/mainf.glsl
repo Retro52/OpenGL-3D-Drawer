@@ -90,7 +90,7 @@ void main()
 	}
 	else
 	{
-		norm = normalize(texture( material.texture_normal1, TexCoords ).rgb * 2.0 - 1.0);
+		norm = normalize((texture( material.texture_normal1, TexCoords ).rgb * 2.0 - 1.0) * TBN);
 		viewDir = normalize(TBN * ProjPos - TBN * FragPos);
 		result = CalcLight(dirLight, pointLights, norm, FragPos, viewDir);
 	}
@@ -123,16 +123,16 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 	return result;
 }
 
-float ShadowCalculation(vec3 lightDir, vec3 nnormal)
+float ShadowCalculation(vec3 lightDir, vec3 normal)
 {
 	float shadow = 0.0;
-	float ambientShadow = 0.7;
-	if (dot(Normal, lightDir) <= 0)
-	{
-		shadow = 9 * ambientShadow * (1 + dot(Normal, lightDir));
-		// Get average shadow
-		shadow /= 9.0f;
+	float ambientShadow = 0.8;
 
+	// lightDir and normal vectors are normalized, so we are getting just a cosin value there
+	float lDirnormDot = dot(normal, lightDir);
+	if (lDirnormDot <= 0 && dot(Normal, lightDir) <= 0)
+	{
+		shadow = ambientShadow * abs(lDirnormDot);
 	}
 	else
 	{
@@ -170,12 +170,11 @@ float ShadowCalculation(vec3 lightDir, vec3 nnormal)
 			return 0.0;
 		}
 		// calculate bias (based on depth map resolution and slope)
-		vec3 normal = normalize(nnormal);
 		float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
 		const float biasModifier = 0.3f;
-		if (layer == cascadeCount)
+		if (layer == cascadeCount - 1)
 		{
-			bias *= 10 / (farPlane * biasModifier);
+			bias *= 3 / (farPlane * biasModifier);
 		}
 		else
 		{

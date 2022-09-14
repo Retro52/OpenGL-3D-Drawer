@@ -123,6 +123,11 @@ void Global::Tick()
     {
         drawMode = 9;
     }
+    if(EventsHandler::IsJustPressed(GLFW_KEY_R))
+    {
+        ResourcesManager::RegisterPlayerScene("../res/scenes/defaultScene.json");
+    }
+
 
     /* Update window controls */
     Window::Tick();
@@ -175,11 +180,6 @@ void Global::Tick()
         c.camera.rotation = glm::vec3(c.camera.posY, c.camera.posX, 0.0f);
         c.camera.Update();
     }
-
-
-    /* TODO: Move to the Scene class */
-    /* Update camera controls */
-//    ResourcesManager::GetPlayerScene()->GetPrimaryCamera()->UpdateControls();
 }
 
 double Global::GetWorldDeltaTime()
@@ -204,7 +204,6 @@ void Global::Draw()
     UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
     UIHandler::RenderText(* uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 72.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
     UIHandler::RenderText(* uiShader, res, 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderTexture(* uiShader, 0.0f, 0.0f, 500.0f, 500.0f, shadowTexture);
 }
 
 void Global::EndFrame()

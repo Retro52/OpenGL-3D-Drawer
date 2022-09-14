@@ -6,7 +6,6 @@
 #include "Window.h"
 #include "../Input/EventsHandler.h"
 #include "InGameException.h"
-#include "ResourcesManager.h"
 #include <iostream>
 #include <thread>
 
@@ -18,19 +17,19 @@ int Window::height = 0;
 void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
 {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
     if (fullScreen)
     {
-        Window::window = glfwCreateWindow(w, h, name.c_str(), nullptr, nullptr);
+        Window::window = glfwCreateWindow(w, h, name.c_str(), glfwGetPrimaryMonitor(), nullptr);
+        glfwSetWindowSize(window, glfwGetVideoMode(glfwGetPrimaryMonitor())->width, glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
     }
     else
     {
-        Window::window = glfwCreateWindow(w, h, name.c_str(), glfwGetPrimaryMonitor(), nullptr);
-        glfwSetWindowSize(window, glfwGetVideoMode(glfwGetPrimaryMonitor())->width, glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
+        Window::window = glfwCreateWindow(w, h, name.c_str(), nullptr, nullptr);
     }
 
     if (Window::window == nullptr)
@@ -78,7 +77,7 @@ void Window::SetCursorMode(int cursorMode)
 
 bool Window::IsShouldClose()
 {
-    return glfwWindowShouldClose(Window::window);
+    return glfwWindowShouldClose(Window::window) != 0;
 }
 
 void Window::SetShouldClose(bool shouldClose)
@@ -132,11 +131,6 @@ void Window::Tick()
     if (EventsHandler::IsJustPressed(GLFW_KEY_TAB))
     {
         EventsHandler::ToggleCursor();
-    }
-
-    if(EventsHandler::IsJustPressed(GLFW_KEY_R))
-    {
-        ResourcesManager::RegisterPlayerScene("../res/scenes/defaultScene.json");
     }
 //    if (EventsHandler::_cursor_locked)
 //    {

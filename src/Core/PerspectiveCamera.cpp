@@ -8,9 +8,8 @@
 #include "PerspectiveCamera.h"
 
 
-PerspectiveCamera::PerspectiveCamera(const glm::vec3& position, float fov) : fov(fov), zoom(1.0F), posX(0.0), posY(0.0)
+PerspectiveCamera::PerspectiveCamera(const glm::vec3& pos, float fov) : fov(fov), position(pos), zoom(1.0F), posX(0.0), posY(0.0)
 {
-    this->position = position;
     model = glm::mat4(1.0F);
     front = glm::vec3(model * glm::vec4(0,0,-1,1));
     right = glm::vec3(model * glm::vec4(1,0,0,1));
@@ -48,7 +47,7 @@ void PerspectiveCamera::UpdateControls()
     /* PerspectiveCamera and meshes speed settings */
     if(EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT))
     {
-        speed = 10;
+        speed = 100;
     }
     else if (EventsHandler::IsPressed(GLFW_KEY_LEFT_CONTROL))
     {
@@ -56,7 +55,7 @@ void PerspectiveCamera::UpdateControls()
     }
     else
     {
-        speed = 5;
+        speed = 10;
     }
 
     /* PerspectiveCamera world position */

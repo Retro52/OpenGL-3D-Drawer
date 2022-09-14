@@ -163,10 +163,10 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
 
 void Shader::setDirLight(const DirectionalLight& dirLight) const
 {
-    setVec3("dirLight.direction", dirLight.direction);
-    setVec3("dirLight.specular", dirLight.specular);
-    setVec3("dirLight.ambient", dirLight.ambient);
-    setVec3("dirLight.diffuse", dirLight.diffuse);
+    setVec3("dirLight.direction", dirLight.GetDirection());
+    setVec3("dirLight.specular", dirLight.GetSpecular());
+    setVec3("dirLight.ambient", dirLight.GetAmbient());
+    setVec3("dirLight.diffuse", dirLight.GetDiffuse());
 }
 
 void Shader::setPointLight(int idx, const PointLight& pointLight) const

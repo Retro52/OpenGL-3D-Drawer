@@ -12,7 +12,7 @@
 #include "../Core/Window.h"
 #include "../Entity/Components.h"
 #include "../Entity/Entity.h"
-#include "UBO.h"
+#include "UBO.hpp"
 
 
 class Renderer
@@ -20,45 +20,37 @@ class Renderer
 public:
     static void Initialize()
     {
-        glGenBuffers(1, &shadowsUBO);
-        glBindBuffer(GL_UNIFORM_BUFFER, shadowsUBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4x4) * 16, nullptr, GL_STATIC_DRAW);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, shadowsUBO);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        lightMatricesUBO = std::make_unique<UBO<glm::mat4x4, 16>>();
     }
+
     static void Prepare(Scene& scene, int drawMode)
     {
         // TODO: change this
-        Shader mShader = * ResourcesManager::GetShader("mainShader");
+        Shader * mShader = ResourcesManager::GetShader("mainShader");
         auto& pCamera = scene.GetPrimaryCamera().GetComponent<CameraComponent>().camera;
         auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
 
         pCamera.position = cameraTransform.translation;
 
-        mShader.Use();
-        mShader.setInt("drawMode", drawMode);
-        mShader.setMat4("view", pCamera.GetView());
-        mShader.setVec3("ProjPos", cameraTransform.translation);
-        mShader.setMat4("projection", pCamera.GetProjection());
-        mShader.setDirLight(scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight);
-//        mShader.setPointLights(scene.GetPointLights());
+        mShader->Use();
+        mShader->setInt("drawMode", drawMode);
+        mShader->setMat4("view", pCamera.GetView());
+        mShader->setVec3("ProjPos", cameraTransform.translation);
+        mShader->setMat4("projection", pCamera.GetProjection());
+        mShader->setDirLight(scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight);
+//        mShader->setPointLights(scene.GetPointLights());
 
+        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(pCamera.nearPlane, pCamera.farPlane, pCamera.fov, scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.GetDirection(), pCamera.GetView(), cascadeLevels);
 
-        std::vector<float> cascadeLevels({ pCamera.farPlane / 50.0f, pCamera.farPlane / 25.0f, pCamera.farPlane / 10.0f, pCamera.farPlane / 2.0f });
-        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(pCamera.nearPlane, pCamera.farPlane, pCamera.fov, scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.direction, pCamera.GetView(), cascadeLevels);
+        lightMatricesUBO->Bind();
+        lightMatricesUBO->FillData(lightMatrices);
+        lightMatricesUBO->Reset();
 
-        glBindBuffer(GL_UNIFORM_BUFFER, shadowsUBO);
-        for (size_t i = 0; i < lightMatrices.size(); ++i)
-        {
-            glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(glm::mat4x4), sizeof(glm::mat4x4), &lightMatrices[i]);
-        }
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        mShader.setFloat("farPlane", pCamera.farPlane);
-        mShader.setInt("cascadeCount", cascadeLevels.size());
+        mShader->setFloat("farPlane", pCamera.farPlane);
+        mShader->setInt("cascadeCount", (int) cascadeLevels.size());
         for (size_t i = 0; i < cascadeLevels.size(); ++i)
         {
-            mShader.setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
+            mShader->setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
         }
 
         glClearColor(0.203f, 0.76f, 0.938f,1);
@@ -87,8 +79,6 @@ public:
         }
     }
 private:
-    static unsigned int shadowsUBO;
-
     static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview)
     {
         const auto inv = glm::inverse(projview);
@@ -190,6 +180,10 @@ private:
         }
         return ret;
     }
+private:
+    static std::unique_ptr<UBO<glm::mat4x4, 16>> lightMatricesUBO;
+    static std::vector<float> cascadeLevels;
+
 };
 
 
