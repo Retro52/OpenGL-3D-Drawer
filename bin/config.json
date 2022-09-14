@@ -3,7 +3,6 @@
   {
     "mainShader": ["../res/shaders/mainv.glsl", "../res/shaders/mainf.glsl"],
     "uiShader" : ["../res/shaders/uiv.glsl", "../res/shaders/uif.glsl"],
-    "shadowShader" : ["../res/shaders/shadowv.glsl", "../res/shaders/shadowf.glsl", "../res/shaders/shadowg.glsl"],
-    "debugCascadeShader" : ["../res/shaders/debugv.glsl", "../res/shaders/debugf.glsl"]
+    "shadowShader" : ["../res/shaders/shadowv.glsl", "../res/shaders/shadowf.glsl", "../res/shaders/shadowg.glsl"]
   }
 }
