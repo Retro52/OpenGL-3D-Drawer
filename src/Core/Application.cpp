@@ -2,26 +2,28 @@
 // Created by Anton on 27.08.2022.
 //
 
-#include <chrono>
-#include <iostream>
 #include "Application.h"
 #include "Global.h"
 
+// Temp, I swear it is temp, I will remove that ASAP, this is very, very bad, I know
+namespace var{
+    double start = 0.0;
+}
 
 void Application::Create()
 {
     auto start = std::chrono::high_resolution_clock::now();
-
     /* Program initialization */
     try
     {
         Global::Initialize();
-        LOG(INFO) << "Program successfully loaded in " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(std::chrono::high_resolution_clock::now() - start).count() / 1000.0f << " seconds";
+        LOG(INFO) << "Program successfully loaded in " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(std::chrono::high_resolution_clock::now() - start).count() / 1000.0F << " seconds";
+        var::start = glfwGetTime();
     }
     catch(std::exception& e)
     {
         LOG(ERROR) << "Fatal error. Reason: " << e.what();
-        LOG(FATAL) << "Program failed in " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(std::chrono::high_resolution_clock::now() - start).count() / 1000.0f << " seconds";
+        LOG(FATAL) << "Program failed in " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(std::chrono::high_resolution_clock::now() - start).count() / 1000.0F << " seconds";
     }
 }
 
@@ -35,7 +37,7 @@ void Application::Run()
             /* Global tick events */
             Global::Tick();
 
-            Global::Draw(ResourcesManager::GetPlayerCamera());
+            Global::Draw();
 
             /* Swapping buffers and pulling user inputs */
             Global::EndFrame();
@@ -49,6 +51,12 @@ void Application::Run()
 
 void Application::Destroy()
 {
-    Window::Terminate();
+    unsigned long totalFrames = Global::GetTotalFrames();
+    double executionTime = glfwGetTime() - var::start;
     LOG(INFO) << "Window terminated, program finished";
+    LOG(INFO) << "Total frames: " << totalFrames;
+    LOG(INFO) << "Total execution time: " << executionTime;
+    LOG(INFO) << "Average frame time: " << executionTime * 1000.0F / static_cast<double> (totalFrames) << " ms";
+    LOG(INFO) << "Average FPS: " << static_cast<double> (totalFrames) / executionTime;
+    Window::Terminate();
 }

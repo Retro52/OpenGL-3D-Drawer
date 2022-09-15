@@ -10,12 +10,13 @@
 /* TODO: turn it into the singleton */
 class DirectionalLight
 {
-public:
+private:
     glm::vec3 direction;
     glm::vec3 ambient;
     glm::vec3 diffuse;
     glm::vec3 specular;
 
+public:
     /**
      * Creates scene directional light (only one is supported)
      * @param dir directional strength
@@ -27,6 +28,11 @@ public:
     ~DirectionalLight() = default;
 
     void Display() const;
+
+    glm::vec3 GetAmbient() const { return ambient; }
+    glm::vec3 GetDiffuse() const { return diffuse; }
+    glm::vec3 GetSpecular() const { return specular; }
+    glm::vec3 GetDirection() const { return direction; }
 };
 
 

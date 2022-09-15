@@ -10,8 +10,6 @@
 class PointLight
 {
 public:
-    glm::vec3 position;
-
     float affectDistance { 500.0f };
 
     float constant;
@@ -24,7 +22,6 @@ public:
 
     /**
      * Creates point light
-     * @param pos position
      * @param amb ambient strength
      * @param diff diffuse strength
      * @param spec specular strength
@@ -32,14 +29,8 @@ public:
      * @param lin linear
      * @param quad quadratic
      */
-    PointLight(const glm::vec3 &pos, const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad);
+    PointLight(const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad);
     ~PointLight() = default;
-
-private:
-    /**
-     * Debugging function
-     */
-    void Display() const;
 };
 
 

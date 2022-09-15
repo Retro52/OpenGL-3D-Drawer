@@ -5,6 +5,8 @@
 #ifndef GRAPHICS_APPLICATION_H
 #define GRAPHICS_APPLICATION_H
 
+#include <chrono>
+#include <iostream>
 
 class Application
 {

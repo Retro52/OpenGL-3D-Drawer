@@ -6,56 +6,83 @@
 #define GRAPHICS_PERSPECTIVECAMERA_H
 
 #include "../include/OpenGL/include/glm/glm.hpp"
-#include "Actor.h"
 #include <iostream>
 
-class PerspectiveCamera : public Actor
+class PerspectiveCamera
 {
 public:
     /**
      * Camera constructor
      * @param position camera position
-     * @param fov camera field of view (60 - 100 range is recommended)
+     * @param fov camera field of view, in radians
      */
-    PerspectiveCamera(const glm::vec3& position, float fov);
+    explicit PerspectiveCamera(float fov);
 
     /**
-     * Updates camera matrices every frame
+     * Updates camera internal matrices and vectors, must be called before getting view and projection matrices
+     * @param rotation camera rotation
      */
-    void Update() override;
+    void Update(const glm::vec3& rotation);
 
     /**
-     * Updates camera based on the inputs
+     * Set new field of view
+     * @param newFOV new field of view, in radians
      */
-    void UpdateControls() override;
+    inline void SetFieldOfView(float newFOV) { fov = newFOV; };
 
     /**
      * Get camera projection matrix
      * @return projection matrix
      */
-    glm::mat4 GetProjection();
+    [[nodiscard]] glm::mat4 GetProjection() const;
 
     /**
      * Get camera view matrix
+     * @param position camera position
+     * @param rotation camera rotation
      * @return view matrix
      */
-    glm::mat4 GetView();
+    [[nodiscard]] glm::mat4 GetView(const glm::vec3& position);
 
     /**
-     * Set new field of view
-     * @param newFOV new field of view, in degrees
+     * @return field of view, in radians
      */
-    void SetFieldOfView(float newFOV);
+    [[nodiscard]] inline float GetFieldOfView() const { return fov; };
 
     /**
-     * Get camera field of view
-     * @return vield of view, in degrees
+     * @return far plane value
      */
-    float GetFieldOfView() const;
-private:
-    float fov, zoom;
+    [[nodiscard]] inline float GetFarPlane()  const { return farPlane; }
+
+    /**
+     * @return near plane value
+     */
+    [[nodiscard]] inline float GetNearPlane() const { return nearPlane; }
+
+    /**
+     * @return up vector
+     */
+    [[nodiscard]] inline const glm::vec3& GetUpVector() const { return up; };
+
+    /**
+    * @return front vector
+    */
+    [[nodiscard]] inline const glm::vec3& GetFrontVector() const { return front; };
+
+    /**
+     * @return right vector
+     */
+    [[nodiscard]] inline const glm::vec3& GetRightVector() const { return right; };
+
+    [[nodiscard]] inline const glm::vec3& GetDirection() const { return dir; };
+public:
     double posX, posY;
 
+private:
+    float fov, zoom;
+    const float nearPlane = 0.05f, farPlane = 1500.0f;
+    glm::vec3 front, right, dir, up;
+    glm::mat4 model;
 };
 
 #endif //GRAPHICS_PERSPECTIVECAMERA_H

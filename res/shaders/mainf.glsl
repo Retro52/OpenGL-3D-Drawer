@@ -1,11 +1,12 @@
-#version 330 core
+#version 460 core
 
 out vec4 FragColor;
 
+in mat3 TBN;
 in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
-in mat3 TBN;
+in vec4 FragPosLight;
 
 struct DirLight
 {
@@ -35,18 +36,36 @@ struct Material
 	sampler2D texture_height1;
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
+	sampler2DArray texture_shadow;
+
+	vec4 colorDiffuse;
 };
 
+uniform int drawMode;
+uniform int cascadeCount;
+uniform int pointLightsCount;
+
+uniform float farPlane;
+uniform float cascadePlaneDistances[16];
+
 uniform vec3 ProjPos;
+
+uniform mat4 view;
+
 uniform Material material;
 uniform DirLight dirLight;
-uniform int NR_POINT_LIGHTS;
 uniform PointLight pointLights[16];
-uniform int drawMode;
+
+layout (std140, binding = 0) uniform LightSpaceMatrices
+{
+	mat4 lightSpaceMatrices[16];
+};
+
+
 
 vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 normal, vec3 fragPos, vec3 viewDir);
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 FragPos);
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
@@ -55,6 +74,7 @@ void main()
 	vec3 result;
 	vec3 norm;
 	vec3 viewDir;
+	float gamma = 1.0f;
 	/* Unlit */
 	if (drawMode == 2 || drawMode == 4)
 	{
@@ -68,19 +88,18 @@ void main()
 	{
 		result = texture(material.texture_normal1, TexCoords).rgb;
 	}
-	else if (drawMode == 9)
-	{
-		result = texture(material.texture_height1, TexCoords).rgb;
-	}
 	else
 	{
-		norm = normalize(texture( material.texture_normal1, TexCoords ).rgb * 2.0 - 1.0);
+		norm = normalize((texture( material.texture_normal1, TexCoords ).rgb * 2.0 - 1.0) * TBN);
 		viewDir = normalize(TBN * ProjPos - TBN * FragPos);
 		result = CalcLight(dirLight, pointLights, norm, FragPos, viewDir);
 	}
+	if (drawMode == 9)
+	{
+		gamma = 2.2f;
+	}
 	FragColor = vec4(result, 1.0f);
-//	float gamma = 2.2;
-//	FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
+	FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
 }
 
 vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 FragPos, vec3 viewDir)
@@ -89,13 +108,13 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 	if (drawMode != 6)
 	{
 		// calculating directional light impact
-		result = CalcDirLight(dirLight, norm, viewDir);
+		result += CalcDirLight(dirLight, norm, viewDir, FragPos);
 	}
 
-	if (drawMode != 5)
+	if (drawMode != 5 && drawMode != 0)
 	{
 		// calculating point lights impact
-		for(int i = 0; i < NR_POINT_LIGHTS; i++)
+		for(int i = 0; i < pointLightsCount; i++)
 		{
 			result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
 		}
@@ -104,9 +123,90 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 	return result;
 }
 
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
+float ShadowCalculation(vec3 lightDir, vec3 normal)
+{
+	float shadow = 0.0f;
+	float ambientShadow = 0.75f;
+
+	// lightDir and normal vectors are normalized, so we are getting just a cosin value there
+	float faceNormalDot   = dot(Normal, lightDir);
+	float vectorNormalDot = dot(normal, lightDir);
+
+	if (faceNormalDot <= 0 || vectorNormalDot <= 0)
+	{
+		shadow = max(abs(vectorNormalDot), ambientShadow);
+	}
+	else
+	{
+		// select cascade layer
+		vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
+		float depthValue = abs(fragPosViewSpace.z);
+
+
+		int layer = -1;
+		for (int i = 0; i < cascadeCount; ++i)
+		{
+			if (depthValue < cascadePlaneDistances[i])
+			{
+				layer = i;
+				break;
+			}
+		}
+		if (layer == -1)
+		{
+			layer = cascadeCount;
+		}
+
+		vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(FragPos, 1.0);
+		// perform perspective divide
+		vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+		// transform to [0,1] range
+		projCoords = projCoords * 0.5 + 0.5;
+
+		// get depth of current fragment from light's perspective
+		float currentDepth = projCoords.z;
+
+		// keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+		if (currentDepth > 1.0)
+		{
+			return 0.0;
+		}
+		// calculate bias (based on depth map resolution and slope)
+		float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
+		const float biasModifier = 0.3f;
+		if (layer == cascadeCount - 1)
+		{
+			bias *= 3 / (farPlane * biasModifier);
+		}
+		else
+		{
+			bias *= (layer + 1) / (cascadePlaneDistances[layer] * biasModifier);
+		}
+
+		// PCF
+		vec2 texelSize = 1.0 / vec2(textureSize(material.texture_shadow, 0));
+
+		const int sampleRadius = 2;
+		const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
+		for(int x = -sampleRadius; x <= sampleRadius; ++x)
+		{
+			for(int y = -sampleRadius; y <= sampleRadius; ++y)
+			{
+				float pcfDepth = texture(material.texture_shadow, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
+				shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0;
+			}
+		}
+		shadow /= sampleRadiusCount;
+	}
+
+	return shadow;
+}
+
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 FragPos)
 {
 	vec3 lightDir = normalize(-light.direction);
+
+	float shadow = ShadowCalculation(lightDir, normal);
 
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
@@ -124,22 +224,20 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 	{
 		ambient = ambient * vec3(1.0f, 1.0f, 1.0f);
 		diffuse = diffuse * vec3(1.0f, 1.0f, 1.0f);
-		return (ambient + diffuse);
+
+		return (ambient * (1.0f - shadow) + diffuse * (1.0f - shadow));
 	}
 	else
 	{
-		ambient = ambient * vec3(texture(material.texture_diffuse1, TexCoords));
-		diffuse = diffuse * vec3(texture(material.texture_diffuse1, TexCoords));
 		specular = specular * vec3(texture(material.texture_specular1, TexCoords));
+		return ((diffuse * (1.0f - shadow) + ambient * (1.0f - shadow)) * vec3(texture(material.texture_diffuse1, TexCoords)) + specular * (1.0f - shadow));
 	}
-
-	return (ambient + diffuse + specular);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
 	vec3 lightDir;
-	lightDir = normalize(light.position * TBN - FragPos);
+	lightDir = normalize(light.position - FragPos);
 
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);

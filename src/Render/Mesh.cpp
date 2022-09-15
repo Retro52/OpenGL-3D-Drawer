@@ -6,24 +6,21 @@
 
 #include <utility>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : vertices(std::move(vertices)), indices(std::move(indices)), textures(std::move(textures))
 {
-    this->vertices = std::move(vertices);
-    this->indices = std::move(indices);
-    this->textures = std::move(textures);
-
     // now that we have all the required data, set the vertex buffers and its attribute pointers.
     SetUpMesh();
 }
 
-void Mesh::Draw(const Shader &shader) const
+void Mesh::Draw(const Shader &shader, GLuint shadowMap) const
 {
     // bind appropriate textures
     unsigned int diffuseNr  = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr   = 1;
     unsigned int heightNr   = 1;
-    for(unsigned int i = 0; i < textures.size(); i++)
+    unsigned int i = 0;
+    for(i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
         // retrieve texture number (the N in diffuse_textureN)
@@ -55,9 +52,41 @@ void Mesh::Draw(const Shader &shader) const
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
 
+    // activate shadow texture
+    i++;
+    glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+    shader.setInt("material.texture_shadow", (int) i++);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, shadowMap);
+
+    // get rid of overlapping textures
+    if (specularNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_specular1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (normalNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_normal1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (diffuseNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_diffuse1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    if (heightNr == 1)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        shader.setInt("material.texture_height1", (int) i++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.
@@ -76,7 +105,7 @@ void Mesh::SetUpMesh()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // A great thing about structs is that their memory layout is sequential for all its items.
-    // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
+    // The effect is that we can simply pass a pointer to the struct, and it translates perfectly to a glm::vec3/2 array which
     // again translates to 3/2 floats which translates to a byte array.
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
@@ -86,7 +115,7 @@ void Mesh::SetUpMesh()
     // set the vertex attribute pointers
     // vertex Positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
     // vertex normals
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
@@ -107,4 +136,15 @@ void Mesh::SetUpMesh()
     glEnableVertexAttribArray(6);
     glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_Weights));
     glBindVertexArray(0);
+}
+
+void Mesh::DrawIntoDepth() const
+{
+    // draw mesh
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, static_cast<int>(indices.size()), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+
+    // always good practice to set everything back to defaults once configured.
+    glActiveTexture(GL_TEXTURE0);
 }

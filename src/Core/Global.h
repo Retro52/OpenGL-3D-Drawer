@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include "Window.h"
-#include "EventsHandler.h"
+#include "../Input/EventsHandler.h"
 #include "ResourcesManager.h"
 #include "PerspectiveCamera.h"
 #include "../Render/Shader.h"
@@ -37,7 +37,7 @@ public:
      * Draws the scene
      * @param camera player camera
      */
-    static void Draw(const std::unique_ptr<PerspectiveCamera> &camera);
+    static void Draw();
 
     /**
      * Ends frame by swapping buffers and more
@@ -49,8 +49,10 @@ public:
      * @return delta time, in seconds
      */
     static double GetWorldDeltaTime();
+
+    static unsigned long GetTotalFrames();
 private:
-    static long frame;
+    static unsigned long frame, frames;
     static double lastTime, deltaTime, elapsedTime;
     static bool shouldDrawMesh, shouldDrawLights, shouldDrawAxis, shouldDrawOutline;
     static int curFPS, drawMode;
