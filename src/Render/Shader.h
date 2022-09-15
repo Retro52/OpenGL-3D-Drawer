@@ -26,6 +26,9 @@ public:
      */
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
 
+    Shader(const Shader&) = delete;
+    Shader(Shader&&) = delete;
+
     ~Shader()
     {
         glDeleteProgram(id);

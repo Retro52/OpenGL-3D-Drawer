@@ -111,7 +111,7 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 		result += CalcDirLight(dirLight, norm, viewDir, FragPos);
 	}
 
-	if (drawMode != 5)
+	if (drawMode != 5 && drawMode != 0)
 	{
 		// calculating point lights impact
 		for(int i = 0; i < pointLightsCount; i++)
@@ -126,15 +126,15 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 float ShadowCalculation(vec3 lightDir, vec3 normal)
 {
 	float shadow = 0.0f;
-	float ambientShadow = 0.9f;
+	float ambientShadow = 0.75f;
 
 	// lightDir and normal vectors are normalized, so we are getting just a cosin value there
-	float lDirnormDot = dot(normal, lightDir);
-	float lDirNormDot = dot(Normal, lightDir);
+	float faceNormalDot   = dot(Normal, lightDir);
+	float vectorNormalDot = dot(normal, lightDir);
 
-	if (lDirNormDot <= 0 && lDirnormDot <= 0)
+	if (faceNormalDot <= 0 || vectorNormalDot <= 0)
 	{
-		shadow = ambientShadow * mix(0.0f, 1.5f, abs(lDirnormDot));
+		shadow = max(abs(vectorNormalDot), ambientShadow);
 	}
 	else
 	{
@@ -185,15 +185,18 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
 
 		// PCF
 		vec2 texelSize = 1.0 / vec2(textureSize(material.texture_shadow, 0));
-		for(int x = -1; x <= 1; ++x)
+
+		const int sampleRadius = 2;
+		const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
+		for(int x = -sampleRadius; x <= sampleRadius; ++x)
 		{
-			for(int y = -1; y <= 1; ++y)
+			for(int y = -sampleRadius; y <= sampleRadius; ++y)
 			{
 				float pcfDepth = texture(material.texture_shadow, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
 				shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0;
 			}
 		}
-		shadow /= 9.0;
+		shadow /= sampleRadiusCount;
 	}
 
 	return shadow;

@@ -82,7 +82,7 @@
     "Roof2" :
     {
       "Path" : "../res/assets/brickwall/plane.obj",
-      "Position" : [5, 7, 10],
+      "Position" : [5, 6, 10],
       "Rotation" : [-3.1415, 0, 0],
       "Scale" : [5, 5, 5]
     }

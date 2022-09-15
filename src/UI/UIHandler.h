@@ -53,9 +53,9 @@ public:
      * @param scale scale of the text comparing to the default font size
      * @param color color of the text
      */
-    static void RenderText(Shader shader, const std::string &text, float x, float y, float scale, const glm::vec3 &color);
+    static void RenderText(Shader * shader, const std::string &text, float x, float y, float scale, const glm::vec3 &color);
 
-    static void RenderTexture(Shader shader, float x, float y, float w, float h, unsigned int texture);
+    static void RenderTexture(Shader * shader, float x, float y, float w, float h, unsigned int texture);
 };
 
 
