@@ -29,10 +29,10 @@ public:
             StartMap(os, "Entity" + std::to_string(u32id));
             // implicitly creating Entity using id gathered from registry, then serializing it to the json file
             SerializeEntity(os, { id, scene });
-            CloseMap(os, u32id != 0);
+            CloseMap(os);
         });
 
-        CloseMap(os, false);
+        CloseMap(os);
 
         os << closeBracket << newLine;
     }
@@ -40,58 +40,73 @@ private:
     static constexpr char comma        =  ',';
     static constexpr char quote        =  '\"';
     static constexpr char newLine      =  '\n';
-    static constexpr char tabulation   =  '\t';
+    static constexpr char tabulation[] =  "  ";
     static constexpr char openBracket  =  '{';
     static constexpr char closeBracket =  '}';
+
     static unsigned int count;
+    static unsigned int currentLayer;
+    static std::unordered_map<unsigned int, unsigned int> varOnLayer;
 
     template<typename T>
-    static void InsertVariable(std::ofstream& out, const std::string& variableName, const T& value, bool shouldInsertComma = true)
+    static void InsertVariable(std::ofstream& out, const std::string& variableName, const T& value)
     {
+        if (varOnLayer[currentLayer] > 0)
+        {
+            out << comma;
+        }
+        out << newLine;
+        varOnLayer[currentLayer] ++;
+
         for (int i = 0; i < count; ++i)
         {
             out << tabulation;
         }
         out << quote << variableName << quote << " : " << value;
-        if (shouldInsertComma)
+    }
+
+    static void InsertVariable(std::ofstream& out, const std::string& variableName, const glm::vec3& value)
+    {
+        if (varOnLayer[currentLayer] > 0)
         {
             out << comma;
         }
         out << newLine;
-    }
+        varOnLayer[currentLayer] ++;
 
-    static void InsertVariable(std::ofstream& out, const std::string& variableName, const glm::vec3& value, bool shouldInsertComma = true)
-    {
         for (int i = 0; i < count; ++i)
         {
             out << tabulation;
         }
         out << quote << variableName << quote << " : " << "[" << value.x << comma << " " << value.y << comma << " " << value.z << "]";
+    }
 
-        if (shouldInsertComma)
+    static void InsertVariable(std::ofstream& out, const std::string& variableName, const std::string& value)
+    {
+        if (varOnLayer[currentLayer] > 0)
         {
             out << comma;
         }
         out << newLine;
-    }
+        varOnLayer[currentLayer] ++;
 
-    static void InsertVariable(std::ofstream& out, const std::string& variableName, const std::string& value, bool shouldInsertComma = true)
-    {
         for (int i = 0; i < count; ++i)
         {
             out << tabulation;
         }
         out << quote << variableName << quote << " : " << quote << value << quote;
-
-        if (shouldInsertComma)
-        {
-            out << comma;
-        }
-        out << newLine;
     }
 
     static void StartMap(std::ofstream& out, const std::string& mapName)
     {
+        if (varOnLayer[currentLayer] > 0)
+        {
+            out << comma;
+        }
+        out << newLine;
+        varOnLayer[currentLayer] ++;
+        currentLayer++;
+
         for (int i = 0; i < count; ++i)
         {
             out << tabulation;
@@ -103,89 +118,75 @@ private:
             out << tabulation;
         }
 
-        out << openBracket << newLine;
+        out << openBracket;
         count++;
     }
 
-    static void CloseMap(std::ofstream& out, bool shouldInsertComma = true)
+    static void CloseMap(std::ofstream& out)
     {
+        varOnLayer[currentLayer] = 0;
+        currentLayer--;
+        
+        out << newLine;
         for (int i = 0; i < count - 1; ++i)
         {
             out << tabulation;
         }
         out << closeBracket;
-
-        if (shouldInsertComma)
-        {
-            out << comma;
-        }
-        out << newLine;
         count--;
     }
 
     static void SerializeEntity(std::ofstream& out, const Entity& entity)
     {
-        unsigned int componentsCount = CalculateEntityComponentsCount(entity);
         if (entity.HasComponent<NameComponent>())
         {
-            componentsCount--;
             StartMap(out, "Name");
             const auto& component = entity.GetComponent<NameComponent>();
-            InsertVariable(out, "Name", component.name, false);
-            CloseMap(out, componentsCount > 0);
+            InsertVariable(out, "Name", component.name);
+            CloseMap(out);
         }
 
         if (entity.HasComponent<TransformComponent>())
         {
-            componentsCount--;
-
             StartMap(out, "Transform");
             const auto& component = entity.GetComponent<TransformComponent>();
             InsertVariable(out, "Position", component.translation);
             InsertVariable(out, "Rotation", component.rotation);
-            InsertVariable(out, "Scale", component.scale, false);
-            CloseMap(out, componentsCount > 0);
+            InsertVariable(out, "Scale", component.scale);
+            CloseMap(out);
         }
 
         if (entity.HasComponent<CameraComponent>())
         {
-            componentsCount--;
-
             StartMap(out, "Camera");
             const auto& component = entity.GetComponent<CameraComponent>();
             InsertVariable(out, "FOV", component.camera.GetFieldOfView());
-            InsertVariable(out, "isPrimary", component.isPrimary, false);
-            CloseMap(out, componentsCount > 0);
+            InsertVariable(out, "isPrimary", component.isPrimary);
+            CloseMap(out);
         }
 
         if (entity.HasComponent<Model3DComponent>())
         {
-            componentsCount--;
-
             StartMap(out, "Model3D");
             const auto& component = entity.GetComponent<Model3DComponent>();
-            InsertVariable(out, "Path", component.model.GetPath(), false);
-            CloseMap(out, componentsCount > 0);
+            InsertVariable(out, "Path", component.model.GetPath());
+            CloseMap(out);
         }
 
         if (entity.HasComponent<DirectionalLightComponent>())
         {
-            componentsCount--;
-
             StartMap(out, "Directional light");
             const auto& component = entity.GetComponent<DirectionalLightComponent>();
             InsertVariable(out, "Ambient", component.directionalLight.GetAmbient());
             InsertVariable(out, "Diffuse", component.directionalLight.GetDiffuse());
             InsertVariable(out, "Specular", component.directionalLight.GetSpecular());
-            InsertVariable(out, "Direction", component.directionalLight.GetDirection(), false);
-            CloseMap(out, componentsCount > 0);
+            InsertVariable(out, "Direction", component.directionalLight.GetDirection());
+            CloseMap(out);
         }
 
 
         if (entity.HasComponent<PointLightComponent>())
         {
-            componentsCount--;
-
             StartMap(out, "Point light");
             const auto& component = entity.GetComponent<PointLightComponent>();
             InsertVariable(out, "Linear", component.pointLight.linear);
@@ -193,43 +194,16 @@ private:
             InsertVariable(out, "Diffuse", component.pointLight.diffuse);
             InsertVariable(out, "Constant", component.pointLight.constant);
             InsertVariable(out, "Specular", component.pointLight.specular);
-            InsertVariable(out, "Quadratic", component.pointLight.quadratic, false);
-            CloseMap(out, componentsCount > 0);
+            InsertVariable(out, "Quadratic", component.pointLight.quadratic);
+            CloseMap(out);
         }
 
-    }
-
-    static unsigned int CalculateEntityComponentsCount(const Entity& entity)
-    {
-        unsigned int compCount = 0;
-        if (entity.HasComponent<NameComponent>())
-        {
-            compCount++;
-        }
-        if (entity.HasComponent<CameraComponent>())
-        {
-            compCount++;
-        }
-        if (entity.HasComponent<Model3DComponent>())
-        {
-            compCount++;
-        }
-        if (entity.HasComponent<TransformComponent>())
-        {
-            compCount++;
-        }
-        if (entity.HasComponent<PointLightComponent>())
-        {
-            compCount++;
-        }
-        if (entity.HasComponent<DirectionalLightComponent>())
-        {
-            compCount++;
-        }
-        return compCount;
     }
 };
 
 unsigned int JsonSceneSerializer::count = 1;
+unsigned int JsonSceneSerializer::currentLayer = 0;
+std::unordered_map<unsigned int, unsigned int> JsonSceneSerializer::varOnLayer;
+
 
 #endif //GRAPHICS_JSONSCENESERIALIZER_HPP
