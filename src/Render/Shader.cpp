@@ -161,48 +161,38 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
     glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::setDirLight(const std::unique_ptr<DirectionalLight> &dirLight) const
+void Shader::setDirLight(const DirectionalLight& dirLight) const
 {
-    setVec3("dirLight.direction", dirLight->direction);
-    setVec3("dirLight.specular", dirLight->specular);
-    setVec3("dirLight.ambient", dirLight->ambient);
-    setVec3("dirLight.diffuse", dirLight->diffuse);
+    setVec3("dirLight.diffuse", dirLight.diffuse);
+    setVec3("dirLight.ambient", dirLight.ambient);
+    setVec3("dirLight.specular", dirLight.specular);
+    setVec3("dirLight.direction", dirLight.direction);
 }
 
-void Shader::setPointLight(int idx, const std::unique_ptr<PointLight> &pointLight) const
+void Shader::setPointLight(int idx, const PointLight& pointLight, const glm::vec3& position) const
 {
     std::ostringstream pointLightName;
     pointLightName << "pointLights[" << idx << "].";
     std::string strName = pointLightName.str();
 
-    setVec3(strName + "ambient", pointLight->ambient);
-    setVec3(strName + "diffuse", pointLight->diffuse);
-    setVec3(strName + "specular", pointLight->specular);
-    setVec3(strName + "position", pointLight->position);
-    setFloat(strName + "quadratic", pointLight->quadratic);
-    setFloat(strName + "constant", pointLight->constant);
-    setFloat(strName + "linear", pointLight->linear);
+    setVec3(strName + "position", position);
+    setFloat(strName + "linear", pointLight.linear);
+    setVec3(strName + "ambient", pointLight.ambient);
+    setVec3(strName + "diffuse", pointLight.diffuse);
+    setVec3(strName + "specular", pointLight.specular);
+    setFloat(strName + "constant", pointLight.constant);
+    setFloat(strName + "quadratic", pointLight.quadratic);
 }
 
-void Shader::setPointLights(const std::vector<std::unique_ptr<PointLight>> &pointLights) const
-{
-    int max_affected_light = 16;
-    int size = pointLights.size() > max_affected_light ? max_affected_light : (int) pointLights.size();
-    setInt("NR_POINT_LIGHTS", size);
-    for (int i = 0; i < size; ++i)
-    {
-        setPointLight(i, pointLights[i]);
-    }
-}
 
 void Shader::checkCompileErrors(GLuint shader, const std::string &type)
 {
-    GLint success;
+    GLint success = 0;
     GLchar infoLog[1024];
     if(type != "PROGRAM")
     {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if(!success)
+        if(success == 0)
         {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
@@ -212,7 +202,7 @@ void Shader::checkCompileErrors(GLuint shader, const std::string &type)
     else
     {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
-        if(!success)
+        if(success == 0)
         {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;

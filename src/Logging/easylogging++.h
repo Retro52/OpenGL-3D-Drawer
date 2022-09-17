@@ -4573,4 +4573,39 @@ el::base::debug::CrashHandler elCrashHandler(ELPP_USE_DEF_CRASH_HANDLER);\
 #else
 #  define START_EASYLOGGINGPP(argc, argv) el::Helpers::setArgs(argc, argv)
 #endif  // defined(ELPP_UNICODE)
+
+//#ifdef ELPP_COLORED_OUTPUT
+//
+//#define RESET  "\033[0m"
+//#define GRAY   "\033[90m"
+//#define BLUE   "\033[34m"
+//#define ORANGE "\033[33m"
+//#define GREEN  "\033[32m"
+//#define RED    "\033[31m"
+//
+//namespace el{
+//    // Colors for output
+//    std::string make_coloured(std::string msg)
+//    {
+//        std::string prefix = msg.substr(0, 7);
+//        if(prefix == "[ERROR]")
+//        {
+//            msg = RED + msg + RESET;
+//        }
+//        else if(prefix == "[WARN ]")
+//        {
+//            msg = ORANGE + msg + RESET;
+//        }
+//        else if(prefix == "[TRACE]")
+//        {
+//            msg = GRAY + msg + RESET;
+//        }
+//        else if (prefix == "[INFO ]")
+//        {
+//            msg = BLUE + msg + RESET;
+//        }
+//        return msg;
+//    }
+//}
+//#endif // colored output
 #endif // EASYLOGGINGPP_H

@@ -1,0 +1,287 @@
+{
+
+  "Name" : "SceneDefaultName",
+  "Entities" : 
+  {
+    "Entity15" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall1"
+      },
+      "Transform" : 
+      {
+        "Position" : [9, 2, 10],
+        "Rotation" : [0, 1.57, 1.57],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity14" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Roof2"
+      },
+      "Transform" : 
+      {
+        "Position" : [5, 6, 10],
+        "Rotation" : [-3.1415, 0, 0],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity13" : 
+    {
+      "Name" : 
+      {
+        "Name" : "PL1"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 2, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [0.1, 0.1, 0.1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj"
+      },
+      "Point light" : 
+      {
+        "Linear" : 0.09,
+        "Ambient" : [0.5, 0.5, 0.5],
+        "Diffuse" : [0.5, 0.5, 0.5],
+        "Constant" : 0.3,
+        "Specular" : [0.5, 0.5, 0.5],
+        "Quadratic" : 0.012
+      }
+    },
+    "Entity12" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Roof1"
+      },
+      "Transform" : 
+      {
+        "Position" : [5, 7, 10],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity11" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Directional light"
+      },
+      "Transform" : 
+      {
+        "Position" : [-1.97285, 5.38751, -15.7979],
+        "Rotation" : [-0.708144, -266.936, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Camera" : 
+      {
+        "FOV" : 1.0472,
+        "isPrimary" : true
+      }
+    },
+    "Entity10" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Directional light"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Directional light" : 
+      {
+        "Ambient" : [0.5, 0.5, 0.5],
+        "Diffuse" : [0.5, 0.5, 0.5],
+        "Specular" : [0.5, 0.5, 0.5],
+        "Direction" : [-1, -1, -1]
+      }
+    },
+    "Entity9" : 
+    {
+      "Name" : 
+      {
+        "Name" : "PL1"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 2, 1.5],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1, 1, 1]
+      }
+    },
+    "Entity8" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall8"
+      },
+      "Transform" : 
+      {
+        "Position" : [5, 2, 15],
+        "Rotation" : [1.57, 0, 0],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity7" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall7"
+      },
+      "Transform" : 
+      {
+        "Position" : [5, 2, 14],
+        "Rotation" : [-1.57, 0, 0],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity6" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall6"
+      },
+      "Transform" : 
+      {
+        "Position" : [5, 2, 6],
+        "Rotation" : [1.57, 0, 0],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity5" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall5"
+      },
+      "Transform" : 
+      {
+        "Position" : [5, 2, 5],
+        "Rotation" : [-1.57, 0, 0],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity4" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall4"
+      },
+      "Transform" : 
+      {
+        "Position" : [1, 2, 10],
+        "Rotation" : [0, 1.57, -1.57],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity3" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall3"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 2, 10],
+        "Rotation" : [0, 1.57, 1.57],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall2"
+      },
+      "Transform" : 
+      {
+        "Position" : [10, 2, 10],
+        "Rotation" : [0, 1.57, -1.57],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity1" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Floor"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, -3, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [20, 20, 20]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity0" : 
+    {
+      "Name" : 
+      {
+        "Name" : "BackPack"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, -1.3, -5],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/backpack/backpack.obj"
+      }
+    }
+  }}

@@ -3,42 +3,27 @@
 //
 #include <iomanip>
 #include <exception>
+#include <utility>
 
 #include "Model.h"
 #include "../Logging/easylogging++.h"
-#include "../Loaders/cwalk.h"
-
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-void Model::Draw(const Shader &shader)
-{
-    Update();
-    shader.setMat4("model", model);
-    for(auto & mesh : meshes)
-    {
-        mesh.Draw(shader);
-    }
-}
 
-Model::Model(const std::string& path)
+Model::Model(std::string loadPath) : gammaCorrection(false), path(std::move(loadPath))
 {
-    gammaCorrection = false;
-    model    = glm::mat4(1.0f);
-    position = glm::vec3(0.0f);
-    rotation = glm::vec3(0.0f);
-    scale    = glm::vec3(1.0f);
     LoadModel(path);
 }
 
-void Model::LoadModel(const std::string &path)
+void Model::LoadModel(const std::string& loadPath)
 {
     // read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene * scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene * scene = importer.ReadFile(loadPath, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     // check for errors
-    if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+    if((scene == nullptr) || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
         LOG(ERROR) << "ERROR::ASSIMP:: " << importer.GetErrorString();
         delete scene;
@@ -46,7 +31,7 @@ void Model::LoadModel(const std::string &path)
     }
 
     // retrieve the directory path of the filepath
-    directory = path.substr(0, path.find_last_of('/'));
+    directory = loadPath.substr(0, loadPath.find_last_of('/'));
 
     // process ASSIMP's root node recursively
     ProcessNode(scene->mRootNode, scene);
@@ -62,7 +47,7 @@ void Model::ProcessNode(aiNode * node, const aiScene * scene)
         aiMesh * mesh = scene->mMeshes[node->mMeshes[i]];
         meshes.push_back(ProcessMesh(mesh, scene));
     }
-    // after we've processed all of the meshes (if any) we then recursively process each of the children nodes
+    // after we've processed all the meshes (if any) we then recursively process each of the children nodes
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
         ProcessNode(node->mChildren[i], scene);
@@ -203,20 +188,23 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
     glGenTextures(1, &textureID);
     int width, height, nrComponents;
 
-    char actualpath [PATH_MAX + 1];
-//    cwk_path_get_absolute(R"(C:\)", filename.c_str(), actualpath, sizeof(actualpath));
-//    unsigned char * data = stbi_load(actualpath, &width, &height, &nrComponents, 0);
     unsigned char * data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
 
     if (data)
     {
-        GLenum format;
+        GLenum format = 0;
         if (nrComponents == 1)
+        {
             format = GL_RED;
+        }
         else if (nrComponents == 3)
+        {
             format = GL_RGB;
+        }
         else if (nrComponents == 4)
+        {
             format = GL_RGBA;
+        }
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -237,13 +225,4 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
     }
 
     return textureID;
-}
-
-void Model::Update()
-{
-    model = glm::translate(position);
-    model = glm::scale(model, scale);
-    model = glm::rotate(model, rotation.x, glm::vec3(1, 0, 0));
-    model = glm::rotate(model, rotation.y, glm::vec3(0, 1, 0));
-    model = glm::rotate(model, rotation.z, glm::vec3(0, 0, 1));
 }

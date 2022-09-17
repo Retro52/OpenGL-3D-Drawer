@@ -3,8 +3,8 @@
 
 #define GLEW_STATIC
 
-#include "../include/OpenGL/include/GLEW/glew.h"
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/GLEW/glew.h"
+#include "../vendors/include/glm/glm.hpp"
 
 #include "Shader.h"
 
@@ -36,11 +36,6 @@ struct Texture
 class Mesh
 {
 public:
-    unsigned int VAO{};
-    std::vector<Vertex>       vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture>      textures;
-
     /***
      * Mesh constructor, creates new instance of the mesh
      * @param vertices vector of mesh vertices
@@ -53,9 +48,16 @@ public:
      * Draws mesh instance
      * @param shader shader to be applied to the instance when drawing
      */
-    void Draw(const Shader &shader) const;
+    void Draw(const Shader &shader, GLuint shadowMap) const;
+
+    void DrawIntoDepth() const;
 private:
     unsigned int VBO{}, EBO{};
+
+    unsigned int VAO{};
+    std::vector<Vertex>       vertices;
+    std::vector<unsigned int> indices;
+    std::vector<Texture>      textures;
 
     /***
      * Initializes buffers and textures for OpenGL

@@ -4,9 +4,10 @@
 #define GLEW_STATIC
 
 #include "Window.h"
-#include "EventsHandler.h"
+#include "../Input/EventsHandler.h"
 #include "InGameException.h"
 #include <iostream>
+#include <thread>
 
 GLFWwindow * Window::window;
 int Window::width = 0;
@@ -16,14 +17,15 @@ int Window::height = 0;
 void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
 {
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
     if (fullScreen)
     {
         Window::window = glfwCreateWindow(w, h, name.c_str(), glfwGetPrimaryMonitor(), nullptr);
+        glfwSetWindowSize(window, glfwGetVideoMode(glfwGetPrimaryMonitor())->width, glfwGetVideoMode(glfwGetPrimaryMonitor())->height);
     }
     else
     {
@@ -50,6 +52,7 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
     glViewport(0, 0, w, h);
     glClearColor(0.0f,0.0f,0.0f,1);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
@@ -74,7 +77,7 @@ void Window::SetCursorMode(int cursorMode)
 
 bool Window::IsShouldClose()
 {
-    return glfwWindowShouldClose(Window::window);
+    return glfwWindowShouldClose(Window::window) != 0;
 }
 
 void Window::SetShouldClose(bool shouldClose)
@@ -129,6 +132,10 @@ void Window::Tick()
     {
         EventsHandler::ToggleCursor();
     }
+//    if (EventsHandler::_cursor_locked)
+//    {
+//        glfwSetCursorPos(window, static_cast<int>(width / 2), static_cast<int>(height / 2));
+//    }
 }
 
 void Window::Update()

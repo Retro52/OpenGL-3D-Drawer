@@ -1,5 +1,5 @@
 //
-// Created by Anton on 14.08.2022.
+// Created by Anton on 14.05.2022.
 //
 
 #ifndef GRAPHICS_GLOBAL_H
@@ -7,12 +7,12 @@
 
 #include <iostream>
 #include "Window.h"
-#include "EventsHandler.h"
+#include "../Input/EventsHandler.h"
 #include "ResourcesManager.h"
 #include "PerspectiveCamera.h"
 #include "../Render/Shader.h"
 #include "../Logging/easylogging++.h"
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/glm/glm.hpp"
 
 
 class Global
@@ -37,7 +37,7 @@ public:
      * Draws the scene
      * @param camera player camera
      */
-    static void Draw(const std::unique_ptr<PerspectiveCamera> &camera);
+    static void Draw();
 
     /**
      * Ends frame by swapping buffers and more
@@ -49,8 +49,13 @@ public:
      * @return delta time, in seconds
      */
     static double GetWorldDeltaTime();
+
+    /**
+     * @return total number of frames rendered during program execution
+     */
+    static unsigned long GetTotalFrames();
 private:
-    static long frame;
+    static unsigned long frame, frames;
     static double lastTime, deltaTime, elapsedTime;
     static bool shouldDrawMesh, shouldDrawLights, shouldDrawAxis, shouldDrawOutline;
     static int curFPS, drawMode;

@@ -21,3 +21,6 @@
 # Executables
 *.out
 *.app
+
+# Custom
+*.log

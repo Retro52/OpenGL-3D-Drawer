@@ -5,20 +5,28 @@
 #include "Global.h"
 #include "Config.h"
 #include "../UI/UIHandler.h"
+#include "../Lighting/ShadowsHandler.h"
+#include "../Entity/Entity.h"
+#include "../Render/Renderer.h"
+
 
 double Global::lastTime;
 double Global::deltaTime;
 double Global::elapsedTime;
 
+
 int Global::curFPS, Global::drawMode = 1;
 
-long Global::frame;
 
+unsigned long Global::frame = 0;
+unsigned long Global::frames = 0;
 
 std::string drawModeToString(int drawMode)
 {
     switch (drawMode)
     {
+        case 0:
+            return "Dir light only with experimental shadow method";
         case 1:
             return "Lit";
         case 2:
@@ -53,37 +61,20 @@ void Global::Initialize()
     {
         Config::LoadIni("config.ini");
         EventsHandler::Initialize();
+        ShadowsHandler::Initialize(4);
+        Renderer::Initialize();
     }
-    catch (InGameException& e)
+    catch (std::exception& e)
     {
-        LOG(FATAL) << "Error during program initialization. Reason: " << e.what();
-        throw InGameException("Global initialization error");
+        throw InGameException("Error during program initialization. Reason: " + std::string(e.what()));
     }
     EventsHandler::ToggleCursor();
-
-    // registering world camera
-    ResourcesManager::RegisterPlayerCamera(glm::vec3(0, 0, 5), glm::radians(90.0f));
-    ResourcesManager::GetPlayerCamera()->Rotate(glm::vec3(0, 0, 1.57));
-
-    // setting directional light
-    ResourcesManager::RegisterLight(
-                    glm::vec3(-0.2f, -1.0f, -0.3f),
-                    glm::vec3(0.5f, 0.5f, 0.5f),
-                    glm::vec3(0.5f, 0.5f, 0.5f),
-                    glm::vec3(0.5f, 0.5f, 0.5f));
-
-    ResourcesManager::RegisterLight(
-            glm::vec3(0, 0, 3),
-            glm::vec3(0.05f, 0.05f, 0.05f),
-            glm::vec3(0.8f, 0.8f, 0.8f),
-            glm::vec3(1.0f, 1.0f, 1.0f),
-            1.0f, 0.09f, 0.032f
-            );
 }
 
 void Global::Tick()
 {
     frame++;
+    frames++;
     /* Updating delta time */
     double curTime = glfwGetTime();
     deltaTime = curTime - lastTime;
@@ -92,12 +83,16 @@ void Global::Tick()
 
     if (elapsedTime >= 0.33)
     {
-        curFPS = frame * 3;
+        curFPS = (int) ((double) frame / elapsedTime);
         frame = 0;
         elapsedTime = 0.0;
     }
 
     /* Debug features */
+    if(EventsHandler::IsJustPressed(GLFW_KEY_0))
+    {
+        drawMode = 0;
+    }
     if(EventsHandler::IsJustPressed(GLFW_KEY_1))
     {
         drawMode = 1;
@@ -134,19 +129,66 @@ void Global::Tick()
     {
         drawMode = 9;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_ADD))
+    if(EventsHandler::IsJustPressed(GLFW_KEY_R))
     {
-        ResourcesManager::GetPlayerCamera()->SetFieldOfView(ResourcesManager::GetPlayerCamera()->GetFieldOfView() - .01f);
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_SUBTRACT))
-    {
-        ResourcesManager::GetPlayerCamera()->SetFieldOfView(ResourcesManager::GetPlayerCamera()->GetFieldOfView() + .01f);
+        ResourcesManager::RegisterPlayerScene("../res/scenes/defaultScene.json");
     }
 
-    /* Update camera controls */
-    ResourcesManager::GetPlayerCamera()->UpdateControls();
+
     /* Update window controls */
     Window::Tick();
+
+    
+    auto& t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
+    auto& c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
+
+    float speed = 10.0f;
+
+    if (EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT))
+    {
+        speed *= 10;
+    }
+    else if (EventsHandler::IsPressed(GLFW_KEY_LEFT_CONTROL))
+    {
+        speed /= 10;
+    }
+
+    if (EventsHandler::IsPressed(GLFW_KEY_W))
+    {
+        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_S))
+    {
+        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_D))
+    {
+        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_A))
+    {
+        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_Q))
+    {
+        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
+    }
+    if (EventsHandler::IsPressed(GLFW_KEY_E))
+    {
+        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
+    }
+
+    float mouseSensitivity = 150.0f;
+
+    /* PerspectiveCamera world orientation */
+    if (EventsHandler::_cursor_locked)
+    {
+        t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2),
+                                  - glm::radians(89.0f),
+                                  glm::radians(89.0f));
+        t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetWidth() * 2);
+        c.camera.Update(t.rotation);
+    }
 }
 
 double Global::GetWorldDeltaTime()
@@ -154,44 +196,26 @@ double Global::GetWorldDeltaTime()
     return deltaTime;
 }
 
-void Global::Draw(const std::unique_ptr<PerspectiveCamera> &camera)
+void Global::Draw()
 {
-    glm::mat4 projView = camera->GetProjection() * camera->GetView();
-
-    glClearColor(0.203f, 0.76f, 0.938f,1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    Shader * mainShader = ResourcesManager::GetShader("mainShader");
     Shader * uiShader = ResourcesManager::GetShader("uiShader");
 
-    if (drawMode == 4)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-
-    for(auto &m : ResourcesManager::GetActors())
-    {
-        // apply data to main shader
-        mainShader->Use();
-        mainShader->setInt("drawMode", drawMode);
-        mainShader->setMat4("view", camera->GetView());
-        mainShader->setMat4("projection", camera->GetProjection());
-        mainShader->setVec3("ProjPos", camera->GetPosition());
-        mainShader->setDirLight(ResourcesManager::GetDirectionalLight());
-        mainShader->setPointLights(ResourcesManager::GetPointLights());
-
-        m->Tick();
-        m->UpdateControls();
-        m->Draw(* mainShader);
-
-    }
+    Renderer::Prepare(* ResourcesManager::GetPlayerScene(), drawMode);
+    unsigned int shadowTexture = ShadowsHandler::RenderShadowMap();
+    Renderer::Render(* ResourcesManager::GetPlayerScene(), shadowTexture);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    UIHandler::RenderText(* uiShader, "FPS: " + std::to_string(curFPS), 0.0f, (float) Window::GetHeight() - 24.0f, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "View mode: " + drawModeToString(drawMode), 0.0f, (float) Window::GetHeight() - 48.0f, 1.0, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(* uiShader, "WASD to move, KeyPad +- to zoom in/out, 1-8 to switch view Modes", 0.0f, (float) Window::GetHeight() - 72.0f, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(* uiShader, "FOV: " + std::to_string((ResourcesManager::GetPlayerCamera()->GetFieldOfView() / 3.1415) * 180), 0.0f, (float) Window::GetHeight() - 96.0f, 1.0, glm::vec3(1.0, 0.5, 0.5));
+    TransformComponent t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
+    CameraComponent c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
+
+    std::string res = "Position" + std::to_string(t.translation.x) + "; " + std::to_string(t.translation.y) + "; " + std::to_string(t.translation.z);
+    std::string res2 = "Rotation" + std::to_string(t.rotation.x) + std::to_string(t.rotation.y) + std::to_string(t.rotation.z);
+    UIHandler::RenderText(uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 48.0F, 16);
+    UIHandler::RenderText(uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 64.0F, 16, glm::vec3(1.0, 1.0, 0.0));
+    UIHandler::RenderText(uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 80.0F, 16);
+    UIHandler::RenderText(uiShader, res2, 0.0F, (float) Window::GetHeight() - 96.0F, 16);
+    UIHandler::RenderText(uiShader, res, 0.0F, (float) Window::GetHeight() - 112.0F, 16);
 }
 
 void Global::EndFrame()
@@ -199,4 +223,9 @@ void Global::EndFrame()
     /* Swapping OpenGL buffers and pulling this frame events */
     Window::SwapBuffers();
     EventsHandler::PullEvents();
+}
+
+unsigned long Global::GetTotalFrames()
+{
+    return frames;
 }
