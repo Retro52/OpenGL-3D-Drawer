@@ -26,6 +26,7 @@ class UIHandler
 {
 private:
     static std::map<char, Character> Characters;
+    static unsigned int loadedFontSize;
     static unsigned int VAO, VBO;
 
 public:
@@ -33,14 +34,14 @@ public:
     UIHandler() = delete;
     UIHandler(UIHandler&&) = delete;
     UIHandler(const UIHandler&) = delete;
-    ~UIHandler() = delete;
+
     UIHandler operator = (const UIHandler& ) = delete;
     UIHandler operator = (UIHandler&& ) = delete;
 
     /**
      * Loads default font into textures
      * @param fontPath path to the font file (usually ends with .ttf)
-     * @param fontSize size of the font
+     * @param fontSize default size of the font
      */
     static void Initialize(const std::string& fontPath, int fontSize);
 
@@ -50,10 +51,10 @@ public:
      * @param text text to render
      * @param x x position on the screen
      * @param y y position on the screen
-     * @param scale scale of the text comparing to the default font size
-     * @param color color of the text
+     * @param fontSize text font size, in pixels
+     * @param color text color
      */
-    static void RenderText(Shader * shader, const std::string &text, float x, float y, float scale, const glm::vec3 &color);
+    static void RenderText(Shader * shader, const std::string &text, float x, float y, int fontSize = 16, const glm::vec3 &color = glm::vec3(1.0f));
 
     static void RenderTexture(Shader * shader, float x, float y, float w, float h, unsigned int texture);
 };

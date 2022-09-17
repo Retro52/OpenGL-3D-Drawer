@@ -211,11 +211,11 @@ void Global::Draw()
 
     std::string res = "Position" + std::to_string(t.translation.x) + "; " + std::to_string(t.translation.y) + "; " + std::to_string(t.translation.z);
     std::string res2 = "Rotation" + std::to_string(t.rotation.x) + std::to_string(t.rotation.y) + std::to_string(t.rotation.z);
-    UIHandler::RenderText(uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 48.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 64.0F, 1.0, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 80.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(uiShader, res2, 0.0F, (float) Window::GetHeight() - 96.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
-    UIHandler::RenderText(uiShader, res, 0.0F, (float) Window::GetHeight() - 112.0F, 1.0, glm::vec3(1.0, 1.0, 1.0));
+    UIHandler::RenderText(uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 48.0F, 16);
+    UIHandler::RenderText(uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 64.0F, 16, glm::vec3(1.0, 1.0, 0.0));
+    UIHandler::RenderText(uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 80.0F, 16);
+    UIHandler::RenderText(uiShader, res2, 0.0F, (float) Window::GetHeight() - 96.0F, 16);
+    UIHandler::RenderText(uiShader, res, 0.0F, (float) Window::GetHeight() - 112.0F, 16);
 }
 
 void Global::EndFrame()
