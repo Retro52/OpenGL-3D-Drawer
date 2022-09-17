@@ -1,5 +1,7 @@
 #version 460 core
 
+precision highp float;
+
 out vec4 FragColor;
 
 in mat3 TBN;
@@ -69,6 +71,11 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 FragPos);
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
+float rand(vec2 co)
+{
+	return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 void main()
 {
 	vec3 result;
@@ -91,7 +98,7 @@ void main()
 	else
 	{
 		norm = normalize((texture( material.texture_normal1, TexCoords ).rgb * 2.0 - 1.0) * TBN);
-		viewDir = normalize(TBN * ProjPos - TBN * FragPos);
+		viewDir = normalize(ProjPos - FragPos);
 		result = CalcLight(dirLight, pointLights, norm, FragPos, viewDir);
 	}
 	if (drawMode == 9)
@@ -125,78 +132,88 @@ vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 Fr
 
 float ShadowCalculation(vec3 lightDir, vec3 normal)
 {
-	float shadow = 0.0f;
-	float ambientShadow = 0.75f;
+	float ambientShadow = 0.9f;
 
 	// lightDir and normal vectors are normalized, so we are getting just a cosin value there
 	float faceNormalDot   = dot(Normal, lightDir);
 	float vectorNormalDot = dot(normal, lightDir);
 
-	if (faceNormalDot <= 0 || vectorNormalDot <= 0)
+	float shadow = 0.0f;
+
+	// select cascade layer
+	vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
+	float depthValue = abs(fragPosViewSpace.z);
+
+
+	int layer = -1;
+	for (int i = 0; i < cascadeCount; ++i)
 	{
-		shadow = max(abs(vectorNormalDot), ambientShadow);
+		if (depthValue < cascadePlaneDistances[i])
+		{
+			layer = i;
+			break;
+		}
+	}
+	if (layer == -1)
+	{
+		layer = cascadeCount;
+	}
+
+	vec4 fragPosLightSpace = lightSpaceMatrices[layer]  * vec4(FragPos, 1.0);
+	vec3 projCoords        = fragPosLightSpace.xyz / fragPosLightSpace.w;
+
+	// transform to [0,1] range
+	projCoords = projCoords * 0.5f + 0.5f;
+
+	// get depth of current fragment from light's perspective
+	float currentDepth = projCoords.z;
+
+	if (currentDepth > 1.0)
+	{
+		return 0.0;
+	}
+
+
+	// calculate bias (based on depth map resolution and slope)
+	float bias = mix(0.0f, 0.0025f, vectorNormalDot);
+	float rnd = rand(projCoords.xy * faceNormalDot / vectorNormalDot);
+
+	const float biasModifier = 0.3f;
+
+	if (layer == cascadeCount - 1)
+	{
+		bias *= 5 / (farPlane * biasModifier);
 	}
 	else
 	{
-		// select cascade layer
-		vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
-		float depthValue = abs(fragPosViewSpace.z);
+		bias *= (layer + 2) / (cascadePlaneDistances[layer] * biasModifier);
+	}
 
+	// PCF
+	if (drawMode != 0)
+	{
+		vec2 texelSize = 1.0f / vec2(textureSize(material.texture_shadow, 0));
 
-		int layer = -1;
-		for (int i = 0; i < cascadeCount; ++i)
-		{
-			if (depthValue < cascadePlaneDistances[i])
-			{
-				layer = i;
-				break;
-			}
-		}
-		if (layer == -1)
-		{
-			layer = cascadeCount;
-		}
-
-		vec4 fragPosLightSpace = lightSpaceMatrices[layer] * vec4(FragPos, 1.0);
-		// perform perspective divide
-		vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-		// transform to [0,1] range
-		projCoords = projCoords * 0.5 + 0.5;
-
-		// get depth of current fragment from light's perspective
-		float currentDepth = projCoords.z;
-
-		// keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
-		if (currentDepth > 1.0)
-		{
-			return 0.0;
-		}
-		// calculate bias (based on depth map resolution and slope)
-		float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
-		const float biasModifier = 0.3f;
-		if (layer == cascadeCount - 1)
-		{
-			bias *= 3 / (farPlane * biasModifier);
-		}
-		else
-		{
-			bias *= (layer + 1) / (cascadePlaneDistances[layer] * biasModifier);
-		}
-
-		// PCF
-		vec2 texelSize = 1.0 / vec2(textureSize(material.texture_shadow, 0));
-
-		const int sampleRadius = 2;
+		const int sampleRadius = 4;
 		const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
+
 		for(int x = -sampleRadius; x <= sampleRadius; ++x)
 		{
 			for(int y = -sampleRadius; y <= sampleRadius; ++y)
 			{
-				float pcfDepth = texture(material.texture_shadow, vec3(projCoords.xy + vec2(x, y) * texelSize, layer)).r;
-				shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0;
+				// softens shadows without increasing sample radius
+				float pcfDepth  = texture(material.texture_shadow, vec3(projCoords.xy + vec2(x + x * 0.5, y + y * 0.5) * texelSize, layer)).r;
+				shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0f;
 			}
 		}
 		shadow /= sampleRadiusCount;
+	}
+
+	// no PCF on 0 draw mode
+	else
+	{
+		float pcfDepth = texture(material.texture_shadow, vec3(projCoords.xy, layer)).r;
+		shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0;
 	}
 
 	return shadow;
@@ -213,7 +230,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 FragPos)
 
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 4.0);
 
 	// combine results
 	vec3 ambient  = light.ambient;

@@ -20,14 +20,13 @@ public:
 
     Entity GetPrimaryCamera();
     Entity GetDirectionalLight();
-    std::vector<PointLightComponent> GetPointLights();
 
     void OverridePrimaryCamera(Entity entity);
 
     void OnUpdate(float deltaTime);
 
     void Render();
-    void SaveScene(const std::string& path) const;
+    void SaveScene(const std::string& savePath);
 
 private:
     void LoadScene(const std::string& path);
@@ -36,6 +35,7 @@ private:
     entt::registry registry;
     friend class Entity;
     friend class Renderer;
+    friend class JsonSceneSerializer;
 };
 
 

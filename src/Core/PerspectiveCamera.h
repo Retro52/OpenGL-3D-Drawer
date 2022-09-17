@@ -31,6 +31,18 @@ public:
     inline void SetFieldOfView(float newFOV) { fov = newFOV; };
 
     /**
+     * Zooms camera without changing its FOV
+     * @param newZoom new zoom value, 1.0 default
+     */
+    inline void ZoomTo(float newZoom = 1.0f) { zoom = newZoom; }
+
+    /**
+     * Changes zoom by deltaZoom value, without touching camera FOV
+     * @param deltaZoom value to add to current zoom value
+     */
+    inline void Zoom(float deltaZoom = 0.0f) { zoom += deltaZoom; }
+
+    /**
      * Get camera projection matrix
      * @return projection matrix
      */
@@ -74,9 +86,10 @@ public:
      */
     [[nodiscard]] inline const glm::vec3& GetRightVector() const { return right; };
 
+    /**
+     * @return camera direction vector
+     */
     [[nodiscard]] inline const glm::vec3& GetDirection() const { return dir; };
-public:
-    double posX, posY;
 
 private:
     float fov, zoom;

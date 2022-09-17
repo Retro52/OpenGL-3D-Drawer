@@ -8,7 +8,7 @@
 #include "PerspectiveCamera.h"
 
 
-PerspectiveCamera::PerspectiveCamera(float fov) : fov(fov), zoom(1.0F), posX(0.0), posY(0.0)
+PerspectiveCamera::PerspectiveCamera(float fov) : fov(fov), zoom(1.0F)
 {
     model = glm::mat4(1.0F);
     front = glm::vec3(model * glm::vec4(0, 0, -1, 1));
