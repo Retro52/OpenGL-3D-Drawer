@@ -7,40 +7,6 @@
     {
       "Name" : 
       {
-        "Name" : "Wall1"
-      },
-      "Transform" : 
-      {
-        "Position" : [9, 2, 10],
-        "Rotation" : [0, 1.57, 1.57],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity14" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Roof2"
-      },
-      "Transform" : 
-      {
-        "Position" : [5, 6, 10],
-        "Rotation" : [-3.1415, 0, 0],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity13" : 
-    {
-      "Name" : 
-      {
         "Name" : "PL1"
       },
       "Transform" : 
@@ -63,7 +29,7 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity12" : 
+    "Entity14" : 
     {
       "Name" : 
       {
@@ -80,7 +46,7 @@
         "Path" : "../res/assets/brickwall/plane.obj"
       }
     },
-    "Entity11" : 
+    "Entity13" : 
     {
       "Name" : 
       {
@@ -88,8 +54,8 @@
       },
       "Transform" : 
       {
-        "Position" : [-1.97285, 5.38751, -15.7979],
-        "Rotation" : [-0.708144, -266.936, 0],
+        "Position" : [1.51702, 14.8726, 13.7909],
+        "Rotation" : [-1.24048, -264.153, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -98,7 +64,7 @@
         "isPrimary" : true
       }
     },
-    "Entity10" : 
+    "Entity12" : 
     {
       "Name" : 
       {
@@ -118,7 +84,7 @@
         "Direction" : [-1, -1, -1]
       }
     },
-    "Entity9" : 
+    "Entity11" : 
     {
       "Name" : 
       {
@@ -131,7 +97,7 @@
         "Scale" : [1, 1, 1]
       }
     },
-    "Entity8" : 
+    "Entity10" : 
     {
       "Name" : 
       {
@@ -148,7 +114,7 @@
         "Path" : "../res/assets/brickwall/plane.obj"
       }
     },
-    "Entity7" : 
+    "Entity9" : 
     {
       "Name" : 
       {
@@ -165,7 +131,7 @@
         "Path" : "../res/assets/brickwall/plane.obj"
       }
     },
-    "Entity6" : 
+    "Entity8" : 
     {
       "Name" : 
       {
@@ -182,7 +148,7 @@
         "Path" : "../res/assets/brickwall/plane.obj"
       }
     },
-    "Entity5" : 
+    "Entity7" : 
     {
       "Name" : 
       {
@@ -199,7 +165,7 @@
         "Path" : "../res/assets/brickwall/plane.obj"
       }
     },
-    "Entity4" : 
+    "Entity6" : 
     {
       "Name" : 
       {
@@ -216,7 +182,7 @@
         "Path" : "../res/assets/brickwall/plane.obj"
       }
     },
-    "Entity3" : 
+    "Entity5" : 
     {
       "Name" : 
       {
@@ -233,7 +199,7 @@
         "Path" : "../res/assets/brickwall/plane.obj"
       }
     },
-    "Entity2" : 
+    "Entity4" : 
     {
       "Name" : 
       {
@@ -243,6 +209,40 @@
       {
         "Position" : [10, 2, 10],
         "Rotation" : [0, 1.57, -1.57],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity3" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall1"
+      },
+      "Transform" : 
+      {
+        "Position" : [9, 2, 10],
+        "Rotation" : [0, 1.57, 1.57],
+        "Scale" : [5, 5, 5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj"
+      }
+    },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Roof2"
+      },
+      "Transform" : 
+      {
+        "Position" : [5, 6, 10],
+        "Rotation" : [-3.1415, 0, 0],
         "Scale" : [5, 5, 5]
       },
       "Model3D" : 
