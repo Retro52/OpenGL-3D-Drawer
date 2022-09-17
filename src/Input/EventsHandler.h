@@ -7,10 +7,11 @@
 #define GLEW_STATIC
 
 #include <memory>
-#include "glew.h"
-#include "glfw3.h"
+#include "../vendors/include/GLEW/glew.h"
+#include "../vendors/include/GLFW/glfw3.h"
 
 using uint = unsigned int;
+constexpr int MOUSE_BUTTONS_OFFSET = 1024;
 
 class EventsHandler;
 
@@ -66,16 +67,26 @@ public:
      * @param button button id
      * @return true if was just clicked, false otherwise
      */
-    static bool IsJustClicked(int button);
+    [[maybe_unused]] static bool IsJustClicked(int button);
 
     /**
      * Switch hide & show cursor modes
      */
     static void ToggleCursor();
 
-    static std::unique_ptr<bool[]> _keys;
-    static std::unique_ptr<uint[]> _frames;
+    static void mouse_button_callback(GLFWwindow * window, int button, int action, int mode);
+
+    static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
+
+    static void cursor_position_callback(GLFWwindow * window, double xpos, double ypos);
+
+    static void window_size_callback(GLFWwindow * /*window*/, int width, int height);
+
+private:
+    static std::array<bool, 1032> _keys;
+    static std::array<uint, 1032> _frames;
     static uint _current;
+
 };
 
 

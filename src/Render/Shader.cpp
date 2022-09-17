@@ -163,10 +163,10 @@ void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
 
 void Shader::setDirLight(const DirectionalLight& dirLight) const
 {
-    setVec3("dirLight.direction", dirLight.GetDirection());
-    setVec3("dirLight.specular", dirLight.GetSpecular());
-    setVec3("dirLight.ambient", dirLight.GetAmbient());
-    setVec3("dirLight.diffuse", dirLight.GetDiffuse());
+    setVec3("dirLight.diffuse", dirLight.diffuse);
+    setVec3("dirLight.ambient", dirLight.ambient);
+    setVec3("dirLight.specular", dirLight.specular);
+    setVec3("dirLight.direction", dirLight.direction);
 }
 
 void Shader::setPointLight(int idx, const PointLight& pointLight, const glm::vec3& position) const
@@ -175,13 +175,13 @@ void Shader::setPointLight(int idx, const PointLight& pointLight, const glm::vec
     pointLightName << "pointLights[" << idx << "].";
     std::string strName = pointLightName.str();
 
+    setVec3(strName + "position", position);
+    setFloat(strName + "linear", pointLight.linear);
     setVec3(strName + "ambient", pointLight.ambient);
     setVec3(strName + "diffuse", pointLight.diffuse);
     setVec3(strName + "specular", pointLight.specular);
-    setVec3(strName + "position", position);
-    setFloat(strName + "quadratic", pointLight.quadratic);
     setFloat(strName + "constant", pointLight.constant);
-    setFloat(strName + "linear", pointLight.linear);
+    setFloat(strName + "quadratic", pointLight.quadratic);
 }
 
 

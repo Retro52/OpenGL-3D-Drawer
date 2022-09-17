@@ -5,7 +5,7 @@
 #ifndef GRAPHICS_PERSPECTIVECAMERA_H
 #define GRAPHICS_PERSPECTIVECAMERA_H
 
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/glm/glm.hpp"
 #include <iostream>
 
 class PerspectiveCamera

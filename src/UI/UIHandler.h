@@ -10,7 +10,7 @@
 #include <ft2build.h>
 #include <memory>
 #include FT_FREETYPE_H
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/glm/glm.hpp"
 #include "../Render/Shader.h"
 
 
@@ -56,6 +56,15 @@ public:
      */
     static void RenderText(Shader * shader, const std::string &text, float x, float y, int fontSize = 16, const glm::vec3 &color = glm::vec3(1.0f));
 
+    /**
+     * Renders texture as a quad on the screen
+     * @param shader shader to apply
+     * @param x OX position on the screen
+     * @param y OY position on the screen
+     * @param w texture width
+     * @param h texture height
+     * @param texture texture to render
+     */
     static void RenderTexture(Shader * shader, float x, float y, float w, float h, unsigned int texture);
 };
 

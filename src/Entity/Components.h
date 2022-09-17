@@ -7,13 +7,11 @@
 
 #include <utility>
 
-#include "../include/OpenGL/include/glm/glm.hpp"
-#include "../include/OpenGL/include/glm/gtc/matrix_transform.hpp"
-#include "../include/OpenGL/include/glm/gtx/quaternion.hpp"
+#include "../vendors/include/glm/glm.hpp"
+#include "../vendors/include/glm/gtc/matrix_transform.hpp"
+#include "../vendors/include/glm/gtx/quaternion.hpp"
 #include "../Core/PerspectiveCamera.h"
 #include "../Render/Model.h"
-
-#define all_components {TransformComponent, NameComponent};
 
 struct TransformComponent
 {

@@ -7,7 +7,7 @@
 
 #define GLEW_STATIC
 
-#include "../include/OpenGL/include/GLEW/glew.h"
+#include "../vendors/include/GLEW/glew.h"
 #include "../Core/ResourcesManager.h"
 #include "../Core/Window.h"
 #include "../Entity/Components.h"
@@ -18,11 +18,19 @@
 class Renderer
 {
 public:
+    /**
+     * Initializes renderer
+     */
     static void Initialize()
     {
         lightMatricesUBO = std::make_unique<UBO<glm::mat4x4, 16>>();
     }
 
+    /**
+     * Applies scene data to the shader
+     * @param scene scene to render
+     * @param drawMode global drawMode, see Global class for reference
+     */
     static void Prepare(Scene& scene, int drawMode)
     {
         Shader * mShader = ResourcesManager::GetShader("mainShader");
@@ -50,7 +58,7 @@ public:
         }
         mShader->setInt("pointLightsCount", idx + 1);
 
-        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(cameraComponent.camera.GetNearPlane(), cameraComponent.camera.GetFarPlane(), cameraComponent.camera.GetFieldOfView(), scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.GetDirection(), cameraView, cascadeLevels);
+        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(cameraComponent.camera.GetNearPlane(), cameraComponent.camera.GetFarPlane(), cameraComponent.camera.GetFieldOfView(), scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.direction, cameraView, cascadeLevels);
 
         lightMatricesUBO->Bind();
         lightMatricesUBO->FillData(lightMatrices);
@@ -67,6 +75,12 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     }
+
+    /**
+     * Renders scene to the color buffer
+     * @param scene scene to render
+     * @param shadowMap directional light rendered shadow map
+     */
     static void Render(Scene& scene, const unsigned int shadowMap)
     {
         ResourcesManager::GetShader("mainShader")->Use();
@@ -78,6 +92,10 @@ public:
         }
     }
 
+    /**
+     * Renders scene to the depth buffer
+     * @param scene scene to render
+     */
     static void RenderToDepthBuffer(Scene& scene)
     {
         ResourcesManager::GetShader("shadowShader")->Use();

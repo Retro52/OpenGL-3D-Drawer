@@ -5,21 +5,11 @@
 #ifndef GRAPHICS_POINTLIGHT_H
 #define GRAPHICS_POINTLIGHT_H
 
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/glm/glm.hpp"
 
 class PointLight
 {
 public:
-    float affectDistance { 500.0f };
-
-    float constant;
-    float linear;
-    float quadratic;
-
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-
     /**
      * Creates point light
      * @param amb ambient strength
@@ -31,6 +21,17 @@ public:
      */
     PointLight(const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad);
     ~PointLight() = default;
+
+    float affectDistance { 500.0f };
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+
 };
 
 

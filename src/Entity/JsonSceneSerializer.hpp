@@ -10,6 +10,11 @@
 class JsonSceneSerializer
 {
 public:
+    /**
+     * Saves scene
+     * @param savePath path to the save
+     * @param scene scene to save
+     */
     static void SaveScene(const std::string& savePath, Scene * scene)
     {
         std::ofstream os(savePath);
@@ -48,6 +53,13 @@ private:
     static unsigned int currentLayer;
     static std::unordered_map<unsigned int, unsigned int> varOnLayer;
 
+    /**
+     * Inserts variable into the current map
+     * @tparam T variable type
+     * @param out stream to write into
+     * @param variableName variable name
+     * @param value variable value
+     */
     template<typename T>
     static void InsertVariable(std::ofstream& out, const std::string& variableName, const T& value)
     {
@@ -65,6 +77,12 @@ private:
         out << quote << variableName << quote << " : " << value;
     }
 
+    /**
+     * Inserts variable into the current map
+     * @param out stream to write into
+     * @param variableName variable name
+     * @param value variable value
+     */
     static void InsertVariable(std::ofstream& out, const std::string& variableName, const glm::vec3& value)
     {
         if (varOnLayer[currentLayer] > 0)
@@ -81,6 +99,12 @@ private:
         out << quote << variableName << quote << " : " << "[" << value.x << comma << " " << value.y << comma << " " << value.z << "]";
     }
 
+    /**
+     * Inserts variable into the current map
+     * @param out stream to write into
+     * @param variableName variable name
+     * @param value variable value
+     */
     static void InsertVariable(std::ofstream& out, const std::string& variableName, const std::string& value)
     {
         if (varOnLayer[currentLayer] > 0)
@@ -97,6 +121,11 @@ private:
         out << quote << variableName << quote << " : " << quote << value << quote;
     }
 
+    /**
+     * Starts new map
+     * @param out out stream to write imto
+     * @param mapName new map name
+     */
     static void StartMap(std::ofstream& out, const std::string& mapName)
     {
         if (varOnLayer[currentLayer] > 0)
@@ -122,6 +151,10 @@ private:
         count++;
     }
 
+    /**
+     * Closes current map
+     * @param out out stream to write into
+     */
     static void CloseMap(std::ofstream& out)
     {
         varOnLayer[currentLayer] = 0;
@@ -136,6 +169,11 @@ private:
         count--;
     }
 
+    /**
+     * Writes entity components to the stream
+     * @param out out stream to write into
+     * @param entity entity to serialize
+     */
     static void SerializeEntity(std::ofstream& out, const Entity& entity)
     {
         if (entity.HasComponent<NameComponent>())
@@ -177,10 +215,10 @@ private:
         {
             StartMap(out, "Directional light");
             const auto& component = entity.GetComponent<DirectionalLightComponent>();
-            InsertVariable(out, "Ambient", component.directionalLight.GetAmbient());
-            InsertVariable(out, "Diffuse", component.directionalLight.GetDiffuse());
-            InsertVariable(out, "Specular", component.directionalLight.GetSpecular());
-            InsertVariable(out, "Direction", component.directionalLight.GetDirection());
+            InsertVariable(out, "Ambient", component.directionalLight.ambient);
+            InsertVariable(out, "Diffuse", component.directionalLight.diffuse);
+            InsertVariable(out, "Specular", component.directionalLight.specular);
+            InsertVariable(out, "Direction", component.directionalLight.direction);
             CloseMap(out);
         }
 
@@ -201,8 +239,19 @@ private:
     }
 };
 
+/**
+ * Just to count number of tabulations on every new row
+ */
 unsigned int JsonSceneSerializer::count = 1;
+
+/**
+ * Depth index
+ */
 unsigned int JsonSceneSerializer::currentLayer = 0;
+
+/**
+ * Counts number of variables on the current depth
+ */
 std::unordered_map<unsigned int, unsigned int> JsonSceneSerializer::varOnLayer;
 
 

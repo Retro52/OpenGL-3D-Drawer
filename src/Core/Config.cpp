@@ -6,8 +6,8 @@
 #include "Config.h"
 #include "ResourcesManager.h"
 #include "InGameException.h"
-#include "../Loaders/inipp.h"
-#include "../Loaders/json.hpp"
+#include "inipp.h"
+#include "json.hpp"
 #include "../Logging/easylogging++.h"
 #include "../UI/UIHandler.h"
 

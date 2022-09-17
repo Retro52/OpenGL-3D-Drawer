@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include "EventsHandler.h"
-#include "../Loaders/json.hpp"
+#include "json.hpp"
 #include "../Core/InGameException.h"
 
 class ActionsMapping
@@ -30,11 +30,9 @@ public:
 
     static void LoadActionMapping(const std::string& path)
     {
-        std::ifstream is(path);
-        GAME_ASSERT(is.is_open(), "Failed to open controls file " + path);
-
-        json data = json::parse(is);
-        GAME_ASSERT(!data.empty(), "Controls file is empty " + path);
+        /* Not implemented */
+//        std::ifstream is(path);
+//        GAME_ASSERT(is.is_open(), "Failed to open controls file " + path);
 
     }
 private:
@@ -44,7 +42,7 @@ private:
     {
         if (actionKeyName.length() == 1)
         {
-            return std::toupper(to_lower(actionKeyName).at(0));
+            return std::toupper(actionKeyName.at(0));
         }
         if (to_lower(actionKeyName) == "tab")
         {

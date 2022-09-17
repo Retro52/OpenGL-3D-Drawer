@@ -7,7 +7,7 @@
 
 #include "Components.h"
 #include "JsonSceneSerializer.hpp"
-#include "../Loaders/json.hpp"
+#include "json.hpp"
 #include "../Render/Renderer.h"
 #include "../Logging/easylogging++.h"
 

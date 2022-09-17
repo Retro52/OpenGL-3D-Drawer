@@ -7,9 +7,9 @@
 
 #define GLEW_STATIC
 
-#include "../include/OpenGL/include/GLEW/glew.h"
-#include "../include/OpenGL/include/glm/glm.hpp"
-#include "../include/OpenGL/include/glm/gtc/matrix_transform.hpp"
+#include "../vendors/include/GLEW/glew.h"
+#include "../vendors/include/glm/glm.hpp"
+#include "../vendors/include/glm/gtc/matrix_transform.hpp"
 #include "../Core/ResourcesManager.h"
 #include "../Core/Window.h"
 #include "../Render/FBO.hpp"
@@ -18,16 +18,27 @@
 class ShadowsHandler
 {
 public:
+    /**
+     * Initializes framebuffer and shadow map texture array
+     * @param size number of shadow maps in texture array
+     */
     static void Initialize(int size);
 
+    /**
+     * Renders directional light shadow map
+     * @return texture id
+     */
     static GLuint RenderShadowMap();
 
+    /**
+     * @return last rendered shadow map texture id
+     */
     inline static GLuint GetRenderedShadowMap() { return shadowTexture; };
 
 private:
     static GLuint shadowTexture;
 
-    static const int shadowMultiSampler = 3;
+    static const int shadowMultiSampler = 2;
     static const int shadowMapResolution = 1024 * shadowMultiSampler;
 
     static std::unique_ptr<FBO> shadowFBO;

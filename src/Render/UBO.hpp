@@ -6,8 +6,8 @@
 #define GRAPHICS_UBO_HPP
 
 #define GLEW_STATIC
-#include "../include/OpenGL/include/GLEW/glew.h"
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/GLEW/glew.h"
+#include "../vendors/include/glm/glm.hpp"
 #include <iostream>
 #include <vector>
 
@@ -62,8 +62,7 @@ public:
      */
     ~UBO()
     {
-        unsigned int lst[] = { id };
-        glDeleteBuffers(1, lst);
+        glDeleteBuffers(1, &id);
     }
 private:
     unsigned int id {0};

@@ -5,7 +5,7 @@
 #ifndef GRAPHICS_SCENE_H
 #define GRAPHICS_SCENE_H
 
-#include "../include/entt/entt.hpp"
+#include "../vendors/include/entt/entt.hpp"
 #include "Components.h"
 
 class Entity;

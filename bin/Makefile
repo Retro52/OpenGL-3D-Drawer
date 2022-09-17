@@ -464,30 +464,6 @@ src/Lighting/ShadowsHandler.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Lighting/ShadowsHandler.cpp.s
 .PHONY : src/Lighting/ShadowsHandler.cpp.s
 
-src/Loaders/cwalk.obj: src/Loaders/cwalk.c.obj
-.PHONY : src/Loaders/cwalk.obj
-
-# target to build an object file
-src/Loaders/cwalk.c.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Loaders/cwalk.c.obj
-.PHONY : src/Loaders/cwalk.c.obj
-
-src/Loaders/cwalk.i: src/Loaders/cwalk.c.i
-.PHONY : src/Loaders/cwalk.i
-
-# target to preprocess a source file
-src/Loaders/cwalk.c.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Loaders/cwalk.c.i
-.PHONY : src/Loaders/cwalk.c.i
-
-src/Loaders/cwalk.s: src/Loaders/cwalk.c.s
-.PHONY : src/Loaders/cwalk.s
-
-# target to generate assembly for a file
-src/Loaders/cwalk.c.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Loaders/cwalk.c.s
-.PHONY : src/Loaders/cwalk.c.s
-
 src/Logging/easylogging++.obj: src/Logging/easylogging++.cc.obj
 .PHONY : src/Logging/easylogging++.obj
 
@@ -707,9 +683,6 @@ help:
 	@echo ... src/Lighting/ShadowsHandler.obj
 	@echo ... src/Lighting/ShadowsHandler.i
 	@echo ... src/Lighting/ShadowsHandler.s
-	@echo ... src/Loaders/cwalk.obj
-	@echo ... src/Loaders/cwalk.i
-	@echo ... src/Loaders/cwalk.s
 	@echo ... src/Logging/easylogging++.obj
 	@echo ... src/Logging/easylogging++.i
 	@echo ... src/Logging/easylogging++.s

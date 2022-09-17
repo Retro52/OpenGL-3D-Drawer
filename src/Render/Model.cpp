@@ -7,11 +7,9 @@
 
 #include "Model.h"
 #include "../Logging/easylogging++.h"
-#include "../Loaders/cwalk.h"
-
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../Loaders/stb_image.h"
+#include "stb_image.h"
 
 
 Model::Model(std::string loadPath) : gammaCorrection(false), path(std::move(loadPath))
@@ -190,9 +188,6 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
     glGenTextures(1, &textureID);
     int width, height, nrComponents;
 
-//    char actualpath [PATH_MAX + 1];
-//    cwk_path_get_absolute(R"(C:\)", filename.c_str(), actualpath, sizeof(actualpath));
-//    unsigned char * data = stbi_load(actualpath, &width, &height, &nrComponents, 0);
     unsigned char * data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
 
     if (data)

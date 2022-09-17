@@ -7,8 +7,8 @@
 
 #define GLEW_STATIC
 
-#include "../include/OpenGL/include/GLEW/glew.h"
-#include "../include/OpenGL/include/GLFW/glfw3.h"
+#include "../vendors/include/GLEW/glew.h"
+#include "../vendors/include/GLFW/glfw3.h"
 #include "string"
 
 class Window
@@ -99,6 +99,9 @@ public:
      */
     static void Update();
 
+    /**
+     * @return current window aspect ratio
+     */
     inline static float GetAspectRatio() { return static_cast<float> (width) / static_cast<float> (height); }
 };
 

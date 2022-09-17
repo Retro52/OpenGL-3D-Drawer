@@ -12,7 +12,7 @@
 #include "PerspectiveCamera.h"
 #include "../Render/Shader.h"
 #include "../Logging/easylogging++.h"
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/glm/glm.hpp"
 
 
 class Global
@@ -50,6 +50,9 @@ public:
      */
     static double GetWorldDeltaTime();
 
+    /**
+     * @return total number of frames rendered during program execution
+     */
     static unsigned long GetTotalFrames();
 private:
     static unsigned long frame, frames;

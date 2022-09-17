@@ -3,8 +3,8 @@
 
 #define GLEW_STATIC
 
-#include "../include/OpenGL/include/GLEW/glew.h"
-#include "../include/OpenGL/include/glm/glm.hpp"
+#include "../vendors/include/GLEW/glew.h"
+#include "../vendors/include/glm/glm.hpp"
 #include "../Lighting/DirectionalLight.h"
 #include "../Lighting/PointLight.h"
 

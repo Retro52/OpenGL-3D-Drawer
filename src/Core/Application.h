@@ -23,10 +23,12 @@ public:
 
     /**
      * Runs created application
-     * @return exit status
      */
     static void Run();
 
+    /**
+     * Destroys application
+     */
     static void Destroy();
 };
 
