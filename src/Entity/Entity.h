@@ -31,7 +31,7 @@ public:
     }
 
     template<typename T>
-    bool HasComponent() const
+    [[nodiscard]] bool HasComponent() const
     {
         return scene->registry.all_of<T>(thisEntity);
     }

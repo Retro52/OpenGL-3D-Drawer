@@ -13,6 +13,8 @@
 #include "../Core/PerspectiveCamera.h"
 #include "../Render/Model.h"
 
+#define all_components {TransformComponent, NameComponent};
+
 struct TransformComponent
 {
     TransformComponent() = default;

@@ -9,7 +9,8 @@
 #include "../include/OpenGL/include/glm/gtc/matrix_transform.hpp"
 
 std::map<char, Character> UIHandler::Characters;
-unsigned int UIHandler::VAO, UIHandler::VBO;
+unsigned int UIHandler::VAO, UIHandler::VBO, UIHandler::loadedFontSize;
+
 
 void UIHandler::Initialize(const std::string& fontPath, int fontSize)
 {
@@ -42,7 +43,7 @@ void UIHandler::Initialize(const std::string& fontPath, int fontSize)
         // Load character glyph
         if (FT_Load_Char(face, c, FT_LOAD_RENDER) != 0)
         {
-            LOG(ERROR) << "ERROR::FREETYTPE: Failed to load Glyph";
+            LOG(ERROR) << "ERROR::FREETYTPE::Failed to load Glyph for " << (char) c << " character";
             continue;
         }
         // generate texture
@@ -53,8 +54,8 @@ void UIHandler::Initialize(const std::string& fontPath, int fontSize)
                 GL_TEXTURE_2D,
                 0,
                 GL_RED,
-                face->glyph->bitmap.width,
-                face->glyph->bitmap.rows,
+                static_cast<int>(face->glyph->bitmap.width),
+                static_cast<int>(face->glyph->bitmap.rows),
                 0,
                 GL_RED,
                 GL_UNSIGNED_BYTE,
@@ -77,6 +78,8 @@ void UIHandler::Initialize(const std::string& fontPath, int fontSize)
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    // set loaded loaded font var
+    loadedFontSize = fontSize;
 
     // destroy FreeType once we're finished
     FT_Done_Face(face);
@@ -93,7 +96,7 @@ void UIHandler::Initialize(const std::string& fontPath, int fontSize)
     glBindVertexArray(0);
 }
 
-void UIHandler::RenderText(Shader * shader, const std::string &text, float x, float y, float scale, const glm::vec3 &color)
+void UIHandler::RenderText(Shader * shader, const std::string &text, float x, float y, int fontSize, const glm::vec3 &color)
 {
     glDisable(GL_DEPTH_TEST);
 
@@ -109,15 +112,18 @@ void UIHandler::RenderText(Shader * shader, const std::string &text, float x, fl
 
     // iterate through all characters
     std::string::const_iterator c;
+    float scale = static_cast<float>(fontSize) / static_cast<float>(loadedFontSize);
+
     for (c = text.begin(); c != text.end(); c++)
     {
         Character ch = Characters[*c];
 
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (float) (ch.Size.y - ch.Bearing.y) * scale;
+        float xpos = x + static_cast<float>(ch.Bearing.x) * scale;
+        float ypos = y - static_cast<float>((ch.Size.y - ch.Bearing.y)) * scale;
 
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
+        float w = static_cast<float>(ch.Size.x) * scale;
+        float h = static_cast<float>(ch.Size.y) * scale;
+
         // update VBO for each character
         float vertices[6][4] = {
                 { xpos,     ypos + h,   0.0f, 0.0f },

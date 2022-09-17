@@ -24,7 +24,7 @@
 class Model
 {
 public:
-    explicit Model(const std::string& path);
+    explicit Model(std::string  path);
 
     /**
      * Draws all model meshes
@@ -57,6 +57,10 @@ public:
      */
     static unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
+    /**
+     * @return model path used when loading
+     */
+    [[nodiscard]] inline std::string GetPath() const { return path; }
 private:
     /**
      * Loads model
@@ -86,11 +90,12 @@ private:
      * @return vector of loaded textures
      */
     std::vector<Texture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName);
-
 public:
     bool gammaCorrection;
     std::string directory;
     std::vector<Mesh> meshes;
     std::vector<Texture> textures_loaded;
+private:
+    std::string path;
 };
 #endif
