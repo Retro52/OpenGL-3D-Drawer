@@ -18,6 +18,9 @@
 class Shader
 {
 public:
+    Shader(Shader&&) = delete;
+    Shader(const Shader&) = delete;
+
     /**
      * Shader class constructor, which loads, compiles and links shader to the OpenGL program
      * @param vertexPath path to the vertex shader
@@ -25,9 +28,6 @@ public:
      * @param geometryPath path to the geometry shader
      */
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
-
-    Shader(const Shader&) = delete;
-    Shader(Shader&&) = delete;
 
     ~Shader()
     {

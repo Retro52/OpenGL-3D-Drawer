@@ -4,4 +4,3 @@
 
 #include "Entity.h"
 
-Entity::Entity(entt::entity entity, Scene *scene) : thisEntity(entity), scene(scene) {}

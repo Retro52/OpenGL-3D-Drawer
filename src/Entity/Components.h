@@ -19,7 +19,7 @@ struct TransformComponent
     TransformComponent(const TransformComponent&) = default;
     explicit TransformComponent(const glm::vec3& translation) : translation(translation) {}
 
-    [[nodiscard]] glm::mat4 GetTransform() const
+    [[nodiscard]] inline glm::mat4 GetTransform() const
     {
         return glm::translate(glm::mat4(1.0f), translation) * glm::toMat4(glm::quat(rotation)) * glm::scale(glm::mat4(1.0f), scale);
     }
@@ -33,6 +33,7 @@ struct NameComponent
 {
     NameComponent(const NameComponent&) = default;
     explicit NameComponent(std::string name = "Entity") : name(std::move(name)) {}
+
     std::string name;
 };
 
@@ -62,7 +63,7 @@ struct CameraComponent
 struct Model3DComponent
 {
     Model3DComponent() = delete;
-    Model3DComponent(const std::string& modelPath) : model(Model(modelPath)) {};
+    Model3DComponent(const std::string& modelPath) : model(modelPath) {};
 
     Model model;
 };
@@ -77,7 +78,6 @@ struct DirectionalLightComponent
     DirectionalLight directionalLight;
 };
 
-/* TODO: remove position, we have Transform Component for that */
 struct PointLightComponent
 {
     PointLightComponent(const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad)
@@ -87,9 +87,4 @@ struct PointLightComponent
     PointLight pointLight;
 };
 
-/* Maybe I will figure out how to make it useful */
-struct ControllerComponent
-{
-
-};
 #endif //GRAPHICS_COMPONENTS_H

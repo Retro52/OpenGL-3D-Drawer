@@ -198,7 +198,7 @@ double Global::GetWorldDeltaTime()
 
 void Global::Draw()
 {
-    Shader * uiShader = ResourcesManager::GetShader("uiShader");
+    std::shared_ptr<Shader>& uiShader = ResourcesManager::GetShader("uiShader");
 
     Renderer::Prepare(* ResourcesManager::GetPlayerScene(), drawMode);
     unsigned int shadowTexture = ShadowsHandler::RenderShadowMap();

@@ -18,6 +18,11 @@
 class Renderer
 {
 public:
+
+    Renderer() = delete;
+    Renderer(Renderer&& other) = delete;
+    Renderer(const Renderer& other) = delete;
+
     /**
      * Initializes renderer
      */
@@ -33,7 +38,7 @@ public:
      */
     static void Prepare(Scene& scene, int drawMode)
     {
-        Shader * mShader = ResourcesManager::GetShader("mainShader");
+        std::shared_ptr<Shader>& mShader = ResourcesManager::GetShader("mainShader");
         
         auto& cameraComponent = scene.GetPrimaryCamera().GetComponent<CameraComponent>();
         auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();

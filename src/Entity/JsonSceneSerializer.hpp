@@ -40,6 +40,7 @@ public:
         CloseMap(os);
 
         os << closeBracket << newLine;
+        os.close();
     }
 private:
     static constexpr char comma        =  ',';

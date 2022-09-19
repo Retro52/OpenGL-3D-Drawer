@@ -9,7 +9,6 @@
 #include "JsonSceneSerializer.hpp"
 #include "json.hpp"
 #include "../Render/Renderer.h"
-#include "../Logging/easylogging++.h"
 
 
 Scene::Scene(const std::string &path) : path(path)
@@ -38,7 +37,6 @@ Entity Scene::CreateEntity(const std::string& name)
     return e;
 }
 
-
 Entity Scene::GetPrimaryCamera()
 {
     auto view = registry.view<CameraComponent>();
@@ -54,7 +52,7 @@ Entity Scene::GetPrimaryCamera()
 }
 
 /** @not_implemented yet */
-void Scene::OverridePrimaryCamera(Entity entity)
+void Scene::OverridePrimaryCamera(const Entity& entity)
 {
     GAME_ASSERT(entity.HasComponent<CameraComponent>(), "Camera was not overridden. Reason: entity does not have CameraComponent");
     auto view = registry.view<CameraComponent>();
@@ -182,5 +180,5 @@ void Scene::LoadScene(const std::string &loadPath)
 
 void Scene::SaveScene(const std::string& savePath)
 {
-    JsonSceneSerializer::SaveScene(savePath, this);
+//    JsonSceneSerializer::SaveScene(savePath, this);
 }

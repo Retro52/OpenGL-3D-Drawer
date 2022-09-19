@@ -96,7 +96,7 @@ void UIHandler::Initialize(const std::string& fontPath, int fontSize)
     glBindVertexArray(0);
 }
 
-void UIHandler::RenderText(Shader * shader, const std::string &text, float x, float y, int fontSize, const glm::vec3 &color)
+void UIHandler::RenderText(std::shared_ptr<Shader>& shader, const std::string &text, float x, float y, int fontSize, const glm::vec3 &color)
 {
     glDisable(GL_DEPTH_TEST);
 
@@ -153,7 +153,7 @@ void UIHandler::RenderText(Shader * shader, const std::string &text, float x, fl
     glEnable(GL_DEPTH_TEST);
 }
 
-void UIHandler::RenderTexture(Shader * shader, float x, float y, float w, float h, unsigned int texture)
+void UIHandler::RenderTexture(std::shared_ptr<Shader>& shader, float x, float y, float w, float h, unsigned int texture)
 {
     glDisable(GL_DEPTH_TEST);
 
@@ -162,7 +162,6 @@ void UIHandler::RenderTexture(Shader * shader, float x, float y, float w, float 
     // activate corresponding render state
     shader->Use();
     shader->setMat4("projection", projection);
-//    shader.setVec3("textColor", color);
 
     glActiveTexture(GL_TEXTURE0);
     glBindVertexArray(VAO);
