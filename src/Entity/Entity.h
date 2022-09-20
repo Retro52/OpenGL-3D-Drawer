@@ -55,7 +55,6 @@ public:
         return scene->registry.all_of<T>(thisEntity);
     }
 
-
     /**
      * Deletes component from entity
      * @tparam T component class

@@ -26,23 +26,25 @@ std::string drawModeToString(int drawMode)
     switch (drawMode)
     {
         case 0:
-            return "Dir light only with experimental shadow method";
+            return "";
         case 1:
             return "Lit";
         case 2:
-            return "Unlit";
+            return "Lighting only";
         case 3:
-            return "Lighting Only";
+            return "Directional lighting only";
         case 4:
-            return "Wireframe";
+            return "Point lighting only";
         case 5:
-            return "Directional light only";
+            return "Diffuse map view";
         case 6:
-            return "Point light only";
+            return "Normal map view";
         case 7:
             return "Specular map view";
         case 8:
-            return "Normal map view";
+            return "";
+        case 9:
+            return "Roughness map view";
         default:
             return std::to_string(drawMode);
     }
@@ -177,6 +179,15 @@ void Global::Tick()
     {
         t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
     }
+    if (EventsHandler::IsJustPressed(GLFW_KEY_KP_ADD))
+    {
+        c.camera.zoom += 0.15;
+    }
+    if (EventsHandler::IsJustPressed(GLFW_KEY_KP_SUBTRACT))
+    {
+        c.camera.zoom -= 0.15;
+    }
+
 
     float mouseSensitivity = 150.0f;
 

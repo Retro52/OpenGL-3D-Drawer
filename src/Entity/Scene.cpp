@@ -139,7 +139,9 @@ void Scene::LoadScene(const std::string &loadPath)
 
             if (components.contains("Model3D"))
             {
-                e.AddComponent<Model3DComponent>(model3Component["Path"]);
+                auto& component = e.AddComponent<Model3DComponent>(model3Component["Path"]);
+                component.castsShadow = model3Component["castsShadow"];
+                component.shouldBeLit = model3Component["shouldBeLit"];
                 LOG(INFO) << "Model component successfully loaded for " << model.key();
             }
 
@@ -180,5 +182,5 @@ void Scene::LoadScene(const std::string &loadPath)
 
 void Scene::SaveScene(const std::string& savePath)
 {
-//    JsonSceneSerializer::SaveScene(savePath, this);
+    JsonSceneSerializer::SaveScene(savePath, this);
 }

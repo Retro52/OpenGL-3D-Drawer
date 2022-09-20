@@ -24,9 +24,9 @@ struct TransformComponent
         return glm::translate(glm::mat4(1.0f), translation) * glm::toMat4(glm::quat(rotation)) * glm::scale(glm::mat4(1.0f), scale);
     }
 
-    glm::vec3 translation = { 0.0f, 0.0f, 0.0f };
-    glm::vec3 rotation    = { 0.0f, 0.0f, 0.0f };
     glm::vec3 scale       = { 1.0f, 1.0f, 1.0f };
+    glm::vec3 rotation    = { 0.0f, 0.0f, 0.0f };
+    glm::vec3 translation = { 0.0f, 0.0f, 0.0f };
 };
 
 struct NameComponent
@@ -65,6 +65,8 @@ struct Model3DComponent
     Model3DComponent() = delete;
     Model3DComponent(const std::string& modelPath) : model(modelPath) {};
 
+    bool castsShadow = true;
+    bool shouldBeLit = true;
     Model model;
 };
 

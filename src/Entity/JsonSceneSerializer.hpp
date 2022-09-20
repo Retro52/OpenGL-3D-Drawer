@@ -6,6 +6,7 @@
 #define GRAPHICS_JSONSCENESERIALIZER_HPP
 
 #include "Scene.h"
+#include "Entity.h"
 
 class JsonSceneSerializer
 {
@@ -209,6 +210,8 @@ private:
             StartMap(out, "Model3D");
             const auto& component = entity.GetComponent<Model3DComponent>();
             InsertVariable(out, "Path", component.model.GetPath());
+            InsertVariable(out, "castsShadow", component.castsShadow);
+            InsertVariable(out, "shouldBeLit", component.shouldBeLit);
             CloseMap(out);
         }
 

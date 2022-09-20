@@ -69,14 +69,6 @@ public:
     /* Works good enough, but sometimes skips some textures for no obvious reason */
     static void UnloadUnusedTextures()
     {
-        std::cerr << "Before: \n";
-        for(const auto& texture : texturesLoaded)
-        {
-            std::cerr << "Texture data: " << texture->path << "; " << texture->GetId() << "; " << texture.use_count() << "\n";
-        }
-
-//        texturesLoaded.end() = std::remove_if(texturesLoaded.begin(), texturesLoaded.end(), [](const std::shared_ptr<Texture>& texture) { return texture.unique(); });
-
         for (auto it = texturesLoaded.begin(); it != texturesLoaded.end();)
         {
             if ((* it).use_count() == 1)
@@ -88,13 +80,6 @@ public:
                 ++it;
             }
         }
-
-        std::cerr << "After: \n";
-        for(const auto& texture : texturesLoaded)
-        {
-            std::cerr << "Texture data: " << texture->path << "; " << texture->GetId() << "; " << texture.use_count() << "\n";
-        }
-        std::cerr << "-----------------------\n";
     }
     ~Material() = default;
 
@@ -105,13 +90,13 @@ public:
 private:
     void LoadTextures(const aiMaterial * material, const std::string& directory, aiTextureType aiType, TextureType texType);
 
-
-    glm::vec4 defaultColor;
+    glm::vec3 defaultColor;
     std::unordered_map<TextureType, TextureStack> materialTextures;
 
     static std::vector<std::shared_ptr<Texture>> texturesLoaded;
 
     float opacity;
+    float tilingFactor = 1.0f;
     bool isTwoSided = false;
 };
 #endif //GRAPHICS_MATERIAL_H

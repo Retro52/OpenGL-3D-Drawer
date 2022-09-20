@@ -44,7 +44,7 @@ public:
     /* Cleaning OpenGL stuff */
     ~Mesh()
     {
-        LOG(DEBUG) << "Model unloaded. Total number of vertices deleted: " << vertices.size();
+//        LOG(DEBUG) << "Model unloaded. Total number of vertices deleted: " << vertices.size();
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
         glDeleteVertexArrays(1, &VAO);

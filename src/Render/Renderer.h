@@ -88,12 +88,14 @@ public:
      */
     static void Render(Scene& scene, const unsigned int shadowMap)
     {
-        ResourcesManager::GetShader("mainShader")->Use();
         const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
+        auto& shader = ResourcesManager::GetShader("mainShader");
+        shader->Use();
         for (const auto& entity : view)
         {
             auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
-            m.model.Draw(* ResourcesManager::GetShader("mainShader"), t.GetTransform(), shadowMap);
+            shader->setBool("material.shouldBeLit", m.shouldBeLit);
+            m.model.Draw(* shader, t.GetTransform(), shadowMap);
         }
     }
 
@@ -103,12 +105,16 @@ public:
      */
     static void RenderToDepthBuffer(Scene& scene)
     {
-        ResourcesManager::GetShader("shadowShader")->Use();
+        auto& shader = ResourcesManager::GetShader("shadowShader");
         const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
+        shader->Use();
         for (const auto& entity : view)
         {
             auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
-            m.model.DrawIntoDepth(* ResourcesManager::GetShader("shadowShader"), t.GetTransform());
+            if(m.castsShadow)
+            {
+                m.model.DrawIntoDepth(* shader, t.GetTransform());
+            }
         }
     }
 private:

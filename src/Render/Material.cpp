@@ -53,7 +53,7 @@ Texture::Texture(const std::string &path, bool /*gamma*/) : path(path)
 
 Texture::~Texture()
 {
-    LOG(DEBUG) << "Texture unloaded: " << path  << "\n";
+//    LOG(DEBUG) << "Texture unloaded: " << path  << "\n";
     glDeleteTextures(1, &id);
 }
 
@@ -62,7 +62,7 @@ Material::Material(const aiMaterial *material, const std::string &directory)
     aiColor4D diffuse;
     if(aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse) == AI_SUCCESS)
     {
-        defaultColor = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+        defaultColor = glm::vec3(diffuse.r, diffuse.g, diffuse.b);
     }
 
     if (material->Get(AI_MATKEY_OPACITY, opacity) != AI_SUCCESS)
@@ -70,7 +70,7 @@ Material::Material(const aiMaterial *material, const std::string &directory)
         opacity = 1.0f;
     }
 
-    LoadTextures(material, directory, aiTextureType_HEIGHT, Normal);
+    LoadTextures(material, directory, aiTextureType_NORMALS, Normal);
     LoadTextures(material, directory, aiTextureType_DIFFUSE, Diffuse);
     LoadTextures(material, directory, aiTextureType_SPECULAR, Specular);
     LoadTextures(material, directory, aiTextureType_LIGHTMAP, LightMap);
@@ -82,37 +82,44 @@ void Material::Bind(const Shader& shader, GLuint shadowTexture) const
 {
     // bind appropriate textures
     unsigned int texturesCount = 0;
+    shader.setVec3("material.colorDiffuse", defaultColor);
+    shader.setFloat("material.opacity", opacity);
+    shader.setFloat("material.tilingFactor", tilingFactor);
 
     if (materialTextures.at(Diffuse).empty())
     {
+        shader.setBool("material.hasDiffuseTexture", false);
         glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-        shader.setInt("material.texture_diffuse1", (int) texturesCount++);
+        shader.setInt("material.mapDiffuse_1", (int) texturesCount++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
     {
+        shader.setBool("material.hasDiffuseTexture", true);
         for(const auto& texture : materialTextures.at(Diffuse))
         {
             unsigned int count = 1;
             glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-            shader.setInt("material.texture_diffuse" + std::to_string(count++), (int) texturesCount++);
+            shader.setInt("material.mapDiffuse_" + std::to_string(count++), (int) texturesCount++);
             glBindTexture(GL_TEXTURE_2D, texture->GetId());
         }
     }
 
     if (materialTextures.at(Normal).empty())
     {
+        shader.setBool("material.hasNormalTexture", false);
         glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-        shader.setInt("material.texture_normal1", (int) texturesCount++);
+        shader.setInt("material.mapNormal_1", (int) texturesCount++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
     {
+        shader.setBool("material.hasNormalTexture", true);
         for(const auto& texture : materialTextures.at(Normal))
         {
             unsigned int count = 1;
             glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-            shader.setInt("material.texture_normal" + std::to_string(count++), (int) texturesCount++);
+            shader.setInt("material.mapNormal_" + std::to_string(count++), (int) texturesCount++);
             glBindTexture(GL_TEXTURE_2D, texture->GetId());
         }
     }
@@ -120,7 +127,7 @@ void Material::Bind(const Shader& shader, GLuint shadowTexture) const
     if (materialTextures.at(Specular).empty())
     {
         glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-        shader.setInt("material.texture_specular1", (int) texturesCount++);
+        shader.setInt("material.mapSpecular_1", (int) texturesCount++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
@@ -129,13 +136,29 @@ void Material::Bind(const Shader& shader, GLuint shadowTexture) const
         {
             unsigned int count = 1;
             glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-            shader.setInt("material.texture_specular" + std::to_string(count++), (int) texturesCount++);
+            shader.setInt("material.mapSpecular_" + std::to_string(count++), (int) texturesCount++);
+            glBindTexture(GL_TEXTURE_2D, texture->GetId());
+        }
+    }
+    if (materialTextures.at(Roughness).empty())
+    {
+        glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
+        shader.setInt("material.mapRoughness_1", (int) texturesCount++);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    else
+    {
+        for(const auto& texture : materialTextures.at(Roughness))
+        {
+            unsigned int count = 1;
+            glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
+            shader.setInt("material.mapRoughness_" + std::to_string(count++), (int) texturesCount++);
             glBindTexture(GL_TEXTURE_2D, texture->GetId());
         }
     }
 
     glActiveTexture(GL_TEXTURE0 + texturesCount);
-    shader.setInt("material.texture_shadow", (int) texturesCount);
+    shader.setInt("material.mapShadow", (int) texturesCount);
     glBindTexture(GL_TEXTURE_2D_ARRAY, shadowTexture);
 }
 

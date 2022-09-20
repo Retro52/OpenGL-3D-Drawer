@@ -34,13 +34,23 @@ struct PointLight
 
 struct Material
 {
-	sampler2D texture_normal1;
-	sampler2D texture_height1;
-	sampler2D texture_diffuse1;
-	sampler2D texture_specular1;
-	sampler2DArray texture_shadow;
+	bool shouldBeLit;
+	bool hasNormalTexture;
+	bool hasDiffuseTexture;
+	bool hasTranslucencyTexture;
 
-	vec4 colorDiffuse;
+	float opacity;
+	float tilingFactor;
+
+	sampler2D mapNormal_1;
+	sampler2D mapDiffuse_1;
+	sampler2D mapSpecular_1;
+	sampler2D mapRoughness_1;
+	sampler2D mapTranslucency_1;
+
+	sampler2DArray mapShadow;
+
+	vec3 colorDiffuse;
 };
 
 uniform int drawMode;
@@ -63,74 +73,159 @@ layout (std140, binding = 0) uniform LightSpaceMatrices
 	mat4 lightSpaceMatrices[16];
 };
 
+float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal);
 
+vec3 CalculateDirectionalDiffuseLighting(DirLight light, vec3 normal, vec3 viewDir);
+vec3 CalculateDirectionalSpecularLighting(DirLight light, vec3 normal, vec3 viewDir);
 
-vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 normal, vec3 fragPos, vec3 viewDir);
-
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 FragPos);
-
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalculatePointDiffuseLighting(PointLight light, vec3 normal, vec3 viewDir);
+vec3 CalculatePointSpecularLighting(PointLight light, vec3 normal, vec3 viewDir);
 
 float rand(vec2 co)
 {
 	return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
+/*
+ * drawModes
+ * 0 - RESERVED
+ * 1 - Default lighting
+ * 2 - Lighting only
+ * 3 - Directional lights only
+ * 4 - Point lights only
+ * 5 - Diffuse map/color view
+ * 6 - Normal map view
+ * 7 - Specular map view
+ * 8 -
+ * 9 - Roughness map view
+*/
 void main()
 {
-	vec3 result;
-	vec3 norm;
-	vec3 viewDir;
-	float gamma = 1.0f;
-	/* Unlit */
-	if (drawMode == 2 || drawMode == 4)
+	vec3 finalColor;
+	vec3 normalVector;
+	vec3 viewDirection = normalize(ProjPos - FragPos);
+	vec2 textureCoordinates = material.tilingFactor * TexCoords;
+
+	if(drawMode == 2)
 	{
-		result = texture(material.texture_diffuse1, TexCoords).rgb;
+		finalColor = vec3(1.0);
 	}
-	else if(drawMode == 7)
+	else if(material.hasDiffuseTexture)
 	{
-		result = texture(material.texture_specular1, TexCoords).rgb;
-	}
-	else if (drawMode == 8)
-	{
-		result = texture(material.texture_normal1, TexCoords).rgb;
+		finalColor = vec3(texture(material.mapDiffuse_1, textureCoordinates));
 	}
 	else
 	{
-		norm = normalize((texture( material.texture_normal1, TexCoords ).rgb * 2.0 - 1.0) * TBN);
-		viewDir = normalize(ProjPos - FragPos);
-		result = CalcLight(dirLight, pointLights, norm, FragPos, viewDir);
-	}
-	if (drawMode == 9)
-	{
-		gamma = 2.2f;
-	}
-	FragColor = vec4(result, 1.0f);
-	FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
-}
-
-vec3 CalcLight(DirLight dirLight, PointLight pointLights[16], vec3 norm, vec3 FragPos, vec3 viewDir)
-{
-	vec3 result;
-	if (drawMode != 6)
-	{
-		// calculating directional light impact
-		result += CalcDirLight(dirLight, norm, viewDir, FragPos);
+		finalColor = material.colorDiffuse.rgb;
 	}
 
-	if (drawMode != 5 && drawMode != 0)
+	if(drawMode == 5)
 	{
-		// calculating point lights impact
+		FragColor = vec4(finalColor, material.opacity);
+		return;
+	}
+	if(drawMode == 6)
+	{
+		FragColor = vec4(texture(material.mapNormal_1, textureCoordinates).rgb, 1);
+		return;
+	}
+	if(drawMode == 7)
+	{
+		FragColor = vec4(texture(material.mapSpecular_1, textureCoordinates).rgb, 1);
+		return;
+	}
+	if(drawMode == 9)
+	{
+		FragColor = vec4(texture(material.mapRoughness_1, textureCoordinates).rgb, 1);
+		return;
+	}
+	if(!material.shouldBeLit)
+	{
+		FragColor = vec4(finalColor, material.opacity);
+		return;
+	}
+
+
+	if(material.hasNormalTexture)
+	{
+		normalVector = normalize((texture( material.mapNormal_1, textureCoordinates).rgb * 2.0 - 1.0) * TBN);
+	}
+	else
+	{
+		normalVector = Normal;
+	}
+
+	float shadowFactor;
+	vec3 diffuseLighting;
+	vec3 specularLighting;
+
+	if(drawMode != 4)
+	{
+		shadowFactor = CalculateDirecionalShadowFactor(normalize(-dirLight.direction), normalVector);
+		diffuseLighting  += CalculateDirectionalDiffuseLighting(dirLight, normalVector, viewDirection) * (1.0 - shadowFactor);
+		specularLighting += CalculateDirectionalSpecularLighting(dirLight, normalVector, viewDirection) * (1.0 - shadowFactor);
+	}
+	if(drawMode != 3)
+	{
 		for(int i = 0; i < pointLightsCount; i++)
 		{
-			result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+			diffuseLighting  += CalculatePointDiffuseLighting(pointLights[i], normalVector, viewDirection);
+			specularLighting += CalculatePointSpecularLighting(pointLights[i], normalVector, viewDirection);
 		}
 	}
-	// returning result
-	return result;
+
+	finalColor = diffuseLighting * finalColor + specularLighting * texture(material.mapSpecular_1, textureCoordinates).rgb;
+	FragColor = vec4(finalColor, material.opacity);
 }
 
-float ShadowCalculation(vec3 lightDir, vec3 normal)
+
+vec3 CalculateDirectionalDiffuseLighting(DirLight light, vec3 normal, vec3 viewDir)
+{
+	vec3 lightDir = normalize(-light.direction);
+
+	// diffuse shading
+	float diff = max(dot(normal, lightDir), 0.0);
+	return light.diffuse * diff + light.ambient;
+}
+
+vec3 CalculateDirectionalSpecularLighting(DirLight light, vec3 normal, vec3 viewDir)
+{
+	vec3 lightDir = normalize(-light.direction);
+
+	// specular shading
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 4.0);
+	return light.specular * spec;
+}
+
+vec3 CalculatePointDiffuseLighting(PointLight light, vec3 normal, vec3 viewDir)
+{
+	vec3 lightDir = normalize(light.position - FragPos);
+
+	// diffuse shading
+	float diff = max(dot(normal, lightDir), 0.0);
+
+	// attenuation
+	float distance    = length(light.position - FragPos);
+	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
+	return light.diffuse * diff * attenuation + light.ambient * attenuation;
+}
+
+vec3 CalculatePointSpecularLighting(PointLight light, vec3 normal, vec3 viewDir)
+{
+	vec3 lightDir = normalize(light.position - FragPos);
+	// specular shading
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+
+	float distance    = length(light.position - FragPos);
+	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
+	return light.specular * spec * attenuation;
+}
+
+float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal)
 {
 	float ambientShadow = 0.9f;
 
@@ -143,7 +238,6 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
 	// select cascade layer
 	vec4 fragPosViewSpace = view * vec4(FragPos, 1.0);
 	float depthValue = abs(fragPosViewSpace.z);
-
 
 	int layer = -1;
 	for (int i = 0; i < cascadeCount; ++i)
@@ -173,122 +267,36 @@ float ShadowCalculation(vec3 lightDir, vec3 normal)
 		return 0.0;
 	}
 
-
 	// calculate bias (based on depth map resolution and slope)
-	float bias = mix(0.0f, 0.0025f, vectorNormalDot);
+	float bias = mix(0.0f, 0.0023f, vectorNormalDot);
 	float rnd = rand(projCoords.xy * faceNormalDot / vectorNormalDot);
 
 	const float biasModifier = 0.3f;
 
 	if (layer == cascadeCount - 1)
 	{
-		bias *= 5 / (farPlane * biasModifier);
+		bias *= 65 / (farPlane * biasModifier);
 	}
 	else
 	{
-		bias *= (layer + 2) / (cascadePlaneDistances[layer] * biasModifier);
+		bias *= ((layer + 1.0f) * 2.0f) / (cascadePlaneDistances[layer] * biasModifier);
 	}
 
 	// PCF
-	if (drawMode != 0)
+	vec2 texelSize = 1.0f / vec2(textureSize(material.mapShadow, 0));
+
+	const int sampleRadius = 4;
+	const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
+
+	for(int x = -sampleRadius; x <= sampleRadius; ++x)
 	{
-		vec2 texelSize = 1.0f / vec2(textureSize(material.texture_shadow, 0));
-
-		const int sampleRadius = 4;
-		const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
-
-		for(int x = -sampleRadius; x <= sampleRadius; ++x)
+		for(int y = -sampleRadius; y <= sampleRadius; ++y)
 		{
-			for(int y = -sampleRadius; y <= sampleRadius; ++y)
-			{
-				// softens shadows without increasing sample radius
-				float pcfDepth  = texture(material.texture_shadow, vec3(projCoords.xy + vec2(x + x * 0.5, y + y * 0.5) * texelSize, layer)).r;
-				shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0f;
-			}
+			// softens shadows without increasing sample radius
+			float pcfDepth  = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + x * 0.5, y + y * 0.5) * texelSize, layer)).r;
+			shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0f;
 		}
-		shadow /= sampleRadiusCount;
 	}
-
-	// no PCF on 0 draw mode
-	else
-	{
-		float pcfDepth = texture(material.texture_shadow, vec3(projCoords.xy, layer)).r;
-		shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0;
-	}
-
+	shadow /= sampleRadiusCount;
 	return shadow;
-}
-
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 FragPos)
-{
-	vec3 lightDir = normalize(-light.direction);
-
-	float shadow = ShadowCalculation(lightDir, normal);
-
-	// diffuse shading
-	float diff = max(dot(normal, lightDir), 0.0);
-
-	// specular shading
-	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), 4.0);
-
-	// combine results
-	vec3 ambient  = light.ambient;
-	vec3 diffuse  = light.diffuse * diff;
-	vec3 specular = light.specular * spec;
-
-	if (drawMode == 3)
-	{
-		ambient = ambient * vec3(1.0f, 1.0f, 1.0f);
-		diffuse = diffuse * vec3(1.0f, 1.0f, 1.0f);
-
-		return (ambient * (1.0f - shadow) + diffuse * (1.0f - shadow));
-	}
-	else
-	{
-		specular = specular * vec3(texture(material.texture_specular1, TexCoords));
-		return ((diffuse * (1.0f - shadow) + ambient * (1.0f - shadow)) * vec3(texture(material.texture_diffuse1, TexCoords)) + specular * (1.0f - shadow));
-	}
-}
-
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
-{
-	vec3 lightDir;
-	lightDir = normalize(light.position - FragPos);
-
-	// diffuse shading
-	float diff = max(dot(normal, lightDir), 0.0);
-
-	// specular shading
-	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-
-	// attenuation
-	float distance    = length(light.position - fragPos);
-	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-
-	// combine results
-	vec3 ambient  = light.ambient;
-	vec3 diffuse  = light.diffuse * diff;
-	vec3 specular = light.specular * spec;
-
-	if (drawMode == 3)
-	{
-		ambient = ambient * vec3(1.0f, 1.0f, 1.0f);
-		diffuse = diffuse * vec3(1.0f, 1.0f, 1.0f);
-		ambient  *= attenuation;
-		diffuse  *= attenuation;
-		return (ambient + diffuse);
-	}
-	else
-	{
-		ambient = ambient * vec3(texture(material.texture_diffuse1, TexCoords));
-		diffuse = diffuse * vec3(texture(material.texture_diffuse1, TexCoords));
-		specular = specular * vec3(texture(material.texture_specular1, TexCoords));
-	}
-
-	ambient  *= attenuation;
-	diffuse  *= attenuation;
-	specular *= attenuation;
-	return (ambient + diffuse + specular);
 }

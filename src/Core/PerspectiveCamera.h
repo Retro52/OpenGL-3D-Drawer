@@ -91,8 +91,9 @@ public:
      */
     [[nodiscard]] inline const glm::vec3& GetDirection() const { return dir; };
 
+    float zoom;
 private:
-    float fov, zoom;
+    float fov;
     const float nearPlane = 0.05f, farPlane = 1500.0f;
     glm::vec3 front, right, dir, up;
     glm::mat4 model;

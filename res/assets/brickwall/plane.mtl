@@ -9,4 +9,4 @@ newmtl None
    illum 2
 
    map_Kd brickwall.jpg
-   map_Bump brickwall_normal.jpg
+   norm brickwall_normal.jpg
