@@ -19,14 +19,16 @@ public:
 
     Entity CreateEntity(const std::string& name = "");
 
-    void DeleteEntity(const std::string& name)
+    Entity CopyEntity(const Entity& source);
+
+    void DeleteEntity(const UniqueID& id)
     {
         const auto& view = registry.view<NameComponent>();
         for(const auto& entity : view)
         {
             /* temp */
             const auto& n = view.get<NameComponent>(entity);
-            if (n.name == name)
+            if (n.id == id)
             {
                 bool t = registry.any_of<Model3DComponent>(entity);
                 registry.destroy(entity);
@@ -37,7 +39,7 @@ public:
                 return;
             }
         }
-        std::cerr << "Entity not found\n";
+        throw InGameException("Entity #id" + std::to_string(id.operator unsigned long()) + " not found");
     }
 
     Entity GetPrimaryCamera();
@@ -47,11 +49,19 @@ public:
 
     void SaveScene(const std::string& savePath);
 
+    [[nodiscard]] Entity GetSelectedEntity();
+    [[nodiscard]] Entity GetSelectedEntity(int& index);
+
+    [[nodiscard]] Entity GetEngineDefault(EngineDefaultTypes type);
+
+    void OnUpdate(double deltaTime);
 private:
     void LoadScene(const std::string& path);
 
     std::string path;
     entt::registry registry;
+
+    int idx = 0;
 
     friend class Entity;
     friend class Renderer;

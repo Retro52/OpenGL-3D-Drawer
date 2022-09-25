@@ -23,7 +23,7 @@ public:
         GAME_ASSERT(os.is_open(), "Failed to open file " + savePath + " to save the scene");
 
         os << std::boolalpha;
-        os << openBracket << newLine;
+        os << openBracket;
 
         InsertVariable(os, "Name", (const std::string&) "SceneDefaultName");
 
@@ -40,7 +40,12 @@ public:
 
         CloseMap(os);
 
-        os << closeBracket << newLine;
+        os << newLine << closeBracket << newLine;
+
+        // resetting variables
+        count = 1;
+        currentLayer = 0;
+        varOnLayer.clear();
         os.close();
     }
 private:
@@ -191,7 +196,7 @@ private:
             StartMap(out, "Transform");
             const auto& component = entity.GetComponent<TransformComponent>();
             InsertVariable(out, "Position", component.translation);
-            InsertVariable(out, "Rotation", component.rotation);
+            InsertVariable(out, "Rotation", glm::degrees(component.rotation));
             InsertVariable(out, "Scale", component.scale);
             CloseMap(out);
         }
@@ -212,6 +217,7 @@ private:
             InsertVariable(out, "Path", component.model.GetPath());
             InsertVariable(out, "castsShadow", component.castsShadow);
             InsertVariable(out, "shouldBeLit", component.shouldBeLit);
+            InsertVariable(out, "tilingFactor", component.tilingFactor);
             CloseMap(out);
         }
 
@@ -222,7 +228,6 @@ private:
             InsertVariable(out, "Ambient", component.directionalLight.ambient);
             InsertVariable(out, "Diffuse", component.directionalLight.diffuse);
             InsertVariable(out, "Specular", component.directionalLight.specular);
-            InsertVariable(out, "Direction", component.directionalLight.direction);
             CloseMap(out);
         }
 
@@ -240,23 +245,30 @@ private:
             CloseMap(out);
         }
 
+        if (entity.HasComponent<EngineDefaultComponent>())
+        {
+            StartMap(out, "Engine default");
+            const auto& component = entity.GetComponent<EngineDefaultComponent>();
+            InsertVariable(out, "Type", component.type);
+            CloseMap(out);
+        }
     }
 };
 
 /**
  * Just to count number of tabulations on every new row
  */
-unsigned int JsonSceneSerializer::count = 1;
+inline unsigned int JsonSceneSerializer::count = 1;
 
 /**
  * Depth index
  */
-unsigned int JsonSceneSerializer::currentLayer = 0;
+inline unsigned int JsonSceneSerializer::currentLayer = 0;
 
 /**
  * Counts number of variables on the current depth
  */
-std::unordered_map<unsigned int, unsigned int> JsonSceneSerializer::varOnLayer;
+inline std::unordered_map<unsigned int, unsigned int> JsonSceneSerializer::varOnLayer;
 
 
 #endif //GRAPHICS_JSONSCENESERIALIZER_HPP

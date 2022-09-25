@@ -9,7 +9,6 @@
 #include "../Entity/Entity.h"
 #include "../Render/Renderer.h"
 
-
 double Global::lastTime;
 double Global::deltaTime;
 double Global::elapsedTime;
@@ -136,70 +135,9 @@ void Global::Tick()
         ResourcesManager::RegisterPlayerScene("../res/scenes/defaultScene.json");
     }
 
-
     /* Update window controls */
     Window::Tick();
-
-    
-    auto& t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
-    auto& c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
-
-    float speed = 10.0f;
-
-    if (EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT))
-    {
-        speed *= 10;
-    }
-    else if (EventsHandler::IsPressed(GLFW_KEY_LEFT_CONTROL))
-    {
-        speed /= 10;
-    }
-
-    if (EventsHandler::IsPressed(GLFW_KEY_W))
-    {
-        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_S))
-    {
-        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_D))
-    {
-        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_A))
-    {
-        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_Q))
-    {
-        t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_E))
-    {
-        t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_KP_ADD))
-    {
-        c.camera.zoom += 0.15;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_KP_SUBTRACT))
-    {
-        c.camera.zoom -= 0.15;
-    }
-
-
-    float mouseSensitivity = 150.0f;
-
-    /* PerspectiveCamera world orientation */
-    if (EventsHandler::_cursor_locked)
-    {
-        t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2),
-                                  - glm::radians(89.0f),
-                                  glm::radians(89.0f));
-        t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetWidth() * 2);
-        c.camera.Update(t.rotation);
-    }
+    ResourcesManager::GetPlayerScene()->OnUpdate(deltaTime);
 }
 
 double Global::GetWorldDeltaTime()
@@ -217,16 +155,24 @@ void Global::Draw()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    TransformComponent t = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<TransformComponent>();
-    CameraComponent c = ResourcesManager::GetPlayerScene()->GetPrimaryCamera().GetComponent<CameraComponent>();
-
-    std::string res = "Position" + std::to_string(t.translation.x) + "; " + std::to_string(t.translation.y) + "; " + std::to_string(t.translation.z);
-    std::string res2 = "Rotation" + std::to_string(t.rotation.x) + std::to_string(t.rotation.y) + std::to_string(t.rotation.z);
     UIHandler::RenderText(uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 48.0F, 16);
     UIHandler::RenderText(uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 64.0F, 16, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(uiShader, "WASD to move, 1-9 to switch view Modes", 0.0F, (float) Window::GetHeight() - 80.0F, 16);
-    UIHandler::RenderText(uiShader, res2, 0.0F, (float) Window::GetHeight() - 96.0F, 16);
-    UIHandler::RenderText(uiShader, res, 0.0F, (float) Window::GetHeight() - 112.0F, 16);
+
+    auto selEnt = ResourcesManager::GetPlayerScene()->GetSelectedEntity();
+    auto& selEntTransform = selEnt.GetComponent<TransformComponent>();
+    auto& selEntNameComp = selEnt.GetComponent<NameComponent>();
+
+    std::stringstream trans;
+    std::stringstream rot;
+    std::stringstream sc;
+    trans << "Translation: " << std::to_string(selEntTransform.translation.x) << "; " << std::to_string(selEntTransform.translation.y) << "; " << std::to_string(selEntTransform.translation.z);
+    rot << "Rotation: " << std::to_string(glm::degrees(selEntTransform.rotation.x))  << "; " << std::to_string(glm::degrees(selEntTransform.rotation.y))  << "; " << std::to_string(glm::degrees(selEntTransform.rotation.z));
+    sc << "Scale: " << std::to_string(selEntTransform.scale.x)  << "; " << std::to_string(selEntTransform.scale.y)  << "; " << std::to_string(selEntTransform.scale.z);
+    UIHandler::RenderText(uiShader, "Name: " + selEntNameComp.name, 0.0F, (float) Window::GetHeight() - 80.0F, 16, glm::vec3(1.0, 1.0, 0.0));
+    UIHandler::RenderText(uiShader, trans.str(), 0.0F, (float) Window::GetHeight() - 96.0F, 16, glm::vec3(1.0, 1.0, 0.0));
+    UIHandler::RenderText(uiShader, rot.str(), 0.0F, (float) Window::GetHeight() - 112.0F, 16, glm::vec3(1.0, 1.0, 0.0));
+    UIHandler::RenderText(uiShader, sc.str(), 0.0F, (float) Window::GetHeight() - 128.0F, 16, glm::vec3(1.0, 1.0, 0.0));
+
 }
 
 void Global::EndFrame()

@@ -40,6 +40,8 @@ Texture::Texture(const std::string &path, bool /*gamma*/) : path(path)
 
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, static_cast<int>(format), width, height, 0, format, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -47,6 +49,8 @@ Texture::Texture(const std::string &path, bool /*gamma*/) : path(path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    LOG(INFO) << "Texture " << path << " loaded, taking " << nrComponents * width * height << " bytes of memory; Generated id: " << id;
 
     stbi_image_free(data);
 }

@@ -12,6 +12,8 @@ in vec4 FragPosLight;
 
 struct DirLight
 {
+	bool isPresent;
+
 	vec3 direction;
 
 	vec3 ambient;
@@ -39,8 +41,9 @@ struct Material
 	bool hasDiffuseTexture;
 	bool hasTranslucencyTexture;
 
+	int tilingFactor;
+
 	float opacity;
-	float tilingFactor;
 
 	sampler2D mapNormal_1;
 	sampler2D mapDiffuse_1;
@@ -73,7 +76,7 @@ layout (std140, binding = 0) uniform LightSpaceMatrices
 	mat4 lightSpaceMatrices[16];
 };
 
-float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal);
+float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir);
 
 vec3 CalculateDirectionalDiffuseLighting(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalculateDirectionalSpecularLighting(DirLight light, vec3 normal, vec3 viewDir);
@@ -96,15 +99,16 @@ float rand(vec2 co)
  * 5 - Diffuse map/color view
  * 6 - Normal map view
  * 7 - Specular map view
- * 8 -
+ * 8 - Shadow map debug
  * 9 - Roughness map view
 */
 void main()
 {
 	vec3 finalColor;
 	vec3 normalVector;
-	vec3 viewDirection = normalize(ProjPos - FragPos);
-	vec2 textureCoordinates = material.tilingFactor * TexCoords;
+	vec3 viewDirection = normalize((ProjPos - FragPos));
+	vec2 textureCoordinates = TexCoords * material.tilingFactor;
+//	vec2 textureCoordinates = TexCoords * 20.0f;
 
 	if(drawMode == 2)
 	{
@@ -134,6 +138,29 @@ void main()
 		FragColor = vec4(texture(material.mapSpecular_1, textureCoordinates).rgb, 1);
 		return;
 	}
+
+	if(material.hasNormalTexture)
+	{
+		normalVector = normalize((texture( material.mapNormal_1, textureCoordinates).rgb * 2.0 - 1.0) * TBN);
+	}
+	else
+	{
+		normalVector = Normal;
+	}
+	if(drawMode == 8)
+	{
+		if (!dirLight.isPresent)
+		{
+			FragColor = vec4(0, 0, 1, 1);
+			return;
+		}
+		float shadowFactor = CalculateDirecionalShadowFactor(normalize(-dirLight.direction), normalVector, viewDirection);
+		float r = mix(0, 1, shadowFactor);
+		float g = mix(1, 0, shadowFactor);
+		FragColor = vec4(r, g, 0, 1);
+		return;
+	}
+
 	if(drawMode == 9)
 	{
 		FragColor = vec4(texture(material.mapRoughness_1, textureCoordinates).rgb, 1);
@@ -145,23 +172,13 @@ void main()
 		return;
 	}
 
-
-	if(material.hasNormalTexture)
-	{
-		normalVector = normalize((texture( material.mapNormal_1, textureCoordinates).rgb * 2.0 - 1.0) * TBN);
-	}
-	else
-	{
-		normalVector = Normal;
-	}
-
 	float shadowFactor;
 	vec3 diffuseLighting;
 	vec3 specularLighting;
 
-	if(drawMode != 4)
+	if(drawMode != 4 && dirLight.isPresent)
 	{
-		shadowFactor = CalculateDirecionalShadowFactor(normalize(-dirLight.direction), normalVector);
+		shadowFactor = CalculateDirecionalShadowFactor(normalize(-dirLight.direction), normalVector, viewDirection);
 		diffuseLighting  += CalculateDirectionalDiffuseLighting(dirLight, normalVector, viewDirection) * (1.0 - shadowFactor);
 		specularLighting += CalculateDirectionalSpecularLighting(dirLight, normalVector, viewDirection) * (1.0 - shadowFactor);
 	}
@@ -194,7 +211,7 @@ vec3 CalculateDirectionalSpecularLighting(DirLight light, vec3 normal, vec3 view
 
 	// specular shading
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), 4.0);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 	return light.specular * spec;
 }
 
@@ -225,7 +242,7 @@ vec3 CalculatePointSpecularLighting(PointLight light, vec3 normal, vec3 viewDir)
 	return light.specular * spec * attenuation;
 }
 
-float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal)
+float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir)
 {
 	float ambientShadow = 0.9f;
 
@@ -267,25 +284,10 @@ float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal)
 		return 0.0;
 	}
 
-	// calculate bias (based on depth map resolution and slope)
-	float bias = mix(0.0f, 0.0023f, vectorNormalDot);
-	float rnd = rand(projCoords.xy * faceNormalDot / vectorNormalDot);
-
-	const float biasModifier = 0.3f;
-
-	if (layer == cascadeCount - 1)
-	{
-		bias *= 65 / (farPlane * biasModifier);
-	}
-	else
-	{
-		bias *= ((layer + 1.0f) * 2.0f) / (cascadePlaneDistances[layer] * biasModifier);
-	}
-
 	// PCF
 	vec2 texelSize = 1.0f / vec2(textureSize(material.mapShadow, 0));
 
-	const int sampleRadius = 4;
+	const int sampleRadius = 3;
 	const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
 
 	for(int x = -sampleRadius; x <= sampleRadius; ++x)
@@ -294,9 +296,10 @@ float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal)
 		{
 			// softens shadows without increasing sample radius
 			float pcfDepth  = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + x * 0.5, y + y * 0.5) * texelSize, layer)).r;
-			shadow += (currentDepth - bias) > pcfDepth ? ambientShadow : 0.0f;
+			shadow += currentDepth > pcfDepth ? ambientShadow : 0.0f;
 		}
 	}
+
 	shadow /= sampleRadiusCount;
 	return shadow;
 }

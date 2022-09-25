@@ -66,6 +66,17 @@ public:
         scene->registry.template remove<T>(thisEntity);
     }
 
+    bool operator == (const Entity& other)
+    {
+        return other.thisEntity == thisEntity;
+    }
+
+    bool operator == (const entt::entity& other)
+    {
+        return other == thisEntity;
+    }
+
+    operator entt::entity() { return thisEntity; }
 private:
      entt::entity thisEntity { 0 };
      Scene * scene;

@@ -69,6 +69,7 @@ void EventsHandler::mouse_button_callback(GLFWwindow * /* window */, int button,
  */
 void EventsHandler::key_callback(GLFWwindow * /* window */, int key, int /* scancode */ , int action, int /* mode */)
 {
+    key = key > MOUSE_BUTTONS_OFFSET ? MOUSE_BUTTONS_OFFSET : key;
     if (action == GLFW_PRESS)
     {
         EventsHandler::_keys.at(key) = true;

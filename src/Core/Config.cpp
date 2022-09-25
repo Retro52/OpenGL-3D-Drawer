@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "ResourcesManager.h"
 #include "InGameException.h"
+#include "../Lighting/ShadowsHandler.h"
 #include "inipp.h"
 #include "json.hpp"
 #include "../Logging/easylogging++.h"
@@ -18,6 +19,7 @@ void Config::LoadIni(const std::string &configPath)
     int windowHeight       = 900;
     int windowWidth        = 1200;
     int defaultFontSize    = 16;
+    int shadowsResolution  = 1024;
     bool windowFullScreen  = false;
     std::string windowName        = "OpenGL Drawer";
     std::string defaultFontPath   = "../res/fonts/arial/arial.ttf";
@@ -42,21 +44,24 @@ void Config::LoadIni(const std::string &configPath)
     inipp::get_value(ini.sections["DEFAULT"], "defaultFontPath", defaultFontPath);
     inipp::get_value(ini.sections["DEFAULT"], "defaultScenePath", defaultScenePath);
 
+
     windowWidth = windowWidth > 399 ? windowWidth : 400;
     windowHeight = windowHeight > 399 ? windowHeight : 400;
 
     inipp::get_value(ini.sections["SHADERS"], "shadersConfigPath", shadersConfigPath);
 
+    inipp::get_value(ini.sections["SHADOWS"], "shadowsResolution", shadowsResolution);
+
     is.close();
-
-
     LOG(INFO) << configPath << " successfully loaded";
+
     /* All the exceptions are handled in Global::Init method */
     Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen);
 
     Config::LoadJson(shadersConfigPath);
     UIHandler::Initialize(defaultFontPath, defaultFontSize);
     ResourcesManager::RegisterPlayerScene(defaultScenePath);
+    ShadowsHandler::SetMapResolution(shadowsResolution);
 }
 
 void Config::LoadJson(const std::string &jsonConfigPath)
