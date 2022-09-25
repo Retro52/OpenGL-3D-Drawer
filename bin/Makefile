@@ -488,6 +488,30 @@ src/Logging/easylogging++.cc.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Logging/easylogging++.cc.s
 .PHONY : src/Logging/easylogging++.cc.s
 
+src/Render/Material.obj: src/Render/Material.cpp.obj
+.PHONY : src/Render/Material.obj
+
+# target to build an object file
+src/Render/Material.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Render/Material.cpp.obj
+.PHONY : src/Render/Material.cpp.obj
+
+src/Render/Material.i: src/Render/Material.cpp.i
+.PHONY : src/Render/Material.i
+
+# target to preprocess a source file
+src/Render/Material.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Render/Material.cpp.i
+.PHONY : src/Render/Material.cpp.i
+
+src/Render/Material.s: src/Render/Material.cpp.s
+.PHONY : src/Render/Material.s
+
+# target to generate assembly for a file
+src/Render/Material.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Render/Material.cpp.s
+.PHONY : src/Render/Material.cpp.s
+
 src/Render/Mesh.obj: src/Render/Mesh.cpp.obj
 .PHONY : src/Render/Mesh.obj
 
@@ -686,6 +710,9 @@ help:
 	@echo ... src/Logging/easylogging++.obj
 	@echo ... src/Logging/easylogging++.i
 	@echo ... src/Logging/easylogging++.s
+	@echo ... src/Render/Material.obj
+	@echo ... src/Render/Material.i
+	@echo ... src/Render/Material.s
 	@echo ... src/Render/Mesh.obj
 	@echo ... src/Render/Mesh.i
 	@echo ... src/Render/Mesh.s

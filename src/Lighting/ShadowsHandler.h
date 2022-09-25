@@ -33,16 +33,17 @@ public:
     /**
      * @return last rendered shadow map texture id
      */
-    inline static GLuint GetRenderedShadowMap() { return shadowTexture; };
+    static GLuint GetRenderedShadowMap() { return shadowTexture; };
 
+    static void SetMapResolution(int resolution) { shadowMapResolution = resolution; };
 private:
     static GLuint shadowTexture;
 
-    static const int shadowMultiSampler = 2;
-    static const int shadowMapResolution = 1024 * shadowMultiSampler;
+    static int shadowMapResolution;
 
     static std::unique_ptr<FBO> shadowFBO;
 };
 
+inline int ShadowsHandler::shadowMapResolution = 1024;
 
 #endif //GRAPHICS_SHADOWSHANDLER_H

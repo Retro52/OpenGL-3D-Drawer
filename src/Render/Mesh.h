@@ -7,6 +7,7 @@
 #include "../vendors/include/glm/glm.hpp"
 
 #include "Shader.h"
+#include "Material.h"
 
 #include <string>
 #include <vector>
@@ -26,24 +27,28 @@ struct Vertex
     float m_Weights[MAX_BONE_INFLUENCE];
 };
 
-struct Texture
-{
-    unsigned int id;
-    std::string type;
-    std::string path;
-};
-
 class Mesh
 {
 public:
+
+    Mesh(Mesh&& other) = delete;
+    Mesh(const Mesh& other) = delete;
     /***
      * Mesh constructor, creates new instance of the mesh
      * @param vertices vector of mesh vertices
      * @param indices  vector of mesh indices
      * @param textures vector of mesh textures
      */
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+    Mesh(std::vector<Vertex>  vertices, std::vector<unsigned int>  indices, const Material& material);
 
+    /* Cleaning OpenGL stuff */
+    ~Mesh()
+    {
+//        LOG(DEBUG) << "Model unloaded. Total number of vertices deleted: " << vertices.size();
+        glDeleteBuffers(1, &VBO);
+        glDeleteBuffers(1, &EBO);
+        glDeleteVertexArrays(1, &VAO);
+    }
     /***
      * Draws mesh instance
      * @param shader shader to be applied to the instance when drawing
@@ -51,13 +56,13 @@ public:
     void Draw(const Shader &shader, GLuint shadowMap) const;
 
     void DrawIntoDepth() const;
+
 private:
     unsigned int VBO{}, EBO{};
-
     unsigned int VAO{};
     std::vector<Vertex>       vertices;
     std::vector<unsigned int> indices;
-    std::vector<Texture>      textures;
+    Material material;
 
     /***
      * Initializes buffers and textures for OpenGL

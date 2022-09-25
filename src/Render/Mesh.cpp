@@ -6,87 +6,18 @@
 
 #include <utility>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : vertices(std::move(vertices)), indices(std::move(indices)), textures(std::move(textures))
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, const Material& material) : vertices(std::move(vertices)), indices(std::move(indices)), material(material)
 {
-    // now that we have all the required data, set the vertex buffers and its attribute pointers.
     SetUpMesh();
 }
 
 void Mesh::Draw(const Shader &shader, GLuint shadowMap) const
 {
-    // bind appropriate textures
-    unsigned int diffuseNr  = 1;
-    unsigned int specularNr = 1;
-    unsigned int normalNr   = 1;
-    unsigned int heightNr   = 1;
-    unsigned int i = 0;
-    for(i = 0; i < textures.size(); i++)
-    {
-        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-        // retrieve texture number (the N in diffuse_textureN)
-        std::string number;
-        std::string name = textures[i].type;
-        std::string res = "material.";
-
-        if(name == "texture_diffuse")
-        {
-            number = std::to_string(diffuseNr++);
-        }
-        else if(name == "texture_specular")
-        {
-            number = std::to_string(specularNr++); // transfer unsigned int to string
-        }
-        else if(name == "texture_normal")
-        {
-            number = std::to_string(normalNr++); // transfer unsigned int to string
-        }
-        else if(name == "texture_height")
-        {
-            number = std::to_string(heightNr++); // transfer unsigned int to string
-        }
-        res += name + number;
-        
-        // now set the sampler to the correct texture unit
-        shader.setInt(res, (int) i);
-        // and finally bind the texture
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
-    }
-
-    // activate shadow texture
-    i++;
-    glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-    shader.setInt("material.texture_shadow", (int) i++);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, shadowMap);
-
-    // get rid of overlapping textures
-    if (specularNr == 1)
-    {
-        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-        shader.setInt("material.texture_specular1", (int) i++);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    if (normalNr == 1)
-    {
-        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-        shader.setInt("material.texture_normal1", (int) i++);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    if (diffuseNr == 1)
-    {
-        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-        shader.setInt("material.texture_diffuse1", (int) i++);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    if (heightNr == 1)
-    {
-        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-        shader.setInt("material.texture_height1", (int) i++);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
+    material.Bind(shader, shadowMap);
 
     // draw mesh
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, static_cast<int>(indices.size()), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 
     // always good practice to set everything back to defaults once configured.

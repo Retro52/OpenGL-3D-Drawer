@@ -1,23 +1,25 @@
 {
-
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
-    "Entity15" : 
+    "Entity8" : 
     {
       "Name" : 
       {
-        "Name" : "PL1"
+        "Name" : "PL1_copy_copy"
       },
       "Transform" : 
       {
-        "Position" : [0, 2, 0],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [0.1, 0.1, 0.1]
+        "Position" : [-3.94467, -1.0492, -23.8455],
+        "Rotation" : [1.17327, 0.0836795, 0.084999],
+        "Scale" : [0.05, 0.05, 0.05]
       },
       "Model3D" : 
       {
-        "Path" : "../res/assets/Basics/sphere.obj"
+        "Path" : "../res/assets/Basics/bulb.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
       },
       "Point light" : 
       {
@@ -29,33 +31,118 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity14" : 
+    "Entity7" : 
     {
       "Name" : 
       {
-        "Name" : "Roof1"
+        "Name" : "Floor_copy"
       },
       "Transform" : 
       {
-        "Position" : [5, 7, 10],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [5, 5, 5]
+        "Position" : [0, -4.74477, 0],
+        "Rotation" : [-180.175, 0, 0],
+        "Scale" : [74.5271, 74.5271, 74.5271]
       },
       "Model3D" : 
       {
-        "Path" : "../res/assets/brickwall/plane.obj"
+        "Path" : "../res/assets/brickwall/plane.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 20
       }
     },
-    "Entity13" : 
+    "Entity6" : 
     {
       "Name" : 
       {
-        "Name" : "Directional light"
+        "Name" : "PL1_copy"
       },
       "Transform" : 
       {
-        "Position" : [1.51702, 14.8726, 13.7909],
-        "Rotation" : [-1.24048, -264.153, 0],
+        "Position" : [5.02131, 20.7595, 0.829443],
+        "Rotation" : [0.0404959, 0.0836795, 0.084999],
+        "Scale" : [0.05, 0.05, 0.05]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/bulb.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      },
+      "Point light" : 
+      {
+        "Linear" : 0.09,
+        "Ambient" : [0.5, 0.5, 0.5],
+        "Diffuse" : [0.5, 0.5, 0.5],
+        "Constant" : 0.3,
+        "Specular" : [0.5, 0.5, 0.5],
+        "Quadratic" : 0.012
+      }
+    },
+    "Entity5" : 
+    {
+      "Name" : 
+      {
+        "Name" : "PL1"
+      },
+      "Transform" : 
+      {
+        "Position" : [-7.14514, -1.1234, -25.3236],
+        "Rotation" : [-4.27012, 0, 0],
+        "Scale" : [0.05, 0.05, 0.05]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/bulb.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      },
+      "Point light" : 
+      {
+        "Linear" : 0.09,
+        "Ambient" : [0.5, 0.5, 0.5],
+        "Diffuse" : [0.5, 0.5, 0.5],
+        "Constant" : 0.3,
+        "Specular" : [0.5, 0.5, 0.5],
+        "Quadratic" : 0.012
+      }
+    },
+    "Entity4" : 
+    {
+      "Name" : 
+      {
+        "Name" : "axes"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 48.3869, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/axes.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      },
+      "Engine default" : 
+      {
+        "Type" : 0
+      }
+    },
+    "Entity3" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Camera"
+      },
+      "Transform" : 
+      {
+        "Position" : [30.9576, 16.8658, -27.5015],
+        "Rotation" : [-21.6612, -13184.7, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -64,7 +151,7 @@
         "isPrimary" : true
       }
     },
-    "Entity12" : 
+    "Entity2" : 
     {
       "Name" : 
       {
@@ -72,182 +159,22 @@
       },
       "Transform" : 
       {
-        "Position" : [0, 0, 0],
-        "Rotation" : [0, 0, 0],
+        "Position" : [0, 48.3869, 0],
+        "Rotation" : [324.535, 136.232, 0],
         "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sun.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
       },
       "Directional light" : 
       {
         "Ambient" : [0.5, 0.5, 0.5],
         "Diffuse" : [0.5, 0.5, 0.5],
-        "Specular" : [0.5, 0.5, 0.5],
-        "Direction" : [-1, -1, -1]
-      }
-    },
-    "Entity11" : 
-    {
-      "Name" : 
-      {
-        "Name" : "PL1"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, 2, 1.5],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [1, 1, 1]
-      }
-    },
-    "Entity10" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall8"
-      },
-      "Transform" : 
-      {
-        "Position" : [5, 2, 15],
-        "Rotation" : [1.57, 0, 0],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity9" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall7"
-      },
-      "Transform" : 
-      {
-        "Position" : [5, 2, 14],
-        "Rotation" : [-1.57, 0, 0],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity8" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall6"
-      },
-      "Transform" : 
-      {
-        "Position" : [5, 2, 6],
-        "Rotation" : [1.57, 0, 0],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity7" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall5"
-      },
-      "Transform" : 
-      {
-        "Position" : [5, 2, 5],
-        "Rotation" : [-1.57, 0, 0],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity6" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall4"
-      },
-      "Transform" : 
-      {
-        "Position" : [1, 2, 10],
-        "Rotation" : [0, 1.57, -1.57],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity5" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall3"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, 2, 10],
-        "Rotation" : [0, 1.57, 1.57],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity4" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall2"
-      },
-      "Transform" : 
-      {
-        "Position" : [10, 2, 10],
-        "Rotation" : [0, 1.57, -1.57],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity3" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Wall1"
-      },
-      "Transform" : 
-      {
-        "Position" : [9, 2, 10],
-        "Rotation" : [0, 1.57, 1.57],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
-      }
-    },
-    "Entity2" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Roof2"
-      },
-      "Transform" : 
-      {
-        "Position" : [5, 6, 10],
-        "Rotation" : [-3.1415, 0, 0],
-        "Scale" : [5, 5, 5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj"
+        "Specular" : [0.5, 0.5, 0.5]
       }
     },
     "Entity1" : 
@@ -260,28 +187,35 @@
       {
         "Position" : [0, -3, 0],
         "Rotation" : [0, 0, 0],
-        "Scale" : [20, 20, 20]
+        "Scale" : [52.1194, 52.1194, 52.1194]
       },
       "Model3D" : 
       {
-        "Path" : "../res/assets/brickwall/plane.obj"
+        "Path" : "../res/assets/brickwall/plane.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 20
       }
     },
     "Entity0" : 
     {
       "Name" : 
       {
-        "Name" : "BackPack"
+        "Name" : "Church"
       },
       "Transform" : 
       {
-        "Position" : [0, -1.3, -5],
+        "Position" : [14.9483, -2.94273, 18.1369],
         "Rotation" : [0, 0, 0],
         "Scale" : [1, 1, 1]
       },
       "Model3D" : 
       {
-        "Path" : "../res/assets/backpack/backpack.obj"
+        "Path" : "../res/assets/monastyr/monastyr.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
       }
     }
-  }}
+  }
+}

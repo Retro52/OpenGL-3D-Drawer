@@ -2,11 +2,11 @@
 # Material Count: 1
 
 newmtl None
-   Ka 1.000 1.000 1.000
-   Kd 1.000 1.000 1.000
+   Ka 0.800000 0.800000 0.95
+   Kd 0.800000 0.800000 0.95
    Ks 0.000 0.000 0.000
    d 1.0
    illum 2
 
    map_Kd brickwall.jpg
-   map_Bump brickwall_normal.jpg
+   norm brickwall_normal.jpg
