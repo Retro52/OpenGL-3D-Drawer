@@ -18,6 +18,9 @@
 class Shader
 {
 public:
+    Shader(Shader&&) = delete;
+    Shader(const Shader&) = delete;
+
     /**
      * Shader class constructor, which loads, compiles and links shader to the OpenGL program
      * @param vertexPath path to the vertex shader
@@ -25,9 +28,6 @@ public:
      * @param geometryPath path to the geometry shader
      */
     Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
-
-    Shader(const Shader&) = delete;
-    Shader(Shader&&) = delete;
 
     ~Shader()
     {
@@ -71,7 +71,7 @@ public:
     // ------------------------------------------------------------------------
     void setMat4(const std::string &name, const glm::mat4 &mat) const;
 
-    void setDirLight(const DirectionalLight& dirLight) const;
+    void setDirLight(const DirectionalLight& dirLight, const glm::vec3& rotation) const;
 
     void setPointLight(int idx, const PointLight& pointLight, const glm::vec3& position) const;
 private:

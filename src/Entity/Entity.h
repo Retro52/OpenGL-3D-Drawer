@@ -5,6 +5,8 @@
 #ifndef GRAPHICS_ENTITY_H
 #define GRAPHICS_ENTITY_H
 
+#include <utility>
+
 #include "../Core/InGameException.h"
 #include "../vendors/include/entt/entt.hpp"
 #include "Scene.h"
@@ -12,9 +14,9 @@
 class Entity
 {
 public:
-    Entity() = default;
+    Entity() = delete;
     Entity(const Entity& other) = default;
-    Entity(entt::entity entity, Scene * scene);
+    Entity(entt::entity entity, Scene * base) : thisEntity(entity), scene(base) {}
 
     /**
      * Adds new component to the entity
@@ -41,6 +43,7 @@ public:
         return scene->registry.template get<T>(thisEntity);
     }
 
+
     /**
      * Checks if entity has the component
      * @tparam T component class
@@ -62,9 +65,21 @@ public:
         GAME_ASSERT(HasComponent<T>(), "Trying to remove unregistered component");
         scene->registry.template remove<T>(thisEntity);
     }
+
+    bool operator == (const Entity& other)
+    {
+        return other.thisEntity == thisEntity;
+    }
+
+    bool operator == (const entt::entity& other)
+    {
+        return other == thisEntity;
+    }
+
+    operator entt::entity() { return thisEntity; }
 private:
      entt::entity thisEntity { 0 };
-     Scene * scene { nullptr };
+     Scene * scene;
 };
 
 

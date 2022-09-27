@@ -18,13 +18,8 @@ GLuint ShadowsHandler::RenderShadowMap()
 
     //disabling face culling
     glDisable(GL_CULL_FACE);
-//    glCullFace(GL_FRONT);
-
-    // enabling polygon offset
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.5f, 512.0f);
-//    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
+    glPolygonOffset(8.96f, 12.8f);
 
     // Creating separate viewport for shadow map
     glViewport(0, 0, shadowMapResolution, shadowMapResolution);
@@ -42,8 +37,6 @@ GLuint ShadowsHandler::RenderShadowMap()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    // disabling polygon offset
-//    glPolygonOffset(0, 0);
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     return shadowTexture;

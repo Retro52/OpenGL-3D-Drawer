@@ -10,8 +10,6 @@
 
 class InGameException : public std::exception
 {
-private:
-    std::string message;
 public:
 
     /**
@@ -25,6 +23,9 @@ public:
      * @return c-style const char array containing error message
      */
     [[nodiscard]] const char * what() const noexcept override;
+
+private:
+    std::string message;
 };
 
 constexpr void GAME_ASSERT(bool var, const std::string& message) { if (!var) { throw InGameException(message); } }

@@ -35,7 +35,7 @@ public:
      * @param name shader name
      * @return pointer to the shader
      */
-    static Shader * GetShader(const std::string &name);
+    static std::shared_ptr<Shader>& GetShader(const std::string &name);
 
     /**
      * Register new shader
@@ -54,7 +54,7 @@ public:
 
 private:
     static std::unique_ptr<Scene> pScene;
-    static std::map<std::string, std::unique_ptr<Shader>> shaders;
+    static std::map<std::string, std::shared_ptr<Shader>> shaders;
 
     static std::mutex m;
 };

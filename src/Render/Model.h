@@ -14,12 +14,12 @@
 #include "Shader.h"
 #include "../Core/InGameException.h"
 
+#include <map>
 #include <string>
+#include <vector>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <map>
-#include <vector>
 
 class Model
 {
@@ -40,7 +40,7 @@ public:
         shader.setMat4("model", model);
         for(const auto& mesh : meshes)
         {
-            mesh.Draw(shader, shadowMap);
+            mesh->Draw(shader, shadowMap);
         }
     };
 
@@ -54,18 +54,9 @@ public:
         shader.setMat4("model", model);
         for(const auto& mesh : meshes)
         {
-            mesh.DrawIntoDepth();
+            mesh->DrawIntoDepth();
         }
     };
-
-    /**
-     * Loads textures from file
-     * @param path path to the original model file
-     * @param directory of the file
-     * @param gamma
-     * @return id of the loaded texture
-     */
-    static unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
     /**
      * @return model path model was loaded from
@@ -91,21 +82,11 @@ private:
      * @param scene current scene
      * @return new Mesh new loaded mesh
      */
-    Mesh ProcessMesh(aiMesh *mesh, const aiScene *scene);
-
-    /**
-     * Loads all model textures
-     * @param mat material
-     * @param type type of the texture
-     * @param typeName name of the texture type
-     * @return vector of loaded textures
-     */
-    std::vector<Texture> LoadMaterialTextures(aiMaterial *mat, aiTextureType type, const std::string& typeName);
+    std::shared_ptr<Mesh> ProcessMesh(aiMesh *mesh, const aiScene *scene);
 private:
     bool gammaCorrection;
     std::string directory;
-    std::vector<Mesh> meshes;
-    std::vector<Texture> textures_loaded;
+    std::vector<std::shared_ptr<Mesh>> meshes;
 
     std::string path;
 };

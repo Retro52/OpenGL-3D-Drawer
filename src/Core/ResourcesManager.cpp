@@ -5,11 +5,10 @@
 #include <memory>
 #include <iostream>
 #include "ResourcesManager.h"
-#include "../Logging/easylogging++.h"
 #include "../Entity/Entity.h"
 
 std::unique_ptr<Scene> ResourcesManager::pScene;
-std::map<std::string, std::unique_ptr<Shader>> ResourcesManager::shaders;
+std::map<std::string, std::shared_ptr<Shader>> ResourcesManager::shaders;
 std::mutex ResourcesManager::m;
 
 void ResourcesManager::RegisterShader(const std::string &name, const std::string &vFile, const std::string &fFile, const std::string &gFile)
@@ -19,11 +18,11 @@ void ResourcesManager::RegisterShader(const std::string &name, const std::string
     {
         if (!gFile.empty())
         {
-            shaders[name] = std::make_unique<Shader>(vFile.c_str(), fFile.c_str(), gFile.c_str());
+            shaders[name] = std::make_shared<Shader>(vFile.c_str(), fFile.c_str(), gFile.c_str());
         }
         else
         {
-            shaders[name] = std::make_unique<Shader>(vFile.c_str(), fFile.c_str());
+            shaders[name] = std::make_shared<Shader>(vFile.c_str(), fFile.c_str());
         }
         LOG(INFO) << "Shader " + name + " successfully registered";
     }
@@ -33,16 +32,9 @@ void ResourcesManager::RegisterShader(const std::string &name, const std::string
     }
 }
 
-Shader * ResourcesManager::GetShader(const std::string& name)
+std::shared_ptr<Shader>& ResourcesManager::GetShader(const std::string& name)
 {
-    const std::lock_guard<std::mutex> lock(m);
-#if __cplusplus >= 202002L
-    GAME_ASSERT(shaders.contains(name), "Trying to receive unregistered shader " + name);
-#else
-    /* Count returns number of elements with specified key, so we can use it like bool (non 0 - present, 0 - absent) */
-    GAME_ASSERT(shaders.count(name) != 0, "Trying to receive unregistered shader " + name);
-#endif
-    return shaders[name].get();
+    return shaders.at(name);
 }
 
 void ResourcesManager::RegisterPlayerScene(const std::string &path)

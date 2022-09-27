@@ -54,7 +54,7 @@ public:
      * @param fontSize text font size, in pixels
      * @param color text color
      */
-    static void RenderText(Shader * shader, const std::string &text, float x, float y, int fontSize = 16, const glm::vec3 &color = glm::vec3(1.0f));
+    static void RenderText(std::shared_ptr<Shader>& shader, const std::string &text, float x, float y, int fontSize = 16, const glm::vec3 &color = glm::vec3(1.0f));
 
     /**
      * Renders texture as a quad on the screen
@@ -65,7 +65,7 @@ public:
      * @param h texture height
      * @param texture texture to render
      */
-    static void RenderTexture(Shader * shader, float x, float y, float w, float h, unsigned int texture);
+    static void RenderTexture(std::shared_ptr<Shader>& shader, float x, float y, float w, float h, unsigned int texture);
 };
 
 

@@ -18,6 +18,11 @@
 class Renderer
 {
 public:
+
+    Renderer() = delete;
+    Renderer(Renderer&& other) = delete;
+    Renderer(const Renderer& other) = delete;
+
     /**
      * Initializes renderer
      */
@@ -33,20 +38,48 @@ public:
      */
     static void Prepare(Scene& scene, int drawMode)
     {
-        Shader * mShader = ResourcesManager::GetShader("mainShader");
+        std::shared_ptr<Shader>& mShader = ResourcesManager::GetShader("mainShader");
         
         auto& cameraComponent = scene.GetPrimaryCamera().GetComponent<CameraComponent>();
         auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
 
         cameraComponent.UpdateCamera(cameraTransform.rotation);
         glm::mat4 cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
-        
+
         mShader->Use();
         mShader->setInt("drawMode", drawMode);
         mShader->setMat4("view", cameraView);
         mShader->setMat4("projection", cameraComponent.GetCameraProjection());
         mShader->setVec3("ProjPos", cameraTransform.translation);
-        mShader->setDirLight(scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight);
+
+        try
+        {
+            auto sceneDirLight = scene.GetDirectionalLight();
+            const auto& dirLight = sceneDirLight.GetComponent<DirectionalLightComponent>().directionalLight;
+            const auto& dlRotation = scene.GetDirectionalLight().GetComponent<TransformComponent>().rotation;
+
+            std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(cameraComponent.camera.GetNearPlane(), cameraComponent.camera.GetFarPlane(), cameraComponent.camera.GetFieldOfView(), DirectionalLight::GetDirection(dlRotation), cameraView, cascadeLevels);
+
+            mShader->setDirLight(dirLight, dlRotation);
+            mShader->setBool("dirLight.isPresent", true);
+
+            lightMatricesUBO->Bind();
+            lightMatricesUBO->FillData(lightMatrices);
+            lightMatricesUBO->Reset();
+
+            mShader->setInt("cascadeCount", (int) cascadeLevels.size());
+            mShader->setFloat("farPlane", cameraComponent.camera.GetFarPlane());
+
+            for (size_t i = 0; i < cascadeLevels.size(); ++i)
+            {
+                mShader->setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
+            }
+        }
+        catch(const InGameException& e)
+        {
+            mShader->setBool("dirLight.isPresent", false);
+            LOG(WARNING) << "Failed to bind directional light. Reason: " << e.what();
+        }
 
         int idx = -1;
         const auto& view = scene.registry.view<TransformComponent, PointLightComponent>();
@@ -57,19 +90,6 @@ public:
             mShader->setPointLight(idx, p.pointLight, t.translation);
         }
         mShader->setInt("pointLightsCount", idx + 1);
-
-        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(cameraComponent.camera.GetNearPlane(), cameraComponent.camera.GetFarPlane(), cameraComponent.camera.GetFieldOfView(), scene.GetDirectionalLight().GetComponent<DirectionalLightComponent>().directionalLight.direction, cameraView, cascadeLevels);
-
-        lightMatricesUBO->Bind();
-        lightMatricesUBO->FillData(lightMatrices);
-        lightMatricesUBO->Reset();
-
-        mShader->setFloat("farPlane", cameraComponent.camera.GetFarPlane());
-        mShader->setInt("cascadeCount", (int) cascadeLevels.size());
-        for (size_t i = 0; i < cascadeLevels.size(); ++i)
-        {
-            mShader->setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
-        }
 
         glClearColor(0.203f, 0.76f, 0.938f,1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -83,12 +103,16 @@ public:
      */
     static void Render(Scene& scene, const unsigned int shadowMap)
     {
-        ResourcesManager::GetShader("mainShader")->Use();
         const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
+        auto& shader = ResourcesManager::GetShader("mainShader");
+        shader->Use();
         for (const auto& entity : view)
         {
             auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
-            m.model.Draw(* ResourcesManager::GetShader("mainShader"), t.GetTransform(), shadowMap);
+            shader->Use();
+            shader->setBool("material.shouldBeLit", m.shouldBeLit);
+            shader->setInt("material.tilingFactor", m.tilingFactor);
+            m.model.Draw(* shader, t.GetTransform(), shadowMap);
         }
     }
 
@@ -98,12 +122,24 @@ public:
      */
     static void RenderToDepthBuffer(Scene& scene)
     {
-        ResourcesManager::GetShader("shadowShader")->Use();
+        auto& shader = ResourcesManager::GetShader("shadowShader");
         const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
+        shader->Use();
+        try
+        {
+            shader->setVec3("lightDir", DirectionalLight::GetDirection(scene.GetDirectionalLight().GetComponent<TransformComponent>().rotation));
+        }
+        catch(const InGameException& e)
+        {
+            LOG(WARNING) << "Failed to set shadow shader light direction. Reason: " << e.what();
+        }
         for (const auto& entity : view)
         {
             auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
-            m.model.DrawIntoDepth(* ResourcesManager::GetShader("shadowShader"), t.GetTransform());
+            if(m.castsShadow)
+            {
+                m.model.DrawIntoDepth(* shader, t.GetTransform());
+            }
         }
     }
 private:
