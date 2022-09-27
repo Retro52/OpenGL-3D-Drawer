@@ -2,7 +2,7 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
-    "Entity8" : 
+    "Entity9" : 
     {
       "Name" : 
       {
@@ -31,7 +31,7 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity7" : 
+    "Entity8" : 
     {
       "Name" : 
       {
@@ -51,7 +51,7 @@
         "tilingFactor" : 20
       }
     },
-    "Entity6" : 
+    "Entity7" : 
     {
       "Name" : 
       {
@@ -80,7 +80,7 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity5" : 
+    "Entity6" : 
     {
       "Name" : 
       {
@@ -109,7 +109,7 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity4" : 
+    "Entity5" : 
     {
       "Name" : 
       {
@@ -117,7 +117,7 @@
       },
       "Transform" : 
       {
-        "Position" : [0, 48.3869, 0],
+        "Position" : [-3.94467, -1.0492, -23.8455],
         "Rotation" : [0, 0, 0],
         "Scale" : [1, 1, 1]
       },
@@ -133,7 +133,7 @@
         "Type" : 0
       }
     },
-    "Entity3" : 
+    "Entity4" : 
     {
       "Name" : 
       {
@@ -141,8 +141,8 @@
       },
       "Transform" : 
       {
-        "Position" : [30.9576, 16.8658, -27.5015],
-        "Rotation" : [-21.6612, -13184.7, 0],
+        "Position" : [3.91608, 8.83039, -53.9323],
+        "Rotation" : [-10.4068, -15303, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -151,7 +151,7 @@
         "isPrimary" : true
       }
     },
-    "Entity2" : 
+    "Entity3" : 
     {
       "Name" : 
       {
@@ -160,7 +160,7 @@
       "Transform" : 
       {
         "Position" : [0, 48.3869, 0],
-        "Rotation" : [324.535, 136.232, 0],
+        "Rotation" : [-134.449, 394.316, 0],
         "Scale" : [1, 1, 1]
       },
       "Model3D" : 
@@ -172,9 +172,29 @@
       },
       "Directional light" : 
       {
-        "Ambient" : [0.5, 0.5, 0.5],
-        "Diffuse" : [0.5, 0.5, 0.5],
+        "Ambient" : [0.8, 0.8, 0.8],
+        "Diffuse" : [0.8, 0.8, 0.8],
         "Specular" : [0.5, 0.5, 0.5]
+      }
+    },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "backpack"
+      },
+      "Transform" : 
+      {
+        "Position" : [29.1205, 0, 0],
+        "Rotation" : [0, -764.153, -0.00646498],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/backpack/backpack.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
       }
     },
     "Entity1" : 

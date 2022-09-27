@@ -33,6 +33,7 @@ public:
 
     Mesh(Mesh&& other) = delete;
     Mesh(const Mesh& other) = delete;
+
     /***
      * Mesh constructor, creates new instance of the mesh
      * @param vertices vector of mesh vertices
@@ -44,7 +45,6 @@ public:
     /* Cleaning OpenGL stuff */
     ~Mesh()
     {
-//        LOG(DEBUG) << "Model unloaded. Total number of vertices deleted: " << vertices.size();
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
         glDeleteVertexArrays(1, &VAO);
@@ -55,8 +55,10 @@ public:
      */
     void Draw(const Shader &shader, GLuint shadowMap) const;
 
+    /**
+     * Draws mesh, without applying any textures, useful for depth buffer draw
+     */
     void DrawIntoDepth() const;
-
 private:
     unsigned int VBO{}, EBO{};
     unsigned int VAO{};

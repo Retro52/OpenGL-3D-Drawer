@@ -14,18 +14,32 @@
 class FBO
 {
 public:
+    /**
+     * Creates new FBO object
+     */
     FBO()
     {
         glGenFramebuffers(1, &id);
     }
 
+    /**
+     * Deletes FBO
+     */
     ~FBO()
     {
         glDeleteFramebuffers(1, &id);
     }
 
+    /**
+     * @return FBO id
+     */
     [[nodiscard]] inline unsigned int Get() const { return id; }
 
+    /**
+     * Attaches texture to the FBO
+     * @param texture texture id
+     * @param attachmentType attachment type
+     */
     inline void AddTexture(unsigned int texture, unsigned int attachmentType) const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
@@ -33,6 +47,10 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    /**
+     * Sets OpenGL glDrawBuffer to given value
+     * @param mode glDrawBuffer mode
+     */
     inline void SetDrawBuffer(unsigned int mode) const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
@@ -40,6 +58,10 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    /**
+     * Sets OpenGL glReadBuffer to given value
+     * @param mode glReadBuffer mode
+     */
     inline void SetReadBuffer(unsigned int mode) const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
@@ -47,11 +69,17 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    /**
+     * Binds this FBO
+     */
     inline void Bind() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
     }
 
+    /**
+     * Binds current FBO to 0
+     */
     inline void Reset() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

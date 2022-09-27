@@ -85,7 +85,7 @@ private:
     }
 
     /**
-     * Inserts variable into the current map
+     * Inserts glm::vec3 variable into the current map
      * @param out stream to write into
      * @param variableName variable name
      * @param value variable value

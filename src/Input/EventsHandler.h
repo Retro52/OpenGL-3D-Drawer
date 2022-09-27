@@ -81,7 +81,6 @@ public:
     static void cursor_position_callback(GLFWwindow * window, double xpos, double ypos);
 
     static void window_size_callback(GLFWwindow * /*window*/, int width, int height);
-
 private:
     static std::array<bool, 1032> _keys;
     static std::array<uint, 1032> _frames;

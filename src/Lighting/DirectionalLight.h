@@ -22,6 +22,11 @@ public:
     DirectionalLight(const glm::vec3& amb, const glm::vec3& diff, const glm::vec3& spec);
     ~DirectionalLight() = default;
 
+    /**
+     * Returns dirlight direction based on entity rotation vector
+     * @param rotation
+     * @return
+     */
     static glm::vec3 GetDirection(const glm::vec3& rotation)
     {
         glm::mat4 model = glm::mat4(1.0f);

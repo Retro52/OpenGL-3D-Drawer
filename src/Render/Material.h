@@ -32,33 +32,54 @@ using TextureType = enum TextureType
 
 struct Texture
 {
+    /* This needs some work */
     Texture() = delete;
     Texture(Texture&& ) = delete;
     Texture(const Texture& ) = delete;
 
+    /**
+     * Loads texture and creates all OpenGL needed data
+     * @param path texture path
+     * @param gamma gamma correction (not implemented)
+     */
     Texture(const std::string& path, bool gamma = false);
 
+    /**
+     * @return texture id
+     */
     [[nodiscard]] inline unsigned int GetId() const { return id; }
 
-    inline bool operator ==(const std::string& other) { return std::strcmp(path.c_str(), other.c_str()) == 0; }
+    /**
+     * Texture comparison operator
+     * @param other other texture`s path
+     * @return if texture`s paths are equal
+     */
+    inline bool operator ==(const std::string& other) const { return std::strcmp(path.c_str(), other.c_str()) == 0; }
 
-    inline bool operator ==(const Texture& other) { return std::strcmp(path.c_str(), other.path.c_str()) == 0; }
+    /**
+     * Texture comparison operator
+     * @param other other texture`s path
+     * @return if texture`s paths are equal
+     */
+    inline bool operator ==(const Texture& other) const { return std::strcmp(path.c_str(), other.path.c_str()) == 0; }
 
-    inline bool operator ==(const aiString& other) { return std::strcmp(path.c_str(), other.C_Str()) == 0; }
+    /**
+     * Texture comparison operator
+     * @param other other texture`s path
+     * @return if texture`s paths are equal
+     */
+    inline bool operator ==(const aiString& other) const { return std::strcmp(path.c_str(), other.C_Str()) == 0; }
 
     /**
      * Deleting texture when we are done
      */
     ~Texture();
-    std::string path;
-
 private:
     int width = 0;
     int height = 0;
     float blend = 1.0f;
     unsigned int id = 0;
-
-//    std::string path;
+    std::string path;
 };
 
 using TextureStack = std::vector<std::shared_ptr<Texture>>;
@@ -66,7 +87,9 @@ using TextureStack = std::vector<std::shared_ptr<Texture>>;
 class Material
 {
 public:
-    /* Works good enough, but sometimes skips some textures for no obvious reason */
+    /**
+     * Deletes all textures, unused by materials
+     */
     static void UnloadUnusedTextures()
     {
         for (auto it = texturesLoaded.begin(); it != texturesLoaded.end();)
@@ -83,11 +106,28 @@ public:
     }
     ~Material() = default;
 
+    /**
+     * Creates new material
+     * @param material assimp loaded material
+     * @param directory material directory
+     */
     Material(const aiMaterial * material, const std::string& directory);
 
+    /**
+     * Binds all material textures to shader
+     * @param shader draw shader
+     * @param shadowTexture shadow texture, rendered by ShadowHandler
+     */
     void Bind(const Shader& shader, GLuint shadowTexture) const;
 
 private:
+    /**
+     * Loads all mterial textures
+     * @param material assimp material
+     * @param directory material texture directory
+     * @param aiType texture type
+     * @param texType engine texture type
+     */
     void LoadTextures(const aiMaterial * material, const std::string& directory, aiTextureType aiType, TextureType texType);
 
     glm::vec3 defaultColor;

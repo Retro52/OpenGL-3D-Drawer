@@ -5,6 +5,7 @@
 #include "EventsHandler.h"
 #include "../Core/Window.h"
 #include <array>
+#include <iostream>
 
 std::array<bool, 1032> EventsHandler::_keys;
 std::array<uint, 1032> EventsHandler::_frames;
@@ -47,6 +48,10 @@ void EventsHandler::cursor_position_callback(GLFWwindow * /* window */, double x
  */
 void EventsHandler::mouse_button_callback(GLFWwindow * /* window */, int button, int action, int /* mode */)
 {
+    if (MOUSE_BUTTONS_OFFSET + button > 1032 || button < 0)
+    {
+        return;
+    }
     if (action == GLFW_PRESS)
     {
         EventsHandler::_keys.at(MOUSE_BUTTONS_OFFSET + button) = true;
@@ -69,7 +74,10 @@ void EventsHandler::mouse_button_callback(GLFWwindow * /* window */, int button,
  */
 void EventsHandler::key_callback(GLFWwindow * /* window */, int key, int /* scancode */ , int action, int /* mode */)
 {
-    key = key > MOUSE_BUTTONS_OFFSET ? MOUSE_BUTTONS_OFFSET : key;
+    if (key > MOUSE_BUTTONS_OFFSET || key < 0)
+    {
+        return;
+    }
     if (action == GLFW_PRESS)
     {
         EventsHandler::_keys.at(key) = true;

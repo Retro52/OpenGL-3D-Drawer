@@ -5,9 +5,16 @@
 #ifndef GRAPHICS_UNIQUEIDGENERATOR_HPP
 #define GRAPHICS_UNIQUEIDGENERATOR_HPP
 
+/**
+ * UniauIDs generator
+ */
 class UniqueIdGenerator
 {
 public:
+    /**
+     * Creates new id
+     * @return newly created unique id
+     */
     static unsigned long GetId() { return count++; }
 
 private:

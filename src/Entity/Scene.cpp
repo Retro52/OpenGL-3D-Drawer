@@ -52,21 +52,6 @@ Entity Scene::GetPrimaryCamera()
     throw InGameException("There are no primary cameras");
 }
 
-/** @not_implemented yet */
-void Scene::OverridePrimaryCamera(const Entity& entity)
-{
-    GAME_ASSERT(entity.HasComponent<CameraComponent>(), "Camera was not overridden. Reason: entity does not have CameraComponent");
-    auto view = registry.view<CameraComponent>();
-    for (const auto& entt : view)
-    {
-        auto camera = view.get<CameraComponent>(entt);
-        if (camera.isPrimary)
-        {
-            camera.isPrimary = false;
-        }
-    }
-}
-
 Entity Scene::GetDirectionalLight()
 {
     auto view = registry.view<DirectionalLightComponent>();
@@ -171,7 +156,7 @@ void Scene::LoadScene(const std::string &loadPath)
                 glm::vec3 diff(directionalLightComponent["Diffuse"][0], directionalLightComponent["Diffuse"][1], directionalLightComponent["Diffuse"][2]);
                 glm::vec3 spec(directionalLightComponent["Specular"][0], directionalLightComponent["Specular"][1], directionalLightComponent["Specular"][2]);
 
-                e.AddComponent<DirectionalLightComponent>(diff, amb, spec);
+                e.AddComponent<DirectionalLightComponent>(amb, diff, spec);
 
                 LOG(INFO) << "Directional light component successfully loaded for " << model.key();
             }

@@ -99,7 +99,7 @@ float rand(vec2 co)
  * 5 - Diffuse map/color view
  * 6 - Normal map view
  * 7 - Specular map view
- * 8 - Shadow map debug
+ * 8 - Shadow map debug view
  * 9 - Roughness map view
 */
 void main()
@@ -108,7 +108,6 @@ void main()
 	vec3 normalVector;
 	vec3 viewDirection = normalize((ProjPos - FragPos));
 	vec2 textureCoordinates = TexCoords * material.tilingFactor;
-//	vec2 textureCoordinates = TexCoords * 20.0f;
 
 	if(drawMode == 2)
 	{
@@ -289,13 +288,14 @@ float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir)
 
 	const int sampleRadius = 3;
 	const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
+	float randomFactor = clamp(mix(0.0f, 1.0f, rand(projCoords.xy * depthValue * FragPos.xy)), 0.0f, 1.0f);
 
 	for(int x = -sampleRadius; x <= sampleRadius; ++x)
 	{
 		for(int y = -sampleRadius; y <= sampleRadius; ++y)
 		{
 			// softens shadows without increasing sample radius
-			float pcfDepth  = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + x * 0.5, y + y * 0.5) * texelSize, layer)).r;
+			float pcfDepth  = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + x * randomFactor, y + y * randomFactor) * texelSize, layer)).r;
 			shadow += currentDepth > pcfDepth ? ambientShadow : 0.0f;
 		}
 	}

@@ -35,6 +35,10 @@ public:
      */
     static GLuint GetRenderedShadowMap() { return shadowTexture; };
 
+    /**
+     * Sets shadowMapResolution. Has to be called BEFORE Initialization
+     * @param resolution shadow map resolution
+     */
     static void SetMapResolution(int resolution) { shadowMapResolution = resolution; };
 private:
     static GLuint shadowTexture;

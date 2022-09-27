@@ -344,30 +344,6 @@ src/Entity/Scene.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Entity/Scene.cpp.s
 .PHONY : src/Entity/Scene.cpp.s
 
-src/Input/ActionsMapping.obj: src/Input/ActionsMapping.cpp.obj
-.PHONY : src/Input/ActionsMapping.obj
-
-# target to build an object file
-src/Input/ActionsMapping.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Input/ActionsMapping.cpp.obj
-.PHONY : src/Input/ActionsMapping.cpp.obj
-
-src/Input/ActionsMapping.i: src/Input/ActionsMapping.cpp.i
-.PHONY : src/Input/ActionsMapping.i
-
-# target to preprocess a source file
-src/Input/ActionsMapping.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Input/ActionsMapping.cpp.i
-.PHONY : src/Input/ActionsMapping.cpp.i
-
-src/Input/ActionsMapping.s: src/Input/ActionsMapping.cpp.s
-.PHONY : src/Input/ActionsMapping.s
-
-# target to generate assembly for a file
-src/Input/ActionsMapping.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Graphics.dir\build.make CMakeFiles/Graphics.dir/src/Input/ActionsMapping.cpp.s
-.PHONY : src/Input/ActionsMapping.cpp.s
-
 src/Input/EventsHandler.obj: src/Input/EventsHandler.cpp.obj
 .PHONY : src/Input/EventsHandler.obj
 
@@ -692,9 +668,6 @@ help:
 	@echo ... src/Entity/Scene.obj
 	@echo ... src/Entity/Scene.i
 	@echo ... src/Entity/Scene.s
-	@echo ... src/Input/ActionsMapping.obj
-	@echo ... src/Input/ActionsMapping.i
-	@echo ... src/Input/ActionsMapping.s
 	@echo ... src/Input/EventsHandler.obj
 	@echo ... src/Input/EventsHandler.i
 	@echo ... src/Input/EventsHandler.s

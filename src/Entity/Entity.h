@@ -66,16 +66,30 @@ public:
         scene->registry.template remove<T>(thisEntity);
     }
 
+    /**
+     * Compares two entities
+     * @param other Entity to compare with
+     * @return if Entity.thisEntity ids are equal
+     */
     bool operator == (const Entity& other)
     {
         return other.thisEntity == thisEntity;
     }
 
+    /**
+     * Compares two entities
+     * @param other Entity to compare with
+     * @return if Entity.thisEntity ids are equal
+     */
     bool operator == (const entt::entity& other)
     {
         return other == thisEntity;
     }
 
+    /**
+     * Conversion operator from Entity class to entt:entity type
+     * @return Entity.thisEntity
+     */
     operator entt::entity() { return thisEntity; }
 private:
      entt::entity thisEntity { 0 };

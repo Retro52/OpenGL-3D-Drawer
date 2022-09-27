@@ -35,9 +35,6 @@ public:
     UIHandler(UIHandler&&) = delete;
     UIHandler(const UIHandler&) = delete;
 
-    UIHandler operator = (const UIHandler& ) = delete;
-    UIHandler operator = (UIHandler&& ) = delete;
-
     /**
      * Loads default font into textures
      * @param fontPath path to the font file (usually ends with .ttf)
