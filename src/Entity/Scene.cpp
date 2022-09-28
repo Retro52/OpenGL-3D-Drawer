@@ -184,8 +184,8 @@ void Scene::SaveScene(const std::string& savePath)
 Entity Scene::GetSelectedEntity(int& index)
 {
     auto view = registry.view<TransformComponent>(entt::exclude<CameraComponent, EngineDefaultComponent>);
-
     int counter = 0;
+    entt::entity last;
     for(const auto& entity : view)
     {
         if (index == counter)
@@ -193,6 +193,13 @@ Entity Scene::GetSelectedEntity(int& index)
             return { entity, this };
         }
         counter++;
+        last = entity;
+    }
+    
+    if (index < 0)
+    {
+        index = counter - 1;
+        return { last, this };
     }
 
     index = 0;
@@ -269,13 +276,13 @@ void Scene::OnUpdate(double deltaTime)
         t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetWidth() * 2);
         c.camera.Update(t.rotation);
     }
-    
+
     //iterating through entities
     if (EventsHandler::IsJustPressed(GLFW_KEY_LEFT))
     {
         idx--;
     }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_RIGHT))
+    else if (EventsHandler::IsJustPressed(GLFW_KEY_RIGHT))
     {
         idx++;
     }
