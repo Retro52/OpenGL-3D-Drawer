@@ -294,8 +294,7 @@ float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir)
 	{
 		for(int y = -sampleRadius; y <= sampleRadius; ++y)
 		{
-			// softens shadows without increasing sample radius
-			float pcfDepth  = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + x * randomFactor, y + y * randomFactor) * texelSize, layer)).r;
+			float pcfDepth = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + randomFactor, y + randomFactor) * texelSize, layer)).r;
 			shadow += currentDepth > pcfDepth ? ambientShadow : 0.0f;
 		}
 	}

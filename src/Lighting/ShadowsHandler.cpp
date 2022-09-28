@@ -20,7 +20,14 @@ GLuint ShadowsHandler::RenderShadowMap()
     glDisable(GL_CULL_FACE);
     glEnable(GL_POLYGON_OFFSET_FILL);
 
-    glPolygonOffset(8.96f, 12.8f);
+    if (shadowMapResolution <= 2048)
+    {
+        glPolygonOffset(8.96f, 12.8f);
+    }
+    else
+    {
+        glPolygonOffset(14.4f, 16.6f);
+    }
 
     // Creating separate viewport for shadow map
     glViewport(0, 0, shadowMapResolution, shadowMapResolution);
