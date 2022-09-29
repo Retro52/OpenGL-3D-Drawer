@@ -195,7 +195,7 @@ Entity Scene::GetSelectedEntity(int& index)
         counter++;
         last = entity;
     }
-    
+
     if (index < 0)
     {
         index = counter - 1;

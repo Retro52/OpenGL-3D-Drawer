@@ -12,7 +12,7 @@
 #include "PerspectiveCamera.h"
 #include "../Render/Shader.h"
 #include "../Logging/easylogging++.h"
-#include "../vendors/include/glm/glm.hpp"
+#include "glm/glm.hpp"
 
 
 class Global

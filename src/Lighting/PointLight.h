@@ -5,7 +5,7 @@
 #ifndef GRAPHICS_POINTLIGHT_H
 #define GRAPHICS_POINTLIGHT_H
 
-#include "../vendors/include/glm/glm.hpp"
+#include "glm/glm.hpp"
 
 class PointLight
 {

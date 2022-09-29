@@ -7,9 +7,9 @@
 
 #define GLEW_STATIC
 
-#include "../vendors/include/GLEW/glew.h"
-#include "../vendors/include/GLFW/glfw3.h"
-#include "string"
+#include <glew.h>
+#include <glfw3.h>
+#include <string>
 
 class Window
 {

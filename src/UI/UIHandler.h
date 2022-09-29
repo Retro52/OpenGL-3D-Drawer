@@ -10,7 +10,7 @@
 #include <ft2build.h>
 #include <memory>
 #include FT_FREETYPE_H
-#include "../vendors/include/glm/glm.hpp"
+#include "glm/glm.hpp"
 #include "../Render/Shader.h"
 
 

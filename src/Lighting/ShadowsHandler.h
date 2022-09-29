@@ -7,9 +7,9 @@
 
 #define GLEW_STATIC
 
-#include "../vendors/include/GLEW/glew.h"
-#include "../vendors/include/glm/glm.hpp"
-#include "../vendors/include/glm/gtc/matrix_transform.hpp"
+#include "glew.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include "../Core/ResourcesManager.h"
 #include "../Core/Window.h"
 #include "../Render/FBO.hpp"

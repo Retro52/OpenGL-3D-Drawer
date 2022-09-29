@@ -2,10 +2,10 @@
 #define MODEL_H
 
 #define GLEW_STATIC
-#include "../vendors/include/GLEW/glew.h"
+#include <glew.h>
 
-#include "../vendors/include/glm/glm.hpp"
-#include "../vendors/include/glm/gtc/matrix_transform.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

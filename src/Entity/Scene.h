@@ -5,7 +5,7 @@
 #ifndef GRAPHICS_SCENE_H
 #define GRAPHICS_SCENE_H
 
-#include "../vendors/include/entt/entt.hpp"
+#include "entt/entt.hpp"
 #include "Components.h"
 #include "../Render/Material.h"
 

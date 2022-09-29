@@ -7,7 +7,7 @@
 
 #define GLEW_STATIC
 
-#include "../vendors/include/GLEW/glew.h"
+#include "glew.h"
 #include "../Core/ResourcesManager.h"
 #include "../Core/Window.h"
 #include "../Entity/Components.h"

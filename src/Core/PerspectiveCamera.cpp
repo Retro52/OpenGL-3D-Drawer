@@ -4,7 +4,7 @@
 
 #include "Window.h"
 #include "Global.h"
-#include "../vendors/include/glm/ext.hpp"
+#include <glm/ext.hpp>
 #include "PerspectiveCamera.h"
 
 

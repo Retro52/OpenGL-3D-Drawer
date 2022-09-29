@@ -7,8 +7,8 @@
 #define GLEW_STATIC
 
 #include <memory>
-#include "../vendors/include/GLEW/glew.h"
-#include "../vendors/include/GLFW/glfw3.h"
+#include "glew.h"
+#include "glfw3.h"
 
 using uint = unsigned int;
 constexpr int MOUSE_BUTTONS_OFFSET = 1024;

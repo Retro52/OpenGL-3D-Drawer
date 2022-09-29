@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "../Core/InGameException.h"
-#include "../vendors/include/entt/entt.hpp"
+#include "entt/entt.hpp"
 #include "Scene.h"
 
 class Entity

@@ -7,9 +7,9 @@
 
 #include <utility>
 
-#include "../vendors/include/glm/glm.hpp"
-#include "../vendors/include/glm/gtc/matrix_transform.hpp"
-#include "../vendors/include/glm/gtx/quaternion.hpp"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtx/quaternion.hpp"
 #include "../Core/PerspectiveCamera.h"
 #include "../Core/UniqueID.hpp"
 #include "../Render/Model.h"

@@ -6,7 +6,7 @@
 #include "../Core/Window.h"
 #include "../Core/InGameException.h"
 #include "../Logging/easylogging++.h"
-#include "../vendors/include/glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 
 std::map<char, Character> UIHandler::Characters;
 unsigned int UIHandler::VAO, UIHandler::VBO, UIHandler::loadedFontSize;

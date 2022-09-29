@@ -3,8 +3,8 @@
 
 #define GLEW_STATIC
 
-#include "../vendors/include/GLEW/glew.h"
-#include "../vendors/include/glm/glm.hpp"
+#include "glew.h"
+#include "glm/glm.hpp"
 
 #include "Shader.h"
 #include "Material.h"

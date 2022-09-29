@@ -7,7 +7,7 @@
 
 #define GLEW_STATIC
 
-#include "../vendors/include/GLEW/glew.h"
+#include "glew.h"
 #include "../Logging/easylogging++.h"
 #include "Shader.h"
 
