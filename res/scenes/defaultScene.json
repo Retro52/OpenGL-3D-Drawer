@@ -141,8 +141,8 @@
       },
       "Transform" : 
       {
-        "Position" : [-20.2521, 11.6635, -17.4906],
-        "Rotation" : [2.77945, -16367.1, 0],
+        "Position" : [20.2863, 70.098, -49.3679],
+        "Rotation" : [-52.6076, -16777, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -152,32 +152,6 @@
       }
     },
     "Entity3" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Directional light"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, 48.3869, 0],
-        "Rotation" : [-140.613, -367.369, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/sun.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Directional light" : 
-      {
-        "Ambient" : [0.8, 0.8, 0.8],
-        "Diffuse" : [0.8, 0.8, 0.8],
-        "Specular" : [0.5, 0.5, 0.5]
-      }
-    },
-    "Entity2" : 
     {
       "Name" : 
       {
@@ -195,6 +169,32 @@
         "castsShadow" : true,
         "shouldBeLit" : true,
         "tilingFactor" : 1
+      }
+    },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Directional light"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 25.324, 0],
+        "Rotation" : [-133.67, 58.5113, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sun.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      },
+      "Directional light" : 
+      {
+        "Ambient" : [0.5, 0.5, 0.5],
+        "Diffuse" : [0.5, 0.5, 0.5],
+        "Specular" : [0.5, 0.5, 0.5]
       }
     },
     "Entity1" : 
