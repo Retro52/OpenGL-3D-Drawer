@@ -14,6 +14,7 @@
 #include "../Lighting/DirectionalLight.h"
 #include "PerspectiveCamera.h"
 #include "../Entity/Scene.h"
+#include "Layer.hpp"
 
 
 class ResourcesManager
@@ -54,7 +55,9 @@ public:
 
 private:
     static std::unique_ptr<Scene> pScene;
+    static std::vector<std::shared_ptr<Layer>> layers;
     static std::map<std::string, std::shared_ptr<Shader>> shaders;
+
 
     static std::mutex m;
 };

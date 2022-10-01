@@ -328,7 +328,7 @@ void Scene::OnUpdate(double deltaTime)
 
     if (EventsHandler::IsJustPressed(GLFW_KEY_DELETE))
     {
-        DeleteEntity(selectedEntity.GetComponent<NameComponent>().id);
+        DeleteEntity(selectedEntity);
     }
 
     // temp placeholders
@@ -440,4 +440,9 @@ Entity Scene::CopyEntity(const Entity &source)
     }
 
     return newEntity;
+}
+
+void Scene::DeleteEntity(Entity &entity)
+{
+    registry.destroy(entity);
 }

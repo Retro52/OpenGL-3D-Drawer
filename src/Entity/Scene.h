@@ -33,28 +33,9 @@ public:
 
     /**
      * Deletes entity and frees all the resources it holds
-     * @param id Entity id
+     * @param entity Entity reference to delete
      */
-    void DeleteEntity(const UniqueID& id)
-    {
-        const auto& view = registry.view<NameComponent>();
-        for(const auto& entity : view)
-        {
-            /* temp */
-            const auto& n = view.get<NameComponent>(entity);
-            if (n.id == id)
-            {
-                bool t = registry.any_of<Model3DComponent>(entity);
-                registry.destroy(entity);
-                if (t)
-                {
-                    Material::UnloadUnusedTextures();
-                }
-                return;
-            }
-        }
-        throw InGameException("Entity #id" + std::to_string(id.operator unsigned long()) + " not found");
-    }
+    void DeleteEntity(Entity& entity);
 
     /**
      * @return scene primary camera. Several primaries leads to UB

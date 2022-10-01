@@ -90,7 +90,9 @@ public:
      * Conversion operator from Entity class to entt:entity type
      * @return Entity.thisEntity
      */
-    operator entt::entity() { return thisEntity; }
+    operator const entt::entity() { return thisEntity; }
+
+    inline entt::entity Get() const { return thisEntity; }
 private:
      entt::entity thisEntity { 0 };
      Scene * scene;
