@@ -11,7 +11,7 @@
       "Transform" : 
       {
         "Position" : [-3.94467, -1.0492, -23.8455],
-        "Rotation" : [1.17327, 0.0836795, 0.084999],
+        "Rotation" : [6.62294, 0.0836795, 0.084999],
         "Scale" : [0.05, 0.05, 0.05]
       },
       "Model3D" : 
@@ -141,8 +141,8 @@
       },
       "Transform" : 
       {
-        "Position" : [20.2863, 70.098, -49.3679],
-        "Rotation" : [-52.6076, -16777, 0],
+        "Position" : [-20.4665, 8.17769, -8.23612],
+        "Rotation" : [-31.6373, -15508.3, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -152,6 +152,32 @@
       }
     },
     "Entity3" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Directional light"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 48.3869, 0],
+        "Rotation" : [-148.397, -782.218, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sun.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      },
+      "Directional light" : 
+      {
+        "Ambient" : [0.8, 0.8, 0.8],
+        "Diffuse" : [0.8, 0.8, 0.8],
+        "Specular" : [0.5, 0.5, 0.5]
+      }
+    },
+    "Entity2" : 
     {
       "Name" : 
       {
@@ -171,32 +197,6 @@
         "tilingFactor" : 1
       }
     },
-    "Entity2" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Directional light"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, 25.324, 0],
-        "Rotation" : [-133.67, 58.5113, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/sun.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Directional light" : 
-      {
-        "Ambient" : [0.5, 0.5, 0.5],
-        "Diffuse" : [0.5, 0.5, 0.5],
-        "Specular" : [0.5, 0.5, 0.5]
-      }
-    },
     "Entity1" : 
     {
       "Name" : 
@@ -214,7 +214,7 @@
         "Path" : "../res/assets/brickwall/plane.obj",
         "castsShadow" : true,
         "shouldBeLit" : true,
-        "tilingFactor" : 20
+        "tilingFactor" : 60
       }
     },
     "Entity0" : 

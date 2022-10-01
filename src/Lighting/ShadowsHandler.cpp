@@ -20,14 +20,18 @@ GLuint ShadowsHandler::RenderShadowMap()
     glDisable(GL_CULL_FACE);
     glEnable(GL_POLYGON_OFFSET_FILL);
 
-    if (shadowMapResolution <= 2048)
-    {
-        glPolygonOffset(8.96f, 12.8f);
-    }
-    else
-    {
-        glPolygonOffset(14.4f, 16.6f);
-    }
+    // constants
+    constexpr float baseOffset        = 8.96f;
+    constexpr float deltaOffset       = 2.72f;
+    constexpr float factorMultiplier  = 1.44f;
+
+    // adjusting bias by shadow map resolution
+    const float offsetScale = static_cast<float>(shadowMapResolution) / 2048;
+
+    // calculating bias
+    const float slopeOffset = baseOffset + (deltaOffset * offsetScale);
+
+    glPolygonOffset(slopeOffset, slopeOffset * factorMultiplier);
 
     // Creating separate viewport for shadow map
     glViewport(0, 0, shadowMapResolution, shadowMapResolution);

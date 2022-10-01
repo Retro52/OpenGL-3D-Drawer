@@ -288,13 +288,13 @@ float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir)
 
 	const int sampleRadius = 3;
 	const float sampleRadiusCount = pow(sampleRadius * 2 + 1, 2);
-	float randomFactor = clamp(mix(0.0f, 1.0f, rand(projCoords.xy * depthValue * FragPos.xy)), 0.0f, 1.0f);
 
 	for(int x = -sampleRadius; x <= sampleRadius; ++x)
 	{
 		for(int y = -sampleRadius; y <= sampleRadius; ++y)
 		{
-			float pcfDepth = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + randomFactor, y + randomFactor) * texelSize, layer)).r;
+            float randomFactor = clamp(mix(0.0f, 1.0f, rand((projCoords.xy + vec2(x, y)) * depthValue * FragPos.xy)), 0.0f, 1.0f);
+            float pcfDepth = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + randomFactor, y + randomFactor) * texelSize, layer)).r;
 			shadow += currentDepth > pcfDepth ? ambientShadow : 0.0f;
 		}
 	}
