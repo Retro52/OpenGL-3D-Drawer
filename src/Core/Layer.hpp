@@ -6,6 +6,7 @@
 #define GRAPHICS_LAYER_HPP
 
 #include <memory>
+#include "Event.hpp"
 #include "../Entity/Scene.h"
 
 class Layer
@@ -17,7 +18,10 @@ public:
     virtual void OnUiRender();
     virtual void OnUpdate(double deltaTime);
 
-    virtual ~Layer();
+    // shader pointer is used for pointer arithmetics
+    virtual void OnEvent(const std::shared_ptr<Event>& event);
+
+    virtual ~Layer() = default;
 };
 
 

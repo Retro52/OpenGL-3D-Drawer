@@ -233,36 +233,36 @@ void Scene::OnUpdate(double deltaTime)
     auto& t = GetPrimaryCamera().GetComponent<TransformComponent>();
     auto& c = GetPrimaryCamera().GetComponent<CameraComponent>();
     
-    if (EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT))
+    if (EventsHandler::IsPressed(Key::LeftShift))
     {
         speed *= 10;
     }
-    else if (EventsHandler::IsPressed(GLFW_KEY_LEFT_CONTROL))
+    else if (EventsHandler::IsPressed(Key::LeftControl))
     {
         speed /= 10;
     }
 
-    if (EventsHandler::IsPressed(GLFW_KEY_W))
+    if (EventsHandler::IsPressed(Key::W))
     {
         t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_S))
+    if (EventsHandler::IsPressed(Key::S))
     {
         t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_D) && !EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
+    if (EventsHandler::IsPressed(Key::D) && !EventsHandler::IsPressed(Key::LeftAlt))
     {
         t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_A))
+    if (EventsHandler::IsPressed(Key::A))
     {
         t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_Q))
+    if (EventsHandler::IsPressed(Key::Q))
     {
         t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_E))
+    if (EventsHandler::IsPressed(Key::E))
     {
         t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
     }
@@ -278,11 +278,11 @@ void Scene::OnUpdate(double deltaTime)
     }
 
     //iterating through entities
-    if (EventsHandler::IsJustPressed(GLFW_KEY_LEFT))
+    if (EventsHandler::IsJustPressed(Key::Left))
     {
         idx--;
     }
-    else if (EventsHandler::IsJustPressed(GLFW_KEY_RIGHT))
+    else if (EventsHandler::IsJustPressed(Key::Right))
     {
         idx++;
     }
@@ -291,54 +291,54 @@ void Scene::OnUpdate(double deltaTime)
     auto &selEntTransform = selectedEntity.GetComponent<TransformComponent>();
 
     // move selected
-    if (EventsHandler::IsPressed(GLFW_KEY_U))
+    if (EventsHandler::IsPressed(Key::U))
     {
         selEntTransform.translation -= static_cast<float>(deltaTime) * speed * front;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_J))
+    if (EventsHandler::IsPressed(Key::J))
     {
         selEntTransform.translation += static_cast<float>(deltaTime) * speed * front;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_K))
+    if (EventsHandler::IsPressed(Key::K))
     {
         selEntTransform.translation += static_cast<float>(deltaTime) * speed * right;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_H))
+    if (EventsHandler::IsPressed(Key::H))
     {
         selEntTransform.translation -= static_cast<float>(deltaTime) * speed * right;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_Y))
+    if (EventsHandler::IsPressed(Key::Y))
     {
         selEntTransform.translation += static_cast<float>(deltaTime) * speed * up;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_I))
+    if (EventsHandler::IsPressed(Key::I))
     {
         selEntTransform.translation -= static_cast<float>(deltaTime) * speed * up;
     }
 
     //scale
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_ADD))
+    if (EventsHandler::IsPressed(Key::KPAdd))
     {
         selEntTransform.scale += static_cast<float>(deltaTime) * speed;
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_SUBTRACT))
+    if (EventsHandler::IsPressed(Key::KPSubtract))
     {
         selEntTransform.scale -= static_cast<float>(deltaTime) * speed;
     }
 
-    if (EventsHandler::IsJustPressed(GLFW_KEY_DELETE))
+    if (EventsHandler::IsJustPressed(Key::Delete))
     {
         DeleteEntity(selectedEntity);
     }
 
     // temp placeholders
-    if (EventsHandler::IsJustPressed(GLFW_KEY_D) && EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
+    if (EventsHandler::IsJustPressed(Key::D) && EventsHandler::IsPressed(Key::LeftAlt))
     {
         CopyEntity(selectedEntity);
     }
 
     // add new directional light
-    if (EventsHandler::IsJustPressed(GLFW_KEY_L) && EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
+    if (EventsHandler::IsJustPressed(Key::L) && EventsHandler::IsPressed(Key::LeftAlt))
     {
         const auto& dirLight = CreateEntity("Directional light");
         dirLight.AddComponent<DirectionalLightComponent>(
@@ -352,7 +352,7 @@ void Scene::OnUpdate(double deltaTime)
     }
 
     // add new point light
-    if (EventsHandler::IsJustPressed(GLFW_KEY_P) && EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
+    if (EventsHandler::IsJustPressed(Key::P) && EventsHandler::IsPressed(Key::LeftAlt))
     {
         const auto& pLight = CreateEntity("Point light");
         pLight.GetComponent<TransformComponent>().scale = glm::vec3(0.05f);
@@ -372,7 +372,7 @@ void Scene::OnUpdate(double deltaTime)
     static int selectedAxis = 0;
     glm::vec3 rotationVector;
 
-    if(EventsHandler::IsJustPressed(GLFW_KEY_RIGHT_SHIFT))
+    if(EventsHandler::IsJustPressed(Key::RightShift))
     {
         selectedAxis++;
         selectedAxis %= 3;
@@ -395,11 +395,11 @@ void Scene::OnUpdate(double deltaTime)
     }
 
     //rotate
-    if (EventsHandler::IsPressed(GLFW_KEY_T))
+    if (EventsHandler::IsPressed(Key::T))
     {
         selEntTransform.rotation += glm::radians(static_cast<float>(deltaTime) * speed * rotationVector);
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_O))
+    if (EventsHandler::IsPressed(Key::O))
     {
         selEntTransform.rotation -= glm::radians(static_cast<float>(deltaTime) * speed * rotationVector);
     }

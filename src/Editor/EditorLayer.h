@@ -9,6 +9,7 @@
 
 class EditorLayer : public Layer
 {
+public:
     virtual void OnCreate() override;
 
     virtual void OnDestroy() override;
@@ -17,7 +18,9 @@ class EditorLayer : public Layer
 
     virtual void OnUpdate(double deltaTime) override;
 
-    virtual ~EditorLayer();
+    virtual void OnEvent(const std::shared_ptr<Event>& event) override;
+
+    virtual ~EditorLayer() override = default;
 };
 
 

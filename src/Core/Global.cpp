@@ -5,9 +5,10 @@
 #include "Global.h"
 #include "Config.h"
 #include "../UI/UIHandler.h"
-#include "../Lighting/ShadowsHandler.h"
 #include "../Entity/Entity.h"
 #include "../Render/Renderer.h"
+#include "../Editor/EditorLayer.h"
+#include "../Lighting/ShadowsHandler.h"
 
 double Global::lastTime;
 double Global::deltaTime;
@@ -70,6 +71,7 @@ void Global::Initialize()
         throw InGameException("Error during program initialization. Reason: " + std::string(e.what()));
     }
     EventsHandler::ToggleCursor();
+    ResourcesManager::RegisterLayer(std::make_shared<EditorLayer>());
 }
 
 void Global::Tick()
@@ -138,6 +140,19 @@ void Global::Tick()
     /* Update window controls */
     Window::Tick();
     ResourcesManager::GetPlayerScene()->OnUpdate(deltaTime);
+
+    auto& tickEvents = EventsStack::GetEvents();
+    while (!tickEvents.empty())
+    {
+        std::cerr << "Layers update\n";
+        for(const auto& layer : ResourcesManager::GetLayers())
+        {
+            layer->OnEvent(tickEvents.front());
+        }
+        tickEvents.pop();
+    }
+
+
 }
 
 double Global::GetWorldDeltaTime()

@@ -26,7 +26,7 @@ GLuint ShadowsHandler::RenderShadowMap()
     constexpr float factorMultiplier  = 1.44f;
 
     // adjusting bias by shadow map resolution
-    const float offsetScale = static_cast<float>(shadowMapResolution) / 2048;
+    const float offsetScale = (static_cast<float>(shadowMapResolution) / 2048) - 1;
 
     // calculating bias
     const float slopeOffset = baseOffset + (deltaOffset * offsetScale);

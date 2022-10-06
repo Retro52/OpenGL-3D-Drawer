@@ -4,6 +4,7 @@
 
 #include "EventsHandler.h"
 #include "../Core/Window.h"
+#include "../Core/Event.hpp"
 #include <array>
 #include <iostream>
 
@@ -35,8 +36,11 @@ void EventsHandler::cursor_position_callback(GLFWwindow * /* window */, double x
     {
         EventsHandler::_cursor_started = true;
     }
+
     EventsHandler::x = (float) xpos;
     EventsHandler::y = (float) ypos;
+
+    EventsStack::Emplace(std::make_shared<MouseMoveEvent>(deltaX, deltaY));
 }
 
 /**
@@ -56,11 +60,15 @@ void EventsHandler::mouse_button_callback(GLFWwindow * /* window */, int button,
     {
         EventsHandler::_keys.at(MOUSE_BUTTONS_OFFSET + button) = true;
         EventsHandler::_frames.at(MOUSE_BUTTONS_OFFSET + button) = EventsHandler::_current;
+
+        EventsStack::Emplace(std::make_shared<MouseButtonClick>(button));
     }
     else if (action == GLFW_RELEASE)
     {
         EventsHandler::_keys.at(MOUSE_BUTTONS_OFFSET + button) = false;
         EventsHandler::_frames.at(MOUSE_BUTTONS_OFFSET + button) = EventsHandler::_current;
+
+        EventsStack::Emplace(std::make_shared<MouseButtonRelease>(button));
     }
 }
 
@@ -82,11 +90,13 @@ void EventsHandler::key_callback(GLFWwindow * /* window */, int key, int /* scan
     {
         EventsHandler::_keys.at(key) = true;
         EventsHandler::_frames.at(key) = EventsHandler::_current;
+        EventsStack::Emplace(std::make_shared<KeyPressedEvent>(key));
     }
     else if (action == GLFW_RELEASE)
     {
         EventsHandler::_keys.at(key) = false;
         EventsHandler::_frames.at(key) = EventsHandler::_current;
+        EventsStack::Emplace(std::make_shared<KeyReleasedEvent>(key));
     }
 }
 
@@ -102,6 +112,8 @@ void EventsHandler::window_size_callback(GLFWwindow * /*window*/, int width, int
     Window::SetHeight(height);
     Window::SetWidth(width);
     Window::Update();
+
+    EventsStack::Emplace(std::make_shared<WindowResizeEvent>(width, height));
 }
 
 int EventsHandler::Initialize()

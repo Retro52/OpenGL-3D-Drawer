@@ -52,6 +52,32 @@ public:
      * @param path path to the scene to load
      */
     static void RegisterPlayerScene(const std::string& path);
+    /**
+     * Creates new application layer
+     * @param layer Any class derived from Layer
+     */
+    static void RegisterLayer(const std::shared_ptr<Layer>& layer)
+    {
+        layer->OnCreate();
+        layers.push_back(layer);
+    }
+
+    /**
+     * Get one of the registered layers
+     * @param index layer index
+     * @return layer at index
+     */
+    static std::shared_ptr<Layer>& GetLayer(int index)
+    {
+        return layers.at(index);
+    }
+
+    static unsigned int GetNumOfLayers() { return layers.size(); }
+
+    static std::vector<std::shared_ptr<Layer>>& GetLayers()
+    {
+        return layers;
+    }
 
 private:
     static std::unique_ptr<Scene> pScene;
