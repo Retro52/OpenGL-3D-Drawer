@@ -2,9 +2,9 @@
 // Created by Anton on 14.08.2022.
 //
 
+#include "imgui.h"
 #include "Global.h"
 #include "Config.h"
-#include "../UI/UIHandler.h"
 #include "../Entity/Entity.h"
 #include "../Render/Renderer.h"
 #include "../Editor/EditorLayer.h"
@@ -91,6 +91,24 @@ void Global::Tick()
         elapsedTime = 0.0;
     }
 
+    /* Update window controls */
+    Window::Tick();
+    ResourcesManager::GetPlayerScene()->OnUpdate(deltaTime);
+
+    auto& tickEvents = EventsStack::GetEvents();
+    while (!tickEvents.empty())
+    {
+        for(const auto& layer : ResourcesManager::GetLayers())
+        {
+            layer->OnEvent(tickEvents.front());
+        }
+        tickEvents.pop();
+    }
+
+    if(!EventsHandler::_cursor_locked)
+    {
+        return;
+    }
     /* Debug features */
     if(EventsHandler::IsJustPressed(GLFW_KEY_0))
     {
@@ -136,23 +154,6 @@ void Global::Tick()
     {
         ResourcesManager::RegisterPlayerScene("../res/scenes/defaultScene.json");
     }
-
-    /* Update window controls */
-    Window::Tick();
-    ResourcesManager::GetPlayerScene()->OnUpdate(deltaTime);
-
-    auto& tickEvents = EventsStack::GetEvents();
-    while (!tickEvents.empty())
-    {
-        std::cerr << "Layers update\n";
-        for(const auto& layer : ResourcesManager::GetLayers())
-        {
-            layer->OnEvent(tickEvents.front());
-        }
-        tickEvents.pop();
-    }
-
-
 }
 
 double Global::GetWorldDeltaTime()
@@ -166,32 +167,31 @@ void Global::Draw()
 
     Renderer::Prepare(* ResourcesManager::GetPlayerScene(), drawMode);
     unsigned int shadowTexture = ShadowsHandler::RenderShadowMap();
+    Window::BindFBO();
+    glClearColor(0.203f, 0.76f, 0.938f,1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+
+    if(drawMode == 4)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
     Renderer::Render(* ResourcesManager::GetPlayerScene(), shadowTexture);
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    UIHandler::RenderText(uiShader, "FPS: " + std::to_string(curFPS), 0.0F, (float) Window::GetHeight() - 48.0F, 16);
-    UIHandler::RenderText(uiShader, "View mode: " + drawModeToString(drawMode), 0.0F, (float) Window::GetHeight() - 64.0F, 16, glm::vec3(1.0, 1.0, 0.0));
-
-    auto selEnt = ResourcesManager::GetPlayerScene()->GetSelectedEntity();
-    auto& selEntTransform = selEnt.GetComponent<TransformComponent>();
-    auto& selEntNameComp = selEnt.GetComponent<NameComponent>();
-
-    std::stringstream trans;
-    std::stringstream rot;
-    std::stringstream sc;
-    trans << "Translation: " << std::to_string(selEntTransform.translation.x) << "; " << std::to_string(selEntTransform.translation.y) << "; " << std::to_string(selEntTransform.translation.z);
-    rot << "Rotation: " << std::to_string(glm::degrees(selEntTransform.rotation.x))  << "; " << std::to_string(glm::degrees(selEntTransform.rotation.y))  << "; " << std::to_string(glm::degrees(selEntTransform.rotation.z));
-    sc << "Scale: " << std::to_string(selEntTransform.scale.x)  << "; " << std::to_string(selEntTransform.scale.y)  << "; " << std::to_string(selEntTransform.scale.z);
-    UIHandler::RenderText(uiShader, "Name: " + selEntNameComp.name, 0.0F, (float) Window::GetHeight() - 80.0F, 16, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(uiShader, trans.str(), 0.0F, (float) Window::GetHeight() - 96.0F, 16, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(uiShader, rot.str(), 0.0F, (float) Window::GetHeight() - 112.0F, 16, glm::vec3(1.0, 1.0, 0.0));
-    UIHandler::RenderText(uiShader, sc.str(), 0.0F, (float) Window::GetHeight() - 128.0F, 16, glm::vec3(1.0, 1.0, 0.0));
-
+    Window::ResetFBO();
 }
 
 void Global::EndFrame()
 {
+    for(const auto& layer : ResourcesManager::GetLayers())
+    {
+        layer->OnUiRender();
+    }
+
     /* Swapping OpenGL buffers and pulling this frame events */
     Window::SwapBuffers();
     EventsHandler::PullEvents();

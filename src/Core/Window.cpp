@@ -9,12 +9,16 @@
 #include <iostream>
 #include <thread>
 
-GLFWwindow * Window::window;
 int Window::width = 0;
 int Window::height = 0;
+int Window::fboWidth = 2048;
+int Window::fboHeight = 2048;
+GLFWwindow * Window::window;
+std::unique_ptr<FBO> Window::windowFBO;
+std::unique_ptr<Texture> Window::viewportTexture, Window::viewportDepthTexture;
 
 
-void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
+void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, int nativeWidth, int nativeHeight)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -34,7 +38,6 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
 
     if (Window::window == nullptr)
     {
-        std::cerr << "Failed to create GLFW Window" << std::endl;
         glfwTerminate();
         throw InGameException("Failure during GLFW window creation");
     }
@@ -45,11 +48,39 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
 
     if (glewInit() != GLEW_OK)
     {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
         throw InGameException("Failure during GLEW initialization");
     }
 
-    glViewport(0, 0, w, h);
+//    fboWidth = nativeWidth;
+//    fboHeight = nativeHeight;
+
+    windowFBO = std::make_unique<FBO>();
+    windowFBO->Bind();
+
+    viewportTexture = std::make_unique<Texture>(
+            fboWidth,
+            fboHeight,
+            GL_RGB,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            false
+            );
+    viewportDepthTexture = std::make_unique<Texture>(
+            fboWidth,
+            fboHeight,
+            GL_DEPTH_STENCIL,
+            GL_DEPTH24_STENCIL8,
+            GL_UNSIGNED_INT_24_8,
+            false
+            );
+
+    windowFBO->AddTexture(viewportTexture->GetId(), GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0);
+    windowFBO->AddTexture(viewportDepthTexture->GetId(), GL_TEXTURE_2D, GL_DEPTH_STENCIL_ATTACHMENT);
+
+    GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "WINDOW::ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+    windowFBO->Reset();
+
+    glViewport(0, 0, fboWidth, fboHeight);
     glClearColor(0.0f,0.0f,0.0f,1);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -128,14 +159,10 @@ void Window::Tick()
         Window::SetShouldClose(true);
     }
     /* Show/hide cursor */
-    if (EventsHandler::IsJustPressed(GLFW_KEY_TAB))
+    if ((EventsHandler::IsJustPressed(GLFW_KEY_F1) && EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT)) || EventsHandler::IsPressed(GLFW_KEY_TAB) && EventsHandler::IsJustPressed(GLFW_KEY_F1))
     {
         EventsHandler::ToggleCursor();
     }
-//    if (EventsHandler::_cursor_locked)
-//    {
-//        glfwSetCursorPos(window, static_cast<int>(width / 2), static_cast<int>(height / 2));
-//    }
 }
 
 void Window::Update()

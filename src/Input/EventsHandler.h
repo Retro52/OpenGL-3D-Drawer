@@ -72,6 +72,8 @@ public:
      */
     static void ToggleCursor();
 
+    static void ToggleCursor(bool shouldBeVisible);
+
     static void mouse_button_callback(GLFWwindow * window, int button, int action, int mode);
 
     static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);

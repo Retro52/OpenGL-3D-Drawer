@@ -145,7 +145,6 @@ class EventsStack
 public:
     static void Emplace(const std::shared_ptr<Event>& event)
     {
-        std::cerr << "New event was created: " << typeid(event).name() << "\n";
         events.push(event);
     }
 

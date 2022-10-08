@@ -89,6 +89,7 @@ private:
 
     friend class Entity;
     friend class Renderer;
+    friend class EditorLayer;
     friend class JsonSceneSerializer;
 };
 

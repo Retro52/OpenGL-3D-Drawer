@@ -39,7 +39,6 @@ public:
     static void Prepare(Scene& scene, int drawMode)
     {
         std::shared_ptr<Shader>& mShader = ResourcesManager::GetShader("mainShader");
-        
         auto& cameraComponent = scene.GetPrimaryCamera().GetComponent<CameraComponent>();
         auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
 
@@ -93,7 +92,6 @@ public:
 
         glClearColor(0.203f, 0.76f, 0.938f,1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     }
 
     /**

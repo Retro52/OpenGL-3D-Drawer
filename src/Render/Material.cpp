@@ -15,6 +15,7 @@ std::vector<std::shared_ptr<Texture>> Material::texturesLoaded;
 
 Texture::Texture(const std::string &path, bool /*gamma*/) : path(path)
 {
+    textureType = GL_TEXTURE_2D;
     std::string filename = std::quoted(path)._M_string;
     stbi_set_flip_vertically_on_load(0);
 
@@ -39,16 +40,16 @@ Texture::Texture(const std::string &path, bool /*gamma*/) : path(path)
     }
 
     glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
+    glBindTexture(textureType, id);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<int>(format), width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexImage2D(textureType, 0, static_cast<int>(format), width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(textureType);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     LOG(INFO) << "Texture " << path << " loaded, taking " << nrComponents * width * height << " bytes of memory; Generated id: " << id;
 
@@ -59,6 +60,42 @@ Texture::~Texture()
 {
 //    LOG(DEBUG) << "Texture unloaded: " << path  << "\n";
     glDeleteTextures(1, &id);
+}
+
+Texture::Texture(GLsizei width, GLsizei height, unsigned int format, unsigned int internalFormat, unsigned int pixelType, bool repeat, bool isTextureArray, unsigned int textureArraySize)
+{
+    textureType = isTextureArray ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+
+    glGenTextures(1, &id);
+    glBindTexture(textureType, id);
+
+    if (!isTextureArray)
+    {
+        glTexImage2D(textureType, 0, static_cast<int>(format), width, height, 0, format, pixelType, nullptr);
+    }
+    else
+    {
+        GAME_ASSERT(textureArraySize != 0, "Incorrect texture array size, must be over 0");
+        glTexImage3D(
+                textureType, 0, static_cast<GLsizei>(internalFormat), width, height, static_cast<GLsizei>(textureArraySize) + 1,
+                0, format, GL_FLOAT, nullptr);
+    }
+
+    glTexParameteri(textureType, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    if (!repeat)
+    {
+        glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+        glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        glTexParameterfv(textureType, GL_TEXTURE_BORDER_COLOR, bordercolor);
+    }
+    else
+    {
+        glTexParameteri(textureType, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(textureType, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
 }
 
 Material::Material(const aiMaterial *material, const std::string &directory)

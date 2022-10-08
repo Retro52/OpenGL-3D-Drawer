@@ -33,7 +33,7 @@ public:
     /**
      * @return last rendered shadow map texture id
      */
-    static GLuint GetRenderedShadowMap() { return shadowTexture; };
+    static GLuint GetRenderedShadowMap() { return shadowTexture->GetId(); };
 
     /**
      * Sets shadowMapResolution. Has to be called BEFORE Initialization
@@ -41,11 +41,11 @@ public:
      */
     static void SetMapResolution(int resolution) { shadowMapResolution = resolution; };
 private:
-    static GLuint shadowTexture;
-
     static int shadowMapResolution;
 
     static std::unique_ptr<FBO> shadowFBO;
+
+    static std::shared_ptr<Texture> shadowTexture;
 };
 
 inline int ShadowsHandler::shadowMapResolution = 1024;

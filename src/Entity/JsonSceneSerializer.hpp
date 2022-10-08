@@ -214,7 +214,7 @@ private:
         {
             StartMap(out, "Model3D");
             const auto& component = entity.GetComponent<Model3DComponent>();
-            InsertVariable(out, "Path", component.model.GetPath());
+            InsertVariable(out, "Path", component.model.path);
             InsertVariable(out, "castsShadow", component.castsShadow);
             InsertVariable(out, "shouldBeLit", component.shouldBeLit);
             InsertVariable(out, "tilingFactor", component.tilingFactor);

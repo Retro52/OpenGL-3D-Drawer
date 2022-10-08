@@ -40,11 +40,22 @@ public:
      * @param texture texture id
      * @param attachmentType attachment type
      */
-    inline void AddTexture(unsigned int texture, unsigned int attachmentType) const
+    void AddTexture(unsigned int texture, unsigned int attachmentType)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
         glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, texture, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        bufferTextures.push_back(texture);
+    }
+
+    void AddTexture(unsigned int texture, unsigned int textureType, unsigned int attachmentType)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureType, texture, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        bufferTextures.push_back(texture);
     }
 
     /**
@@ -80,13 +91,14 @@ public:
     /**
      * Binds current FBO to 0
      */
-    inline void Reset() const
+    static inline void Reset()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
 private:
     unsigned int id { 0 };
+    std::vector<unsigned int> bufferTextures;
 };
 
 #endif //GRAPHICS_FBO_HPP

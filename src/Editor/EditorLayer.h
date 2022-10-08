@@ -21,6 +21,31 @@ public:
     virtual void OnEvent(const std::shared_ptr<Event>& event) override;
 
     virtual ~EditorLayer() override = default;
+
+private:
+    void LoadImGui();
+
+    void ImGuiNewFrame();
+
+    void DrawImGuiTest();
+
+    void ImGuiEndFrame();
+
+    void ShutImGui();
+
+    template<typename T>
+    void AddComponent(const std::string& componentName);
+
+    void DrawEntityProperties(std::unique_ptr<Scene>& scene);
+
+    void OnMouseMoveEvent(const std::shared_ptr<MouseMoveEvent>& event);
+
+    void OnKeyPressedEvent(const std::shared_ptr<KeyPressedEvent>& event);
+
+    void OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent>& event);
+
+private:
+    static std::shared_ptr<Entity> selectedEntity;
 };
 
 

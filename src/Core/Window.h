@@ -7,15 +7,22 @@
 
 #define GLEW_STATIC
 
+#include <memory>
 #include <glew.h>
 #include <glfw3.h>
 #include <string>
+#include "../Render/FBO.hpp"
+#include "../Render/Material.h"
 
 class Window
 {
 private:
     static GLFWwindow * window;
     static int width, height;
+    static int fboWidth, fboHeight;
+
+    static std::unique_ptr<FBO> windowFBO;
+    static std::unique_ptr<Texture> viewportTexture, viewportDepthTexture;
 public:
     /* Restriction to create an instance of this class */
     Window() = delete;
@@ -29,7 +36,7 @@ public:
      * @param name window name
      * @param fullScreen true if full screen, false otherwise
      */
-    static void Initialize(int w, int h, const std::string &name, bool fullScreen);
+    static void Initialize(int w, int h, const std::string &name, bool fullScreen = false, int nativeWidth = 1920, int nativeHeight = 1080);
 
     /**
      * Terminates the window after program is shut
@@ -60,18 +67,6 @@ public:
     static void SwapBuffers();
 
     /**
-     * Get window width
-     * @return window current width
-     */
-    static int GetWidth();
-
-    /**
-     * Get window height
-     * @return window height
-     */
-    static int GetHeight();
-
-    /**
      * Get current window
      * @return current window
      */
@@ -90,6 +85,32 @@ public:
     static void SetHeight(int h);
 
     /**
+     * Get window width
+     * @return window current width
+     */
+    static int GetWidth();
+
+    /**
+     * Get window height
+     * @return window height
+     */
+    static int GetHeight();
+
+    /**
+     * Get FBO texture width
+     * @return attached to FBO texture`s width
+     */
+    static int GetFboWidth() { return fboHeight; }
+
+    /**
+     * Get FBO texture height
+     * @return attached to FBO texture`s height
+     */
+    static int GetFboHeight() { return fboHeight; }
+
+    static unsigned int GetFboTexture() { return viewportTexture->GetId(); }
+
+    /**
      * Executed every frame
      */
     static void Tick();
@@ -103,6 +124,9 @@ public:
      * @return current window aspect ratio
      */
     inline static float GetAspectRatio() { return static_cast<float> (width) / static_cast<float> (height); }
+
+    static void BindFBO() { windowFBO->Bind(); }
+    static void ResetFBO() { windowFBO->Reset(); }
 };
 
 

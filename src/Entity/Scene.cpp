@@ -221,8 +221,12 @@ Entity Scene::GetEngineDefault(EngineDefaultTypes target)
 
 void Scene::OnUpdate(double deltaTime)
 {
+    if(!EventsHandler::_cursor_locked)
+    {
+        return;
+    }
+
     float speed = 10.0f;
-    static bool shouldAlignToGrid = false;
 
     const glm::vec3 up(0, 1, 0);
     const glm::vec3 right(1, 0, 0);
@@ -276,135 +280,6 @@ void Scene::OnUpdate(double deltaTime)
         t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetWidth() * 2);
         c.camera.Update(t.rotation);
     }
-
-    //iterating through entities
-    if (EventsHandler::IsJustPressed(Key::Left))
-    {
-        idx--;
-    }
-    else if (EventsHandler::IsJustPressed(Key::Right))
-    {
-        idx++;
-    }
-
-    auto selectedEntity   = GetSelectedEntity(idx);
-    auto &selEntTransform = selectedEntity.GetComponent<TransformComponent>();
-
-    // move selected
-    if (EventsHandler::IsPressed(Key::U))
-    {
-        selEntTransform.translation -= static_cast<float>(deltaTime) * speed * front;
-    }
-    if (EventsHandler::IsPressed(Key::J))
-    {
-        selEntTransform.translation += static_cast<float>(deltaTime) * speed * front;
-    }
-    if (EventsHandler::IsPressed(Key::K))
-    {
-        selEntTransform.translation += static_cast<float>(deltaTime) * speed * right;
-    }
-    if (EventsHandler::IsPressed(Key::H))
-    {
-        selEntTransform.translation -= static_cast<float>(deltaTime) * speed * right;
-    }
-    if (EventsHandler::IsPressed(Key::Y))
-    {
-        selEntTransform.translation += static_cast<float>(deltaTime) * speed * up;
-    }
-    if (EventsHandler::IsPressed(Key::I))
-    {
-        selEntTransform.translation -= static_cast<float>(deltaTime) * speed * up;
-    }
-
-    //scale
-    if (EventsHandler::IsPressed(Key::KPAdd))
-    {
-        selEntTransform.scale += static_cast<float>(deltaTime) * speed;
-    }
-    if (EventsHandler::IsPressed(Key::KPSubtract))
-    {
-        selEntTransform.scale -= static_cast<float>(deltaTime) * speed;
-    }
-
-    if (EventsHandler::IsJustPressed(Key::Delete))
-    {
-        DeleteEntity(selectedEntity);
-    }
-
-    // temp placeholders
-    if (EventsHandler::IsJustPressed(Key::D) && EventsHandler::IsPressed(Key::LeftAlt))
-    {
-        CopyEntity(selectedEntity);
-    }
-
-    // add new directional light
-    if (EventsHandler::IsJustPressed(Key::L) && EventsHandler::IsPressed(Key::LeftAlt))
-    {
-        const auto& dirLight = CreateEntity("Directional light");
-        dirLight.AddComponent<DirectionalLightComponent>(
-                glm::vec3(0.5f),
-                glm::vec3(0.5f),
-                glm::vec3(0.5f)
-                );
-        auto& mComponent = dirLight.AddComponent<Model3DComponent>("../res/assets/Basics/sun.obj");
-        mComponent.shouldBeLit = false;
-        mComponent.castsShadow = false;
-    }
-
-    // add new point light
-    if (EventsHandler::IsJustPressed(Key::P) && EventsHandler::IsPressed(Key::LeftAlt))
-    {
-        const auto& pLight = CreateEntity("Point light");
-        pLight.GetComponent<TransformComponent>().scale = glm::vec3(0.05f);
-        pLight.AddComponent<PointLightComponent>(
-                glm::vec3(0.5f),
-                glm::vec3(0.5f),
-                glm::vec3(0.5f),
-                0.3f,
-                0.09f,
-                0.012f
-        );
-        auto& mComponent = pLight.AddComponent<Model3DComponent>("../res/assets/Basics/bulb.obj");
-        mComponent.shouldBeLit = false;
-        mComponent.castsShadow = false;
-    }
-
-    static int selectedAxis = 0;
-    glm::vec3 rotationVector;
-
-    if(EventsHandler::IsJustPressed(Key::RightShift))
-    {
-        selectedAxis++;
-        selectedAxis %= 3;
-    }
-
-    switch (selectedAxis)
-    {
-        case 0:
-            rotationVector = glm::vec3(1, 0, 0);
-            break;
-        case 1:
-            rotationVector = glm::vec3(0, 1, 0);
-            break;
-        case 2:
-            rotationVector = glm::vec3(0, 0, 1);
-            break;
-        default:
-            rotationVector = glm::vec3(0, 0, 0);
-            break;
-    }
-
-    //rotate
-    if (EventsHandler::IsPressed(Key::T))
-    {
-        selEntTransform.rotation += glm::radians(static_cast<float>(deltaTime) * speed * rotationVector);
-    }
-    if (EventsHandler::IsPressed(Key::O))
-    {
-        selEntTransform.rotation -= glm::radians(static_cast<float>(deltaTime) * speed * rotationVector);
-    }
-
-    GetEngineDefault(Axes).GetComponent<TransformComponent>().translation = selEntTransform.translation;
 }
 
 Entity Scene::GetSelectedEntity()

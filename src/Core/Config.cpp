@@ -10,19 +10,19 @@
 #include "inipp.h"
 #include "json.hpp"
 #include "../Logging/easylogging++.h"
-#include "../UI/UIHandler.h"
 
 
 void Config::LoadIni(const std::string &configPath)
 {
     LOG(INFO) << "Start loading "<< configPath << " file";
-    int windowHeight       = 900;
-    int windowWidth        = 1200;
-    int defaultFontSize    = 16;
-    int shadowsResolution  = 1024;
+    int windowHeight           = 900;
+    int windowWidth            = 1200;
+    int shadowsResolution      = 1024;
+    int nativeResolutionWidth  = 1920;
+    int nativeResolutionHeight = 1080;
+
     bool windowFullScreen  = false;
     std::string windowName        = "OpenGL Drawer";
-    std::string defaultFontPath   = "../res/fonts/arial/arial.ttf";
     std::string defaultScenePath  = "../res/scenes/defaultScene.json";
     std::string shadersConfigPath = "config.json";
 
@@ -40,8 +40,6 @@ void Config::LoadIni(const std::string &configPath)
     inipp::get_value(ini.sections["DEFAULT"], "windowWidth", windowWidth);
     inipp::get_value(ini.sections["DEFAULT"], "windowHeight", windowHeight);
     inipp::get_value(ini.sections["DEFAULT"], "windowFullScreen", windowFullScreen);
-    inipp::get_value(ini.sections["DEFAULT"], "defaultFontSize", defaultFontSize);
-    inipp::get_value(ini.sections["DEFAULT"], "defaultFontPath", defaultFontPath);
     inipp::get_value(ini.sections["DEFAULT"], "defaultScenePath", defaultScenePath);
 
 
@@ -59,7 +57,6 @@ void Config::LoadIni(const std::string &configPath)
     Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen);
 
     Config::LoadJson(shadersConfigPath);
-    UIHandler::Initialize(defaultFontPath, defaultFontSize);
     ResourcesManager::RegisterPlayerScene(defaultScenePath);
     ShadowsHandler::SetMapResolution(shadowsResolution);
 }

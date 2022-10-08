@@ -163,6 +163,12 @@ void EventsHandler::ToggleCursor()
     Window::SetCursorMode(_cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
+void EventsHandler::ToggleCursor(bool shouldBeVisible)
+{
+    _cursor_locked = shouldBeVisible;
+    Window::SetCursorMode(_cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
 void EventsHandler::PullEvents()
 {
     _current++;

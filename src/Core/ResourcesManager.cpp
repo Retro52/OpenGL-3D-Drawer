@@ -51,8 +51,3 @@ void ResourcesManager::RegisterPlayerScene(const std::string &path)
         std::cerr << e.what();
     }
 }
-
-std::unique_ptr<Scene>& ResourcesManager::GetPlayerScene()
-{
-    return pScene;
-}

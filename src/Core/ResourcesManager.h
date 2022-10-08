@@ -29,7 +29,7 @@ public:
      * Returns current scene
      * @return current scene
      */
-    static std::unique_ptr<Scene>& GetPlayerScene();
+    static std::unique_ptr<Scene>& GetPlayerScene() { return pScene; };
 
     /**
      * Get registered shader by name

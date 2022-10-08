@@ -24,6 +24,11 @@
 class Model
 {
 public:
+    explicit Model()
+    {
+        path = "";
+    }
+
     /**
      * @param path path to the model file
      */
@@ -58,10 +63,7 @@ public:
         }
     };
 
-    /**
-     * @return model path model was loaded from
-     */
-    [[nodiscard]] inline std::string GetPath() const { return path; }
+    void LoadModel() { LoadModel(path); }
 
 private:
     /**
@@ -83,11 +85,13 @@ private:
      * @return new Mesh new loaded mesh
      */
     std::shared_ptr<Mesh> ProcessMesh(aiMesh *mesh, const aiScene *scene);
+
+public:
+    std::string path;
+
 private:
     bool gammaCorrection;
     std::string directory;
     std::vector<std::shared_ptr<Mesh>> meshes;
-
-    std::string path;
 };
 #endif

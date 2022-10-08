@@ -7,8 +7,8 @@
 #include "../Render/Renderer.h"
 
 
-GLuint ShadowsHandler::shadowTexture;
 std::unique_ptr<FBO> ShadowsHandler::shadowFBO = nullptr;
+std::shared_ptr<Texture> ShadowsHandler::shadowTexture = nullptr;
 
 
 GLuint ShadowsHandler::RenderShadowMap()
@@ -26,7 +26,7 @@ GLuint ShadowsHandler::RenderShadowMap()
     constexpr float factorMultiplier  = 1.44f;
 
     // adjusting bias by shadow map resolution
-    const float offsetScale = (static_cast<float>(shadowMapResolution) / 2048) - 1;
+    const float offsetScale = (static_cast<float>(shadowMapResolution) / 2048) - 0.5f;
 
     // calculating bias
     const float slopeOffset = baseOffset + (deltaOffset * offsetScale);
@@ -43,7 +43,7 @@ GLuint ShadowsHandler::RenderShadowMap()
 
     shadowFBO->Reset();
 
-    glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
+    glViewport(0, 0, Window::GetFboWidth(), Window::GetFboHeight());
 
     // re-enabling cull faces
     glEnable(GL_CULL_FACE);
@@ -51,31 +51,29 @@ GLuint ShadowsHandler::RenderShadowMap()
 
     glDisable(GL_POLYGON_OFFSET_FILL);
 
-    return shadowTexture;
+    return shadowTexture->GetId();
 }
 
 void ShadowsHandler::Initialize(const int size)
 {
-
-    glGenTextures(1, &shadowTexture);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, shadowTexture);
-    glTexImage3D(
-            GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT32F, shadowMapResolution, shadowMapResolution, size + 1,
-            0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-    constexpr float bordercolor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BORDER_COLOR, bordercolor);
+    shadowTexture = std::make_shared<Texture>(
+            shadowMapResolution,
+            shadowMapResolution,
+            GL_DEPTH_COMPONENT,
+            GL_DEPTH_COMPONENT32F,
+            GL_UNSIGNED_BYTE,
+            false,
+            true,
+            size
+            );
 
     shadowFBO = std::make_unique<FBO>();
 
-    shadowFBO->AddTexture(shadowTexture, GL_DEPTH_ATTACHMENT);
+    shadowFBO->AddTexture(shadowTexture->GetId(), GL_DEPTH_ATTACHMENT);
     shadowFBO->SetDrawBuffer(GL_NONE);
     shadowFBO->SetReadBuffer(GL_NONE);
 
-    GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+    GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "SHADOWSHANDLER::ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+
+    shadowFBO->Reset();
 }

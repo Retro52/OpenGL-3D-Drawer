@@ -42,13 +42,26 @@ struct Texture
      * @param path texture path
      * @param gamma gamma correction (not implemented)
      */
-    Texture(const std::string& path, bool gamma = false);
+    explicit Texture(const std::string& path, bool gamma = false);
+
+    /**
+     * Creates an empty texture
+     * @param width texture width
+     * @param height texture height
+     * @param format texture format, GL_RGBA by default
+     * @param internalFormat texture internal format, GL_RGBA by default
+     * @param repeat if texture should be repeated or clamped to the border, true by default
+     * @param isTextureArray true if required texture has to be TEXTURE_2D_ARRAY, false by default
+     * @param textureArraySize texture array size, use only if texture is texture 2D array, -1 by default
+     */
+    Texture(GLsizei width, GLsizei height, unsigned int format = GL_RGBA, unsigned int internalFormat = GL_RGBA, unsigned int pixelType = GL_UNSIGNED_BYTE, bool repeat = true, bool isTextureArray = false, unsigned int textureArraySize = 0);
 
     /**
      * @return texture id
      */
     [[nodiscard]] inline unsigned int GetId() const { return id; }
 
+    void Bind() const { glBindTexture(textureType, id); }
     /**
      * Texture comparison operator
      * @param other other texture`s path
@@ -79,6 +92,7 @@ private:
     int height = 0;
     float blend = 1.0f;
     unsigned int id = 0;
+    unsigned int textureType = 0;
     std::string path;
 };
 
