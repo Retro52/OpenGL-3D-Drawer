@@ -19,10 +19,6 @@ class Window
 private:
     static GLFWwindow * window;
     static int width, height;
-    static int fboWidth, fboHeight;
-
-    static std::unique_ptr<FBO> windowFBO;
-    static std::unique_ptr<Texture> viewportTexture, viewportDepthTexture;
 public:
     /* Restriction to create an instance of this class */
     Window() = delete;
@@ -97,20 +93,6 @@ public:
     static int GetHeight();
 
     /**
-     * Get FBO texture width
-     * @return attached to FBO texture`s width
-     */
-    static int GetFboWidth() { return fboHeight; }
-
-    /**
-     * Get FBO texture height
-     * @return attached to FBO texture`s height
-     */
-    static int GetFboHeight() { return fboHeight; }
-
-    static unsigned int GetFboTexture() { return viewportTexture->GetId(); }
-
-    /**
      * Executed every frame
      */
     static void Tick();
@@ -124,9 +106,6 @@ public:
      * @return current window aspect ratio
      */
     inline static float GetAspectRatio() { return static_cast<float> (width) / static_cast<float> (height); }
-
-    static void BindFBO() { windowFBO->Bind(); }
-    static void ResetFBO() { windowFBO->Reset(); }
 };
 
 

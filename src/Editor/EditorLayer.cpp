@@ -15,6 +15,7 @@
 #include "../Core/Global.h"
 #include "../Input/EventsHandler.h"
 #include "../Core/ResourcesManager.h"
+#include "../Render/Renderer.h"
 
 std::shared_ptr<Entity> EditorLayer::selectedEntity = nullptr;
 
@@ -122,7 +123,7 @@ void EditorLayer::DrawImGuiTest()
 
     // adding scene viewport
     ImGui::Begin("Scene viewport");
-    ImGui::Image(reinterpret_cast<void*>(Window::GetFboTexture()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+    ImGui::Image(reinterpret_cast<void*>(Renderer::GetPostProcessFBO()->GetColorTexture()->GetId()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
     // drop selected entity
     if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())

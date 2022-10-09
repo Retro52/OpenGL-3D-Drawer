@@ -11,12 +11,7 @@
 
 int Window::width = 0;
 int Window::height = 0;
-int Window::fboWidth = 2048;
-int Window::fboHeight = 2048;
 GLFWwindow * Window::window;
-std::unique_ptr<FBO> Window::windowFBO;
-std::unique_ptr<Texture> Window::viewportTexture, Window::viewportDepthTexture;
-
 
 void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, int nativeWidth, int nativeHeight)
 {
@@ -51,36 +46,7 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, 
         throw InGameException("Failure during GLEW initialization");
     }
 
-//    fboWidth = nativeWidth;
-//    fboHeight = nativeHeight;
-
-    windowFBO = std::make_unique<FBO>();
-    windowFBO->Bind();
-
-    viewportTexture = std::make_unique<Texture>(
-            fboWidth,
-            fboHeight,
-            GL_RGB,
-            GL_RGB,
-            GL_UNSIGNED_BYTE,
-            false
-            );
-    viewportDepthTexture = std::make_unique<Texture>(
-            fboWidth,
-            fboHeight,
-            GL_DEPTH_STENCIL,
-            GL_DEPTH24_STENCIL8,
-            GL_UNSIGNED_INT_24_8,
-            false
-            );
-
-    windowFBO->AddTexture(viewportTexture->GetId(), GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0);
-    windowFBO->AddTexture(viewportDepthTexture->GetId(), GL_TEXTURE_2D, GL_DEPTH_STENCIL_ATTACHMENT);
-
-    GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "WINDOW::ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-    windowFBO->Reset();
-
-    glViewport(0, 0, fboWidth, fboHeight);
+    glViewport(0, 0, 2048, 2048);
     glClearColor(0.0f,0.0f,0.0f,1);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -123,12 +89,12 @@ void Window::SwapBuffers()
 
 int Window::GetWidth()
 {
-    return Window::width;
+    return 2048;
 }
 
 int Window::GetHeight()
 {
-    return Window::height;
+    return 2048;
 }
 
 void Window::SetWidth(int w)

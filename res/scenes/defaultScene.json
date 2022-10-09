@@ -2,6 +2,35 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
+    "Entity7" : 
+    {
+      "Name" : 
+      {
+        "Name" : "PL2"
+      },
+      "Transform" : 
+      {
+        "Position" : [-22, -0.5, -44.5],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [0.05, 0.05, 0.05]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/bulb.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      },
+      "Point light" : 
+      {
+        "Linear" : 0.1,
+        "Ambient" : [0.630499, 0.630499, 0.630499],
+        "Diffuse" : [0.5, 0.5, 0.5],
+        "Constant" : 0.1,
+        "Specular" : [0.5, 0.5, 0.5],
+        "Quadratic" : 0.1
+      }
+    },
     "Entity6" : 
     {
       "Name" : 
@@ -12,7 +41,7 @@
       {
         "Position" : [0, -4.74477, 0],
         "Rotation" : [-180.175, 0, 0],
-        "Scale" : [75, 75, 75]
+        "Scale" : [125, 125, 125]
       },
       "Model3D" : 
       {
@@ -59,8 +88,8 @@
       },
       "Transform" : 
       {
-        "Position" : [-16.0933, 23.2217, 51.3364],
-        "Rotation" : [-29.4811, -24849.3, 0],
+        "Position" : [8.99051, 43.2819, -84.8895],
+        "Rotation" : [-32.3949, -31153.3, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -78,7 +107,7 @@
       "Transform" : 
       {
         "Position" : [0, 48.3869, 0],
-        "Rotation" : [311.973, 129.098, 0],
+        "Rotation" : [200.128, 129.098, 0],
         "Scale" : [1, 1, 1]
       },
       "Model3D" : 

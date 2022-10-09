@@ -25,7 +25,7 @@ set(VendorsSource "vendors/include/stb_image.h;vendors/include/inipp.h;vendors/i
 set(LightingSource "src/Lighting/DirectionalLight.cpp;src/Lighting/DirectionalLight.h;src/Lighting/PointLight.cpp;src/Lighting/PointLight.h;src/Lighting/ShadowsHandler.cpp;src/Lighting/ShadowsHandler.h")
 set(RenderSource "src/Render/Shader.h;src/Render/Mesh.h;src/Render/Model.h;src/Render/Model.cpp;src/Render/Mesh.cpp;src/Render/Shader.cpp;src/Render/Renderer.cpp;src/Render/Renderer.h;src/Render/UBO.hpp;src/Render/FBO.hpp;src/Render/Material.cpp;src/Render/Material.h")
 set(CoreSource "src/Core/Window.cpp;src/Core/Window.h;src/Core/PerspectiveCamera.cpp;src/Core/PerspectiveCamera.h;src/Core/Structures.h;src/Core/ResourcesManager.cpp;src/Core/ResourcesManager.h;src/Core/Global.cpp;src/Core/Global.h;src/Core/Config.cpp;src/Core/Config.h;src/Core/InGameException.cpp;src/Core/InGameException.h;src/Core/Application.cpp;src/Core/Application.h;src/Core/UniqueID.hpp;src/Core/UniqueIdGenerator.hpp;src/Core/Layer.hpp;src/Core/Event.hpp")
-set(EntitySource "src/Entity/Entity.cpp;src/Entity/Entity.h;src/Entity/Scene.cpp;src/Entity/Scene.h;src/Entity/Components.h;src/Entity/JsonSceneSerializer.hpp")
+set(EntitySource "src/Entity/Entity.cpp;src/Entity/Entity.h;src/Entity/Scene.cpp;src/Entity/Scene.h;src/Entity/Components.h;src/Entity/JsonSceneSerializer.hpp" src/Game/GameLayer.cpp src/Game/GameLayer.h)
 
 add_executable(Graphics
         ${CoreSource}

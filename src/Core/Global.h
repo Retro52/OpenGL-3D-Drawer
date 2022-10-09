@@ -55,10 +55,10 @@ public:
      */
     static unsigned long GetTotalFrames();
 private:
-    static unsigned long frame, frames;
-    static double lastTime, deltaTime, elapsedTime;
+    static int drawMode;
+    static unsigned long totalFrames;
+    static double lastTime, deltaTime;
     static bool shouldDrawMesh, shouldDrawLights, shouldDrawAxis, shouldDrawOutline;
-    static int curFPS, drawMode;
 };
 
 #endif //GRAPHICS_GLOBAL_H

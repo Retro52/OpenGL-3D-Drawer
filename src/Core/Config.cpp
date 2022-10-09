@@ -54,7 +54,7 @@ void Config::LoadIni(const std::string &configPath)
     LOG(INFO) << configPath << " successfully loaded";
 
     /* All the exceptions are handled in Global::Init method */
-    Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen);
+    Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen, nativeResolutionWidth, nativeResolutionHeight);
 
     Config::LoadJson(shadersConfigPath);
     ResourcesManager::RegisterPlayerScene(defaultScenePath);

@@ -14,7 +14,7 @@ std::shared_ptr<Texture> ShadowsHandler::shadowTexture = nullptr;
 GLuint ShadowsHandler::RenderShadowMap()
 {
     // Depth testing needed for Shadow Map
-    glEnable(GL_DEPTH_TEST);
+    Renderer::EnableDepthTesting();
 
     //disabling face culling
     glDisable(GL_CULL_FACE);
@@ -43,7 +43,9 @@ GLuint ShadowsHandler::RenderShadowMap()
 
     shadowFBO->Reset();
 
-    glViewport(0, 0, Window::GetFboWidth(), Window::GetFboHeight());
+//    glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
+    /* TODO: replace with renderer FBO textures resolution */
+    glViewport(0, 0, 2048, 2048);
 
     // re-enabling cull faces
     glEnable(GL_CULL_FACE);
@@ -69,11 +71,9 @@ void ShadowsHandler::Initialize(const int size)
 
     shadowFBO = std::make_unique<FBO>();
 
-    shadowFBO->AddTexture(shadowTexture->GetId(), GL_DEPTH_ATTACHMENT);
+    shadowFBO->AddTexture(shadowTexture, GL_DEPTH_ATTACHMENT);
     shadowFBO->SetDrawBuffer(GL_NONE);
     shadowFBO->SetReadBuffer(GL_NONE);
-
-    GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "SHADOWSHANDLER::ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
-
+    shadowFBO->Check();
     shadowFBO->Reset();
 }

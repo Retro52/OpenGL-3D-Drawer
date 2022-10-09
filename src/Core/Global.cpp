@@ -12,14 +12,10 @@
 
 double Global::lastTime;
 double Global::deltaTime;
-double Global::elapsedTime;
 
+int Global::drawMode = 1;
 
-int Global::curFPS, Global::drawMode = 1;
-
-
-unsigned long Global::frame = 0;
-unsigned long Global::frames = 0;
+unsigned long Global::totalFrames = 0;
 
 std::string drawModeToString(int drawMode)
 {
@@ -54,8 +50,6 @@ void Global::Initialize()
 {
     lastTime = 0.0;
     deltaTime = 0.0;
-    elapsedTime = 0.0;
-    curFPS = 0;
 
     LOG(INFO) << "Program initialization started";
 
@@ -70,26 +64,18 @@ void Global::Initialize()
     {
         throw InGameException("Error during program initialization. Reason: " + std::string(e.what()));
     }
-    EventsHandler::ToggleCursor();
     ResourcesManager::RegisterLayer(std::make_shared<EditorLayer>());
+
+    EventsHandler::ToggleCursor(true);
 }
 
 void Global::Tick()
 {
-    frame++;
-    frames++;
+    totalFrames++;
     /* Updating delta time */
     double curTime = glfwGetTime();
     deltaTime = curTime - lastTime;
     lastTime = curTime;
-    elapsedTime += deltaTime;
-
-    if (elapsedTime >= 0.33)
-    {
-        curFPS = (int) ((double) frame / elapsedTime);
-        frame = 0;
-        elapsedTime = 0.0;
-    }
 
     /* Update window controls */
     Window::Tick();
@@ -163,14 +149,17 @@ double Global::GetWorldDeltaTime()
 
 void Global::Draw()
 {
-    std::shared_ptr<Shader>& uiShader = ResourcesManager::GetShader("uiShader");
-
+    /* Preparing renderer for the new frame */
     Renderer::Prepare(* ResourcesManager::GetPlayerScene(), drawMode);
+
+    /* Rendering shadow texture */
     unsigned int shadowTexture = ShadowsHandler::RenderShadowMap();
-    Window::BindFBO();
-    glClearColor(0.203f, 0.76f, 0.938f,1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+
+    /* Binding viewport FBO */
+    Renderer::GetViewportFBO()->Bind();
+
+    Renderer::Clear();
+    Renderer::EnableDepthTesting();
 
     if(drawMode == 4)
     {
@@ -182,7 +171,7 @@ void Global::Draw()
     }
 
     Renderer::Render(* ResourcesManager::GetPlayerScene(), shadowTexture);
-    Window::ResetFBO();
+    Renderer::ApplyPostProcessing();
 }
 
 void Global::EndFrame()
@@ -199,5 +188,5 @@ void Global::EndFrame()
 
 unsigned long Global::GetTotalFrames()
 {
-    return frames;
+    return totalFrames;
 }
