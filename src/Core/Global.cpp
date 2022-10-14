@@ -171,7 +171,10 @@ void Global::Draw()
     }
 
     Renderer::Render(* ResourcesManager::GetPlayerScene(), shadowTexture);
-    Renderer::ApplyPostProcessing();
+    if(Renderer::isPostProcessingActivated)
+    {
+        Renderer::ApplyPostProcessing();
+    }
 }
 
 void Global::EndFrame()

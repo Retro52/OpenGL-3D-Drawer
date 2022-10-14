@@ -92,7 +92,7 @@ public:
      */
     operator const entt::entity() { return thisEntity; }
 
-    inline entt::entity Get() const { return thisEntity; }
+    [[nodiscard]] inline entt::entity Get() const { return thisEntity; }
 private:
      entt::entity thisEntity { 0 };
      Scene * scene;

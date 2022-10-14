@@ -2,16 +2,75 @@
 // Created by Anton on 06.09.2022.
 //
 
-#include "Renderer.h"
 #include "UBO.hpp"
+#include "Renderer.h"
+#include "RendererIniSerializer.hpp"
 
 std::unique_ptr<UBO<glm::mat4x4, 16>> Renderer::lightMatricesUBO;
 std::vector<float> Renderer::cascadeLevels({ 25.0f, 50.0f, 100.0f, 200.0f, 750.0f });
 
-//void Renderer::Initialize()
-//{
-//    lightMatricesUBO = std::make_unique<UBO<glm::mat4x4, 16>>();
-//}
+void Renderer::Initialize()
+{
+    lightMatricesUBO = std::make_unique<UBO<glm::mat4x4, 16>>();
+
+    viewportFBO    = std::make_unique<FBO>();
+    postProcessFBO = std::make_unique<FBO>();
+
+    /* TODO: add configurable fbo resolution */
+    fboWidth = 1024;
+    fboHeight = 1024;
+
+    viewportFBO->AddTexture(std::make_shared<Texture>(
+            fboWidth,
+            fboHeight,
+            GL_RGB,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            false
+    ), GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0);
+
+
+    viewportFBO->AddTexture(std::make_shared<Texture>(
+            fboWidth,
+            fboHeight,
+            GL_DEPTH_STENCIL,
+            GL_DEPTH24_STENCIL8,
+            GL_UNSIGNED_INT_24_8,
+            false
+    ), GL_TEXTURE_2D, GL_DEPTH_STENCIL_ATTACHMENT);
+
+    postProcessFBO->AddTexture(std::make_shared<Texture>(
+            fboWidth,
+            fboHeight,
+            GL_RGB,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            false
+    ), GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0);
+
+    viewportFBO->Check();
+    postProcessFBO->Check();
+
+    FBO::Reset();
+
+    glGenVertexArrays(1, &viewportVAO);
+    glGenBuffers(1, &viewportVBO);
+    glBindVertexArray(viewportVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, viewportVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
+    glBindVertexArray(0);
+
+    RendererIniSerializer::LoadRendererSettings();
+}
+
+void Renderer::ShutDown()
+{
+    RendererIniSerializer::SerializeRendererSettings();
+}
 
 void Renderer::Prepare(Scene &scene, int drawMode)
 {
@@ -82,6 +141,7 @@ void Renderer::Render(Scene &scene, const unsigned int shadowMap)
         shader->setInt("material.tilingFactor", m.tilingFactor);
         m.model.Draw(* shader, t.GetTransform(), shadowMap);
     }
+    FBO::Reset();
 }
 
 void Renderer::RenderToDepthBuffer(Scene &scene)
@@ -131,7 +191,7 @@ Renderer::getLightSpaceMatrices(float cameraNearPlane, float cameraFarPlane, con
 
 glm::mat4 Renderer::getLightSpaceMatrix(const float nearPlane, const float farPlane, const float zoom, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix)
 {
-    const auto proj = glm::perspective(zoom, Window::GetAspectRatio(), nearPlane, farPlane);
+    const auto proj = glm::perspective(zoom, (static_cast<float>(fboWidth) / static_cast<float>(fboHeight)), nearPlane, farPlane);
     const auto corners = getFrustumCornersWorldSpace(proj, viewMatrix);
 
     glm::vec3 center = glm::vec3(0, 0, 0);
@@ -208,5 +268,3 @@ std::vector<glm::vec4> Renderer::getFrustumCornersWorldSpace(const glm::mat4 &pr
 
     return frustumCorners;
 }
-
-

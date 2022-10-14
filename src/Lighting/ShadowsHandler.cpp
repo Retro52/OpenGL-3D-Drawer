@@ -43,9 +43,8 @@ GLuint ShadowsHandler::RenderShadowMap()
 
     shadowFBO->Reset();
 
-//    glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
     /* TODO: replace with renderer FBO textures resolution */
-    glViewport(0, 0, 2048, 2048);
+    glViewport(0, 0, (int) Renderer::GetFboWidth(), (int) Renderer::GetFboHeight());
 
     // re-enabling cull faces
     glEnable(GL_CULL_FACE);

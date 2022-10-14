@@ -9,10 +9,10 @@
 
 #include "glew.h"
 #include "../Core/ResourcesManager.h"
-#include "../Core/Window.h"
 #include "../Entity/Components.h"
 #include "../Entity/Entity.h"
 #include "UBO.hpp"
+#include "FBO.hpp"
 
 /* TODO: move this shit to .cpp file */
 constexpr float quadVertices[] = {
@@ -37,61 +37,12 @@ public:
     /**
      * Initializes renderer
      */
-    static void Initialize()
-    {
-        lightMatricesUBO = std::make_unique<UBO<glm::mat4x4, 16>>();
+    static void Initialize();
 
-        viewportFBO    = std::make_unique<FBO>();
-        postProcessFBO = std::make_unique<FBO>();
-
-        /* TODO: add configurable fbo resolution */
-        unsigned int fboWidth = 2048;
-        unsigned int fboHeight = 2048;
-
-        viewportFBO->AddTexture(std::make_shared<Texture>(
-                fboWidth,
-                fboHeight,
-                GL_RGB,
-                GL_RGB,
-                GL_UNSIGNED_BYTE,
-                false
-        ), GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0);
-
-
-        viewportFBO->AddTexture(std::make_shared<Texture>(
-                fboWidth,
-                fboHeight,
-                GL_DEPTH_STENCIL,
-                GL_DEPTH24_STENCIL8,
-                GL_UNSIGNED_INT_24_8,
-                false
-        ), GL_TEXTURE_2D, GL_DEPTH_STENCIL_ATTACHMENT);
-
-        postProcessFBO->AddTexture(std::make_shared<Texture>(
-                fboWidth,
-                fboHeight,
-                GL_RGB,
-                GL_RGB,
-                GL_UNSIGNED_BYTE,
-                false
-        ), GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0);
-
-        viewportFBO->Check();
-        postProcessFBO->Check();
-
-        FBO::Reset();
-
-        glGenVertexArrays(1, &viewportVAO);
-        glGenBuffers(1, &viewportVBO);
-        glBindVertexArray(viewportVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, viewportVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
-        glBindVertexArray(0);
-    }
+    /**
+     * Shuts down renderer
+     */
+    static void ShutDown();
 
     /**
      * Applies scene data to the shader
@@ -157,6 +108,18 @@ public:
      */
     static std::unique_ptr<FBO>& GetPostProcessFBO() { return postProcessFBO; };
 
+    static unsigned int GetRenderedImage()
+    {
+        if(isPostProcessingActivated)
+        {
+            return postProcessFBO->GetColorTexture()->GetId();
+        }
+        else
+        {
+            return viewportFBO->GetColorTexture()->GetId();
+        }
+    }
+
     static void ApplyPostProcessing()
     {
         postProcessFBO->Bind();
@@ -171,6 +134,9 @@ public:
 
         FBO::Reset();
     }
+
+    static inline unsigned int GetFboWidth() { return fboWidth; }
+    static inline unsigned int GetFboHeight() { return fboHeight; }
 private:
     static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
 
@@ -179,15 +145,26 @@ private:
     static glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane, float zoom, const glm::vec3& lightDir, const glm::mat4& viewMatrix);
 
     static std::vector<glm::mat4> getLightSpaceMatrices(float cameraNearPlane, float cameraFarPlane, float zoom, const glm::vec3& lightDir, const glm::mat4& viewMatrix, std::vector<float>& shadowCascadeLevels);
-private:
+public:
     static glm::vec3 clearColor;
+    static std::string postProcessShader;
+    static bool isPostProcessingActivated;
+
+private:
     static std::vector<float> cascadeLevels;
     static unsigned int viewportVAO, viewportVBO;
+    static unsigned int fboWidth, fboHeight;
     static std::unique_ptr<FBO> viewportFBO, postProcessFBO;
     static std::unique_ptr<UBO<glm::mat4x4, 16>> lightMatricesUBO;
+
+    friend class RendererIniSerializer;
 };
 
 inline glm::vec3 Renderer::clearColor;
+inline std::string Renderer::postProcessShader;
+inline bool Renderer::isPostProcessingActivated = true;
+
+inline unsigned int Renderer::fboWidth = 0, Renderer::fboHeight = 0;
 inline unsigned int Renderer::viewportVAO = 0, Renderer::viewportVBO = 0;
 inline std::unique_ptr<FBO> Renderer::viewportFBO = nullptr, Renderer::postProcessFBO = nullptr;
 

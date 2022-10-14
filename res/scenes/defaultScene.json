@@ -48,7 +48,7 @@
         "Path" : "../res/assets/brickwall/plane.obj",
         "castsShadow" : true,
         "shouldBeLit" : true,
-        "tilingFactor" : 20
+        "tilingFactor" : 100
       }
     },
     "Entity5" : 
@@ -88,8 +88,8 @@
       },
       "Transform" : 
       {
-        "Position" : [8.99051, 43.2819, -84.8895],
-        "Rotation" : [-32.3949, -31153.3, 0],
+        "Position" : [66.972, 22.8238, -24.0632],
+        "Rotation" : [-14.0346, -31589.1, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 

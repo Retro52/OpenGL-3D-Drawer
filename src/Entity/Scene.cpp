@@ -274,10 +274,10 @@ void Scene::OnUpdate(double deltaTime)
     /* PerspectiveCamera world orientation */
     if (EventsHandler::_cursor_locked)
     {
-        t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2),
+        t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Renderer::GetFboHeight() * 2),
                                   - glm::radians(89.0f),
                                   glm::radians(89.0f));
-        t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetWidth() * 2);
+        t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Renderer::GetFboWidth() * 2);
         c.camera.Update(t.rotation);
     }
 }

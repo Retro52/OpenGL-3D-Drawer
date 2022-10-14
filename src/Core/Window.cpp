@@ -4,6 +4,7 @@
 #define GLEW_STATIC
 
 #include "Window.h"
+#include "../Render/Renderer.h"
 #include "../Input/EventsHandler.h"
 #include "InGameException.h"
 #include <iostream>

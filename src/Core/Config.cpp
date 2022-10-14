@@ -18,8 +18,6 @@ void Config::LoadIni(const std::string &configPath)
     int windowHeight           = 900;
     int windowWidth            = 1200;
     int shadowsResolution      = 1024;
-    int nativeResolutionWidth  = 1920;
-    int nativeResolutionHeight = 1080;
 
     bool windowFullScreen  = false;
     std::string windowName        = "OpenGL Drawer";
@@ -47,14 +45,13 @@ void Config::LoadIni(const std::string &configPath)
     windowHeight = windowHeight > 399 ? windowHeight : 400;
 
     inipp::get_value(ini.sections["SHADERS"], "shadersConfigPath", shadersConfigPath);
-
     inipp::get_value(ini.sections["SHADOWS"], "shadowsResolution", shadowsResolution);
 
     is.close();
     LOG(INFO) << configPath << " successfully loaded";
 
     /* All the exceptions are handled in Global::Init method */
-    Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen, nativeResolutionWidth, nativeResolutionHeight);
+    Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen);
 
     Config::LoadJson(shadersConfigPath);
     ResourcesManager::RegisterPlayerScene(defaultScenePath);

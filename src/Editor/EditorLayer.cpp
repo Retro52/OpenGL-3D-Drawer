@@ -123,7 +123,7 @@ void EditorLayer::DrawImGuiTest()
 
     // adding scene viewport
     ImGui::Begin("Scene viewport");
-    ImGui::Image(reinterpret_cast<void*>(Renderer::GetPostProcessFBO()->GetColorTexture()->GetId()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+    ImGui::Image(reinterpret_cast<void*>(Renderer::GetRenderedImage()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
     // drop selected entity
     if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
@@ -135,6 +135,8 @@ void EditorLayer::DrawImGuiTest()
     ImGui::Text("Frame time: %f ms", Global::GetWorldDeltaTime() * 1000);
     ImGui::Text("Total frames: %ul", Global::GetTotalFrames());
     ImGui::Text("Frame rate: %f FPS", 1.0f / Global::GetWorldDeltaTime());
+    ImGui::ColorPicker3("Clear color", (float *)&Renderer::clearColor);
+    ImGui::Checkbox("Should apply post process effects", &Renderer::isPostProcessingActivated);
     ImGui::End();
 
     ImGui::Begin("Content browser");
@@ -226,7 +228,18 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
             ImGui::InputText("Path ", &modelComponent.model.path);
 
             if (ImGui::Button("Reload model"))
-                modelComponent.model = Model(modelComponent.model.path);
+            {
+                try
+                {
+                    modelComponent.model = Model(modelComponent.model.path);
+                }
+                catch(const InGameException& e)
+                {
+                    LOG(WARNING) << "Failed to reload model. Reason: " << e.what();
+                }
+
+            }
+
 
             ImGui::Checkbox("Casts shadow", &modelComponent.castsShadow);
             ImGui::Checkbox("Should be lit", &modelComponent.shouldBeLit);

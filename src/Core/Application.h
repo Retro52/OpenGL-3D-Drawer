@@ -30,6 +30,8 @@ public:
      * Destroys application
      */
     static void Destroy();
+private:
+    static double start;
 };
 
 
