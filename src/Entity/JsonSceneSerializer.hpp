@@ -90,6 +90,28 @@ private:
      * @param variableName variable name
      * @param value variable value
      */
+    static void InsertVariable(std::ofstream& out, const std::string& variableName, const glm::vec2& value)
+    {
+        if (varOnLayer[currentLayer] > 0)
+        {
+            out << comma;
+        }
+        out << newLine;
+        varOnLayer[currentLayer] ++;
+
+        for (int i = 0; i < count; ++i)
+        {
+            out << tabulation;
+        }
+        out << quote << variableName << quote << " : " << "[" << value.x << comma << " " << value.y  << "]";
+    }
+
+    /**
+     * Inserts glm::vec3 variable into the current map
+     * @param out stream to write into
+     * @param variableName variable name
+     * @param value variable value
+     */
     static void InsertVariable(std::ofstream& out, const std::string& variableName, const glm::vec3& value)
     {
         if (varOnLayer[currentLayer] > 0)
@@ -207,6 +229,7 @@ private:
             const auto& component = entity.GetComponent<CameraComponent>();
             InsertVariable(out, "FOV", component.camera.GetFieldOfView());
             InsertVariable(out, "isPrimary", component.isPrimary);
+            InsertVariable(out, "Aspect", component.camera.aspectRatio);
             CloseMap(out);
         }
 

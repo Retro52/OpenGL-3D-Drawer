@@ -8,7 +8,25 @@
 #include "PerspectiveCamera.h"
 
 
-PerspectiveCamera::PerspectiveCamera(float fov) : fov(fov), zoom(1.0F)
+PerspectiveCamera::PerspectiveCamera(float fov) : fov(fov), zoom(1.0F), aspectRatio(glm::vec2(16, 9))
+{
+    model = glm::mat4(1.0F);
+    front = glm::vec3(model * glm::vec4(0, 0, -1, 1));
+    right = glm::vec3(model * glm::vec4(1, 0, 0, 1));
+    up    = glm::vec3(model * glm::vec4(0, 1, 0, 1));
+    dir   = glm::vec3(model * glm::vec4(0, 0, -1, 1));
+
+    dir.y = 0;
+    float len = glm::length(dir);
+
+    if (len > 0.0F)
+    {
+        dir.x /= len;
+        dir.z /= len;
+    }
+}
+
+PerspectiveCamera::PerspectiveCamera(float fov, const glm::vec2& aspectRatio) : fov(fov), zoom(1.0F), aspectRatio(aspectRatio)
 {
     model = glm::mat4(1.0F);
     front = glm::vec3(model * glm::vec4(0, 0, -1, 1));
@@ -54,7 +72,7 @@ void PerspectiveCamera::Update(const glm::vec3& rotation)
 
 glm::mat4 PerspectiveCamera::GetProjection() const
 {
-    return glm::perspective(fov * zoom, Window::GetAspectRatio(), nearPlane, farPlane);
+    return glm::perspective(fov * zoom, aspectRatio.x / aspectRatio.y, nearPlane, farPlane);
 }
 
 glm::mat4 PerspectiveCamera::GetView(const glm::vec3& position)

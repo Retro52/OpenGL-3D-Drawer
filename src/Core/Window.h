@@ -101,13 +101,6 @@ public:
      * Updates window width and height
      */
     static void Update();
-
-    /* TODO: remove this */
-    /**
-     * @return current window aspect ratio
-     */
-//    inline static float GetAspectRatio() { return 1.0f; }
-    inline static float GetAspectRatio() { return static_cast<float> (width) / static_cast<float> (height); }
 };
 
 

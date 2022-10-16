@@ -9,6 +9,17 @@
 std::unique_ptr<UBO<glm::mat4x4, 16>> Renderer::lightMatricesUBO;
 std::vector<float> Renderer::cascadeLevels({ 25.0f, 50.0f, 100.0f, 200.0f, 750.0f });
 
+constexpr float quadVertices[] = {
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+        1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        1.0f, -1.0f,  1.0f, 0.0f,
+        1.0f,  1.0f,  1.0f, 1.0f
+};
+
 void Renderer::Initialize()
 {
     lightMatricesUBO = std::make_unique<UBO<glm::mat4x4, 16>>();
@@ -16,9 +27,7 @@ void Renderer::Initialize()
     viewportFBO    = std::make_unique<FBO>();
     postProcessFBO = std::make_unique<FBO>();
 
-    /* TODO: add configurable fbo resolution */
-    fboWidth = 1024;
-    fboHeight = 1024;
+    RendererIniSerializer::LoadRendererSettings();
 
     viewportFBO->AddTexture(std::make_shared<Texture>(
             fboWidth,
@@ -63,8 +72,6 @@ void Renderer::Initialize()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
     glBindVertexArray(0);
-
-    RendererIniSerializer::LoadRendererSettings();
 }
 
 void Renderer::ShutDown()
@@ -92,8 +99,9 @@ void Renderer::Prepare(Scene &scene, int drawMode)
         auto sceneDirLight = scene.GetDirectionalLight();
         const auto& dirLight = sceneDirLight.GetComponent<DirectionalLightComponent>().directionalLight;
         const auto& dlRotation = scene.GetDirectionalLight().GetComponent<TransformComponent>().rotation;
+        const auto& camera = cameraComponent.camera;
 
-        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(cameraComponent.camera.GetNearPlane(), cameraComponent.camera.GetFarPlane(), cameraComponent.camera.GetFieldOfView(), DirectionalLight::GetDirection(dlRotation), cameraView, cascadeLevels);
+        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(camera.GetNearPlane(), camera.GetFarPlane(), camera.GetFieldOfView(), camera.GetAspectRatioFloat(), DirectionalLight::GetDirection(dlRotation), cameraView, cascadeLevels);
 
         mShader->setDirLight(dirLight, dlRotation);
         mShader->setBool("dirLight.isPresent", true);
@@ -103,7 +111,7 @@ void Renderer::Prepare(Scene &scene, int drawMode)
         lightMatricesUBO->Reset();
 
         mShader->setInt("cascadeCount", (int) cascadeLevels.size());
-        mShader->setFloat("farPlane", cameraComponent.camera.GetFarPlane());
+        mShader->setFloat("farPlane", camera.GetFarPlane());
 
         for (size_t i = 0; i < cascadeLevels.size(); ++i)
         {
@@ -168,30 +176,30 @@ void Renderer::RenderToDepthBuffer(Scene &scene)
 }
 
 std::vector<glm::mat4>
-Renderer::getLightSpaceMatrices(float cameraNearPlane, float cameraFarPlane, const float zoom, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix, std::vector<float> &shadowCascadeLevels)
+Renderer::getLightSpaceMatrices(float cameraNearPlane, float cameraFarPlane, float zoom, float aspectRatio, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix, std::vector<float> &shadowCascadeLevels)
 {
     std::vector<glm::mat4> ret;
     for (size_t i = 0; i < shadowCascadeLevels.size() + 1; ++i)
     {
         if (i == 0)
         {
-            ret.push_back(getLightSpaceMatrix(cameraNearPlane, shadowCascadeLevels[i], zoom, lightDir, viewMatrix));
+            ret.push_back(getLightSpaceMatrix(cameraNearPlane, shadowCascadeLevels[i], zoom, aspectRatio, lightDir, viewMatrix));
         }
         else if (i < shadowCascadeLevels.size())
         {
-            ret.push_back(getLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i], zoom, lightDir, viewMatrix));
+            ret.push_back(getLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i], zoom, aspectRatio, lightDir, viewMatrix));
         }
         else
         {
-            ret.push_back(getLightSpaceMatrix(shadowCascadeLevels[i - 1], cameraFarPlane, zoom, lightDir, viewMatrix));
+            ret.push_back(getLightSpaceMatrix(shadowCascadeLevels[i - 1], cameraFarPlane, zoom, aspectRatio, lightDir, viewMatrix));
         }
     }
     return ret;
 }
 
-glm::mat4 Renderer::getLightSpaceMatrix(const float nearPlane, const float farPlane, const float zoom, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix)
+glm::mat4 Renderer::getLightSpaceMatrix(float nearPlane, float farPlane, float zoom, float aspectRatio, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix)
 {
-    const auto proj = glm::perspective(zoom, (static_cast<float>(fboWidth) / static_cast<float>(fboHeight)), nearPlane, farPlane);
+    const auto proj = glm::perspective(zoom, aspectRatio, nearPlane, farPlane);
     const auto corners = getFrustumCornersWorldSpace(proj, viewMatrix);
 
     glm::vec3 center = glm::vec3(0, 0, 0);
@@ -260,7 +268,7 @@ std::vector<glm::vec4> Renderer::getFrustumCornersWorldSpace(const glm::mat4 &pr
         {
             for (unsigned int z = 0; z < 2; ++z)
             {
-                const glm::vec4 pt = inv * glm::vec4(2.0f * x - 1.0f, 2.0f * y - 1.0f, 2.0f * z - 1.0f, 1.0f);
+                const glm::vec4 pt = inv * glm::vec4(2.0f * static_cast<float>(x) - 1.0f, 2.0f * static_cast<float>(y) - 1.0f, 2.0f * static_cast<float>(z) - 1.0f, 1.0f);
                 frustumCorners.push_back(pt / pt.w);
             }
         }

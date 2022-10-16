@@ -79,9 +79,11 @@ layout (std140, binding = 0) uniform LightSpaceMatrices
 float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir);
 
 vec3 CalculateDirectionalDiffuseLighting(DirLight light, vec3 normal, vec3 viewDir);
+vec3 CalculateDirectionalAmbientLighting(DirLight light, vec3 normal, vec3 viewDir);
 vec3 CalculateDirectionalSpecularLighting(DirLight light, vec3 normal, vec3 viewDir);
 
 vec3 CalculatePointDiffuseLighting(PointLight light, vec3 normal, vec3 viewDir);
+vec3 CalculatePointAmbientLighting(PointLight light, vec3 normal, vec3 viewDir);
 vec3 CalculatePointSpecularLighting(PointLight light, vec3 normal, vec3 viewDir);
 
 float rand(vec2 co)
@@ -173,6 +175,7 @@ void main()
 
 	float shadowFactor;
 	vec3 diffuseLighting;
+	vec3 ambientLighting;
 	vec3 specularLighting;
 
 	if(drawMode != 4 && dirLight.isPresent)
@@ -180,17 +183,19 @@ void main()
 		shadowFactor = CalculateDirecionalShadowFactor(normalize(-dirLight.direction), normalVector, viewDirection);
 		diffuseLighting  += CalculateDirectionalDiffuseLighting(dirLight, normalVector, viewDirection) * (1.0 - shadowFactor);
 		specularLighting += CalculateDirectionalSpecularLighting(dirLight, normalVector, viewDirection) * (1.0 - shadowFactor);
+		ambientLighting  += CalculateDirectionalAmbientLighting(dirLight, normalVector, viewDirection);
 	}
 	if(drawMode != 3)
 	{
 		for(int i = 0; i < pointLightsCount; i++)
 		{
 			diffuseLighting  += CalculatePointDiffuseLighting(pointLights[i], normalVector, viewDirection);
+			ambientLighting  += CalculatePointAmbientLighting(pointLights[i], normalVector, viewDirection);
 			specularLighting += CalculatePointSpecularLighting(pointLights[i], normalVector, viewDirection);
 		}
 	}
 
-	finalColor = diffuseLighting * finalColor + specularLighting * texture(material.mapSpecular_1, textureCoordinates).rgb;
+	finalColor = (diffuseLighting + ambientLighting) * finalColor + specularLighting * texture(material.mapSpecular_1, textureCoordinates).rgb;
 	FragColor = vec4(finalColor, material.opacity);
 }
 
@@ -202,6 +207,11 @@ vec3 CalculateDirectionalDiffuseLighting(DirLight light, vec3 normal, vec3 viewD
 	// diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
 	return light.diffuse * diff + light.ambient;
+}
+
+vec3 CalculateDirectionalAmbientLighting(DirLight light, vec3 normal, vec3 viewDir)
+{
+	return light.ambient;
 }
 
 vec3 CalculateDirectionalSpecularLighting(DirLight light, vec3 normal, vec3 viewDir)
@@ -225,7 +235,18 @@ vec3 CalculatePointDiffuseLighting(PointLight light, vec3 normal, vec3 viewDir)
 	float distance    = length(light.position - FragPos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
-	return light.diffuse * diff * attenuation + light.ambient * attenuation;
+	return light.diffuse * diff * attenuation;
+}
+
+vec3 CalculatePointAmbientLighting(PointLight light, vec3 normal, vec3 viewDir)
+{
+	vec3 lightDir = normalize(light.position - FragPos);
+
+	// attenuation
+	float distance    = length(light.position - FragPos);
+	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
+	return light.ambient * attenuation;
 }
 
 vec3 CalculatePointSpecularLighting(PointLight light, vec3 normal, vec3 viewDir)

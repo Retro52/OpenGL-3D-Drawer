@@ -90,12 +90,12 @@ void Window::SwapBuffers()
 
 int Window::GetWidth()
 {
-    return 2048;
+    return width;
 }
 
 int Window::GetHeight()
 {
-    return 2048;
+    return height;
 }
 
 void Window::SetWidth(int w)

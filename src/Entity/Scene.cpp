@@ -121,6 +121,7 @@ void Scene::LoadScene(const std::string &loadPath)
             {
                 e.AddComponent<CameraComponent>(cameraComponent["FOV"]);
                 e.GetComponent<CameraComponent>().isPrimary = cameraComponent["isPrimary"];
+                e.GetComponent<CameraComponent>().camera.aspectRatio = glm::vec2(cameraComponent["Aspect"][0], cameraComponent["Aspect"][1]);
                 LOG(INFO) << "Camera component successfully loaded for " << model.key();
             }
 

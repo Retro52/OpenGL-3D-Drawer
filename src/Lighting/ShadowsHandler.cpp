@@ -22,12 +22,11 @@ GLuint ShadowsHandler::RenderShadowMap()
 
     // constants
     constexpr float baseOffset        = 8.96f;
-    constexpr float deltaOffset       = 2.72f;
+    constexpr float deltaOffset       = 2.96f;
     constexpr float factorMultiplier  = 1.44f;
 
     // adjusting bias by shadow map resolution
     const float offsetScale = (static_cast<float>(shadowMapResolution) / 2048) - 0.5f;
-
     // calculating bias
     const float slopeOffset = baseOffset + (deltaOffset * offsetScale);
 
@@ -43,7 +42,6 @@ GLuint ShadowsHandler::RenderShadowMap()
 
     shadowFBO->Reset();
 
-    /* TODO: replace with renderer FBO textures resolution */
     glViewport(0, 0, (int) Renderer::GetFboWidth(), (int) Renderer::GetFboHeight());
 
     // re-enabling cull faces

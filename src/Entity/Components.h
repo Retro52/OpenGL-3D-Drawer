@@ -77,7 +77,6 @@ struct Model3DComponent
     Model model;
 };
 
-/* TODO: remove direction from DirectionalLight, calculate using rotation from TransformComponent */
 struct DirectionalLightComponent
 {
     DirectionalLightComponent() : directionalLight(DirectionalLight(glm::vec3(0.5), glm::vec3(0.5), glm::vec3(0.5))) {};

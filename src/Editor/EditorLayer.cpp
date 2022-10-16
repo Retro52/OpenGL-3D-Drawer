@@ -266,6 +266,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         {
             auto& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
             ImGui::Checkbox("Is primary", &cameraComponent.isPrimary);
+            ImGui::InputFloat2("Aspect ratio", (float *)&cameraComponent.camera.aspectRatio);
         }
 
         ImGui::End();

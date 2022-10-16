@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.17)
 project(Graphics)
 
 set(CMAKE_CXX_STANDARD 17)
-#set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-#set(BUILD_SHARED_LIBS OFF)
-#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 
 include_directories(vendors/include/GLFW)
 link_directories(vendors/lib/GLFW)
@@ -12,7 +12,6 @@ link_directories(vendors/lib/GLFW)
 include_directories(vendors/include/GLEW)
 link_directories(vendors/lib/GLEW)
 
-include_directories(vendors/include/freetype2)
 include_directories(vendors/include/imgui)
 
 include_directories(vendors/include)
@@ -41,5 +40,3 @@ add_executable(Graphics
         )
 
 target_link_libraries(Graphics glew32 OpenGL32.lib libglfw3.a libassimp.dll.a)
-
-# -static-libgcc -static-libstdc++

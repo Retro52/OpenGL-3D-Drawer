@@ -14,18 +14,6 @@
 #include "UBO.hpp"
 #include "FBO.hpp"
 
-/* TODO: move this shit to .cpp file */
-constexpr float quadVertices[] = {
-        // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-        1.0f, -1.0f,  1.0f, 0.0f,
-
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        1.0f, -1.0f,  1.0f, 0.0f,
-        1.0f,  1.0f,  1.0f, 1.0f
-};
-
 class Renderer
 {
 public:
@@ -142,12 +130,11 @@ private:
 
     static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& proj, const glm::mat4& view);
 
-    static glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane, float zoom, const glm::vec3& lightDir, const glm::mat4& viewMatrix);
+    static std::vector<glm::mat4> getLightSpaceMatrices(float cameraNearPlane, float cameraFarPlane, float zoom, float aspectRatio, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix, std::vector<float> &shadowCascadeLevels);
 
-    static std::vector<glm::mat4> getLightSpaceMatrices(float cameraNearPlane, float cameraFarPlane, float zoom, const glm::vec3& lightDir, const glm::mat4& viewMatrix, std::vector<float>& shadowCascadeLevels);
+    static glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane, float zoom, float aspectRatio, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix);
 public:
     static glm::vec3 clearColor;
-    static std::string postProcessShader;
     static bool isPostProcessingActivated;
 
 private:
@@ -161,7 +148,6 @@ private:
 };
 
 inline glm::vec3 Renderer::clearColor;
-inline std::string Renderer::postProcessShader;
 inline bool Renderer::isPostProcessingActivated = true;
 
 inline unsigned int Renderer::fboWidth = 0, Renderer::fboHeight = 0;
