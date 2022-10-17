@@ -5,6 +5,7 @@
 #ifndef GRAPHICS_EDITORLAYER_H
 #define GRAPHICS_EDITORLAYER_H
 
+#include <filesystem>
 #include "../Core/Layer.hpp"
 
 class EditorLayer : public Layer
@@ -45,7 +46,8 @@ private:
     void OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent>& event);
 
 private:
-    static std::shared_ptr<Entity> selectedEntity;
+    std::shared_ptr<Entity> selectedEntity;
+    std::filesystem::path curDirectory;
 };
 
 

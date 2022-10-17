@@ -88,15 +88,15 @@
       },
       "Transform" : 
       {
-        "Position" : [27.0935, 43.473, 61.1968],
-        "Rotation" : [-34.1351, -31662.8, 0],
+        "Position" : [-4.02333, 9.4745, -3.82587],
+        "Rotation" : [-26.0947, -1049.58, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
       {
         "FOV" : 1.0472,
         "isPrimary" : true,
-        "Aspect" : [1.35, 1]
+        "Aspect" : [16, 9]
       }
     },
     "Entity3" : 
@@ -108,7 +108,7 @@
       "Transform" : 
       {
         "Position" : [0, 48.3869, 0],
-        "Rotation" : [232.23, 172.665, 0],
+        "Rotation" : [232.23, 121.961, 0],
         "Scale" : [1, 1, 1]
       },
       "Model3D" : 
@@ -120,7 +120,7 @@
       },
       "Directional light" : 
       {
-        "Ambient" : [0.478431, 0.478431, 0.478431],
+        "Ambient" : [0.611842, 0.611842, 0.611842],
         "Diffuse" : [1, 1, 1],
         "Specular" : [1, 1, 1]
       }
