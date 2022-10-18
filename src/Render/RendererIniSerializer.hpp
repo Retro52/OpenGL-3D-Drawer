@@ -34,6 +34,7 @@ public:
         AddVariable(fos, "fboWidth", Renderer::fboWidth);
         AddVariable(fos, "fboHeight", Renderer::fboHeight);
         AddVariable(fos, "isPostProcessingActivated", Renderer::isPostProcessingActivated);
+        AddVariable(fos, "shouldDrawFinalToFBO", Renderer::shouldDrawFinalToFBO);
         AddVariable(fos, "clearColor", Renderer::clearColor);
         AddVariable(fos, "cascadeLevels", Renderer::cascadeLevels);
 
@@ -64,6 +65,7 @@ public:
 
         LoadVariable(section, "fboWidth", Renderer::fboWidth);
         LoadVariable(section, "fboHeight", Renderer::fboHeight);
+        LoadVariable(section, "shouldDrawFinalToFBO", Renderer::shouldDrawFinalToFBO);
         LoadVariable(section, "isPostProcessingActivated", Renderer::isPostProcessingActivated);
         LoadVariable(section, "clearColor", Renderer::clearColor);
         LoadVariable(section, "cascadeLevels", Renderer::cascadeLevels);

@@ -8,9 +8,11 @@
 #define GLEW_STATIC
 
 #include "glew.h"
-#include "../Core/ResourcesManager.h"
-#include "../Entity/Components.h"
+#include <glfw3.h>
+#include "../Core/Window.h"
 #include "../Entity/Entity.h"
+#include "../Entity/Components.h"
+#include "../Core/ResourcesManager.h"
 #include "UBO.hpp"
 #include "FBO.hpp"
 
@@ -110,7 +112,15 @@ public:
 
     static void ApplyPostProcessing()
     {
-        postProcessFBO->Bind();
+        if(shouldDrawFinalToFBO)
+        {
+            postProcessFBO->Bind();
+        }
+        else
+        {
+            FBO::Reset();
+            glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
+        }
         DisableDepthTesting();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         Clear();
@@ -135,7 +145,7 @@ private:
     static glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane, float zoom, float aspectRatio, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix);
 public:
     static glm::vec3 clearColor;
-    static bool isPostProcessingActivated;
+    static bool isPostProcessingActivated, shouldDrawFinalToFBO;
 
 private:
     static std::vector<float> cascadeLevels;
@@ -148,6 +158,7 @@ private:
 };
 
 inline glm::vec3 Renderer::clearColor;
+inline bool Renderer::shouldDrawFinalToFBO = true;
 inline bool Renderer::isPostProcessingActivated = true;
 
 inline unsigned int Renderer::fboWidth = 0, Renderer::fboHeight = 0;

@@ -237,7 +237,15 @@ private:
         {
             StartMap(out, "Model3D");
             const auto& component = entity.GetComponent<Model3DComponent>();
-            InsertVariable(out, "Path", component.model.path);
+            std::string copy = component.model.path;
+            for(char& c : copy)
+            {
+                if(c == '\\')
+                {
+                    c = '/';
+                }
+            }
+            InsertVariable(out, "Path", copy);
             InsertVariable(out, "castsShadow", component.castsShadow);
             InsertVariable(out, "shouldBeLit", component.shouldBeLit);
             InsertVariable(out, "tilingFactor", component.tilingFactor);

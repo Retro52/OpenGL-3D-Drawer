@@ -16,6 +16,7 @@ include_directories(vendors/include/imgui)
 
 include_directories(vendors/include)
 
+set(ImGuizmoSource "vendors/include/ImGuizmo/ImGuizmo.h;vendors/include/ImGuizmo/ImGuizmo.cpp")
 set(EditorSource "src/Editor/EditorLayer.cpp;src/Editor/EditorLayer.h")
 set(InputSource "src/Input/EventsHandler.cpp;src/Input/EventsHandler.h")
 set(LoggingSource "src/Logging/easylogging++.cc;src/Logging/easylogging++.h")
@@ -35,6 +36,7 @@ add_executable(Graphics
         ${RenderSource}
         ${VendorsSource}
         ${LoggingSource}
+        ${ImGuizmoSource}
         ${LightingSource}
         src/main.cpp
         )

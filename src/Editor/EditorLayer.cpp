@@ -5,11 +5,13 @@
 #include "EditorLayer.h"
 #include "../Entity/Entity.h"
 #include "glfw3.h"
+#include <glm/gtc/type_ptr.hpp>
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "misc/cpp/imgui_stdlib.h"
+#include "ImGuizmo/ImGuizmo.h"
 
 #include "../Core/Window.h"
 #include "../Core/Global.h"
@@ -21,6 +23,7 @@ void EditorLayer::OnCreate()
 {
     LoadImGui();
     curDirectory = std::filesystem::current_path();
+    selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
 }
 
 void EditorLayer::OnDestroy()
@@ -50,7 +53,7 @@ void EditorLayer::OnEvent(const std::shared_ptr<Event>& event)
 //            std::cerr << "Mouse moved event\n";
             break;
         case EventTypes::KeyReleased:
-//            std::cerr << "Key released event\n";
+            OnKeyReleasedEvent(Event::EventCast<KeyReleasedEvent>(event));
             break;
         case EventTypes::WindowResized:
 //            std::cerr << "Window resized event\n";
@@ -82,6 +85,7 @@ void EditorLayer::ImGuiNewFrame()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 }
 
 /* TODO: move every window draw call to separate function */
@@ -91,6 +95,7 @@ void EditorLayer::DrawImGuiTest()
     static bool isViewportOpened      = true;
     static bool isEntitiesListOpened  = true;
     static bool isFolderContentOpened = true;
+    bool isSnappingEnabled = EventsHandler::IsPressed(Key::LeftAlt);
 
     ImGui::DockSpaceOverViewport();
 
@@ -116,7 +121,9 @@ void EditorLayer::DrawImGuiTest()
         if (ImGui::BeginPopupContextWindow(nullptr, 1))
         {
             if (ImGui::MenuItem("Create new Entity"))
+            {
                 scene->CreateEntity("New entity");
+            }
 
             ImGui::EndPopup();
         }
@@ -127,7 +134,12 @@ void EditorLayer::DrawImGuiTest()
                                  auto& nameComponent = entity->template GetComponent<NameComponent>();
                                  std::string label = nameComponent.name + "##" + std::to_string(nameComponent.id.Get());
 
-                                 if(ImGui::Button(label.c_str()))
+                                 static int entitiesCount = 30;
+                                 float bWidth  = ImGui::GetWindowWidth();
+                                 float bHeight = ImGui::GetWindowHeight() / static_cast<float>(entitiesCount);
+                                 float minHeight = 17.0f;
+
+                                 if(ImGui::Button(label.c_str(), ImVec2(bWidth, bHeight > minHeight ? bHeight : minHeight)))
                                  {
                                      selectedEntity = entity;
                                  }
@@ -149,8 +161,70 @@ void EditorLayer::DrawImGuiTest()
         ImGui::Image(reinterpret_cast<void*>(Renderer::GetRenderedImage()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
         // drop selected entity
-        if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
+        if (ImGui::IsMouseDown(1) && ImGui::IsWindowHovered())
             EventsHandler::ToggleCursor(true);
+
+        if(selectedEntity)
+        {
+            auto& transformComponent = selectedEntity->GetComponent<TransformComponent>();
+            auto& sceneCamera = scene->GetPrimaryCamera().GetComponent<CameraComponent>().camera;
+            auto& sceneCameraPosition = scene->GetPrimaryCamera().GetComponent<TransformComponent>().translation;
+
+            auto selEntityTransform = transformComponent.GetTransform();
+
+            glm::mat4 cameraProj = sceneCamera.GetProjection();
+            glm::mat4 cameraView = sceneCamera.GetView(sceneCameraPosition);
+
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+
+            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+
+            static float deltaMove = 1.0f;
+
+            switch((ImGuizmo::OPERATION) selectedOperation)
+            {
+                case ImGuizmo::OPERATION::ROTATE:
+                    deltaMove = 5.0f;
+                    break;
+                case ImGuizmo::OPERATION::TRANSLATE:
+                    deltaMove = 0.5f;
+                    break;
+                case ImGuizmo::OPERATION::SCALE:
+                    deltaMove = 0.1f;
+                    break;
+                default:
+                    break;
+            }
+
+
+            float snapVals[3] = {deltaMove, deltaMove, deltaMove};
+
+            ImGuizmo::Manipulate(glm::value_ptr(cameraView),
+                                 glm::value_ptr(cameraProj),
+                                 (ImGuizmo::OPERATION) selectedOperation,
+                                 ImGuizmo::LOCAL,
+                                 glm::value_ptr(selEntityTransform),
+                                 nullptr,
+                                 isSnappingEnabled ? snapVals : nullptr);
+
+            if (ImGuizmo::IsUsing())
+            {
+                glm::vec3 translation, rotation, scale;
+                ImGuizmo::DecomposeMatrixToComponents(
+                        glm::value_ptr(selEntityTransform),
+                        glm::value_ptr(translation),
+                        glm::value_ptr(rotation),
+                        glm::value_ptr(scale)
+                );
+
+                auto deltaRot = rotation - transformComponent.rotation;
+
+                transformComponent.translation = translation;
+                transformComponent.rotation = rotation;
+                transformComponent.scale = scale;
+            }
+        }
 
         ImGui::End();
     }
@@ -160,9 +234,40 @@ void EditorLayer::DrawImGuiTest()
         ImGui::Begin("Settings", &isSettingsOpened);
         ImGui::Text("Frame time: %f ms", Global::GetWorldDeltaTime() * 1000);
         ImGui::Text("Total frames: %ul", Global::GetTotalFrames());
+        ImGui::Text("Current resolution: %u x %u", Renderer::GetFboWidth(), Renderer::GetFboHeight());
         ImGui::Text("Frame rate: %f FPS", 1.0f / Global::GetWorldDeltaTime());
         ImGui::ColorPicker3("Clear color", (float *)&Renderer::clearColor);
+        ImGui::Checkbox("Should draw final results to the FBO", &Renderer::shouldDrawFinalToFBO);
         ImGui::Checkbox("Should apply post process effects", &Renderer::isPostProcessingActivated);
+
+        ImGui::Separator();
+        ImGui::Text("Gizmos current operation:");
+
+        if(ImGui::RadioButton("Move", selectedOperation == ImGuizmo::OPERATION::TRANSLATE))
+        {
+            selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
+        }
+
+        if(ImGui::RadioButton("Rotate", selectedOperation == ImGuizmo::OPERATION::ROTATE))
+        {
+            selectedOperation = ImGuizmo::OPERATION::ROTATE;
+        }
+
+        if(ImGui::RadioButton("Scale", selectedOperation == ImGuizmo::OPERATION::SCALE))
+        {
+            selectedOperation = ImGuizmo::OPERATION::SCALE;
+        }
+
+        ImGui::Text("Is snapping enabled: ");
+        ImGui::SameLine();
+        if (isSnappingEnabled)
+        {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.24f, 1.0f), "ON");
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "OFF");
+        }
 
         ImGui::End();
     }
@@ -185,7 +290,8 @@ void EditorLayer::DrawImGuiTest()
 
         for(const auto& item : std::filesystem::directory_iterator(curDirectory))
         {
-            auto itemFilename = item.path().filename().string().c_str();
+            std::string itemFilenameStr = item.path().filename().string();
+            const char * itemFilename = itemFilenameStr.c_str();
             ImGui::Button(itemFilename, ImVec2(buttonWidth, buttonHeight));
             if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
             {
@@ -194,6 +300,21 @@ void EditorLayer::DrawImGuiTest()
                     curDirectory = item;
                 }
             }
+            if (ImGui::BeginDragDropSource() && !item.is_directory())
+            {
+                auto relPathStr = std::filesystem::relative(item.path()).string();
+                auto relPath = relPathStr.c_str();
+                
+                if(relPathStr.length() > 32)
+                {
+                    LOG(WARNING) << "Path is too long\n";
+                }
+
+                // adding one to catch null terminator to the passed string
+                ImGui::SetDragDropPayload("FILE_SELECTED", relPath, (relPathStr.length() + 1) * sizeof(const char));
+                ImGui::EndDragDropSource();
+            }
+
             ImGui::NextColumn();
         }
         ImGui::Columns();
@@ -285,7 +406,22 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
             if(ImGui::CollapsingHeader("Model 3D"))
             {
                 auto& modelComponent = selectedEntity->GetComponent<Model3DComponent>();
-                ImGui::InputText("Path ", &modelComponent.model.path);
+                ImGui::Text("Path: %s", modelComponent.model.path.c_str());
+                if(ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_SELECTED"))
+                    {
+                        if(payload->Data)
+                        {
+                            modelComponent.model.path = std::string((char *) payload->Data);
+                        }
+                        else
+                        {
+                            LOG(WARNING) << " Accepted payload of type FILE_SELECTED is nullptr\n";
+                        }
+                    }
+                    ImGui::EndDragDropTarget();
+                }
 
                 if (ImGui::Button("Reload model"))
                 {
@@ -343,5 +479,30 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         }
 
         ImGui::End();
+    }
+}
+
+void EditorLayer::OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent> &event)
+{
+    switch (event->GetKeyCode())
+    {
+        case Key::Space:
+            if (selectedOperation == ImGuizmo::OPERATION::TRANSLATE)
+            {
+                selectedOperation = ImGuizmo::OPERATION::ROTATE;
+                break;
+            }
+            if (selectedOperation == ImGuizmo::OPERATION::ROTATE)
+            {
+                selectedOperation = ImGuizmo::OPERATION::SCALE;
+                break;
+            }
+            if (selectedOperation == ImGuizmo::OPERATION::SCALE)
+            {
+                selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
+                break;
+            }
+        default:
+            break;
     }
 }

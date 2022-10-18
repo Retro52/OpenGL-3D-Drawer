@@ -155,8 +155,15 @@ void Global::Draw()
     /* Rendering shadow texture */
     unsigned int shadowTexture = ShadowsHandler::RenderShadowMap();
 
-    /* Binding viewport FBO */
-    Renderer::GetViewportFBO()->Bind();
+    if(!Renderer::shouldDrawFinalToFBO && !Renderer::isPostProcessingActivated)
+    {
+        FBO::Reset();
+    }
+    else
+    {
+        /* Binding viewport FBO */
+        Renderer::GetViewportFBO()->Bind();
+    }
 
     Renderer::Clear();
     Renderer::EnableDepthTesting();

@@ -2,6 +2,26 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
+    "Entity8" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Cube"
+      },
+      "Transform" : 
+      {
+        "Position" : [-1.47366, 1.80946, 71.7342],
+        "Rotation" : [0, -2.73226e-05, -90.0002],
+        "Scale" : [5.61312, 31.3116, 0.116083]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
     "Entity7" : 
     {
       "Name" : 
@@ -10,8 +30,8 @@
       },
       "Transform" : 
       {
-        "Position" : [-22, -0.5, -44.5],
-        "Rotation" : [0, 0, 0],
+        "Position" : [-21.5, -0.5, -20.5],
+        "Rotation" : [0, -0, 0],
         "Scale" : [0.05, 0.05, 0.05]
       },
       "Model3D" : 
@@ -24,10 +44,10 @@
       "Point light" : 
       {
         "Linear" : 0.1,
-        "Ambient" : [0.630499, 0.630499, 0.630499],
-        "Diffuse" : [0.5, 0.5, 0.5],
+        "Ambient" : [0.504065, 0.504065, 0.504065],
+        "Diffuse" : [1, 1, 1],
         "Constant" : 0.1,
-        "Specular" : [0.5, 0.5, 0.5],
+        "Specular" : [1, 1, 1],
         "Quadratic" : 0.1
       }
     },
@@ -59,8 +79,8 @@
       },
       "Transform" : 
       {
-        "Position" : [-16.5, -0.5, -42],
-        "Rotation" : [-4.27012, 0, 0],
+        "Position" : [-18.282, -0.38368, -18.9418],
+        "Rotation" : [-4.27012, -0, 0],
         "Scale" : [0.05, 0.05, 0.05]
       },
       "Model3D" : 
@@ -73,10 +93,10 @@
       "Point light" : 
       {
         "Linear" : 0.09,
-        "Ambient" : [0.446429, 0.446429, 0.446429],
-        "Diffuse" : [0.447059, 0.447059, 0.447059],
+        "Ambient" : [0.536585, 0.536585, 0.536585],
+        "Diffuse" : [1, 1, 1],
         "Constant" : 0.3,
-        "Specular" : [0.447059, 0.447059, 0.447059],
+        "Specular" : [1, 1, 1],
         "Quadratic" : 0.012
       }
     },
@@ -88,8 +108,8 @@
       },
       "Transform" : 
       {
-        "Position" : [-4.02333, 9.4745, -3.82587],
-        "Rotation" : [-26.0947, -1049.58, 0],
+        "Position" : [15.0835, 9.75381, -4.17342],
+        "Rotation" : [-38.4043, -2765.68, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -120,8 +140,8 @@
       },
       "Directional light" : 
       {
-        "Ambient" : [0.611842, 0.611842, 0.611842],
-        "Diffuse" : [1, 1, 1],
+        "Ambient" : [0.841463, 0.841463, 0.841463],
+        "Diffuse" : [0.414634, 0.414634, 0.414634],
         "Specular" : [1, 1, 1]
       }
     },
@@ -133,7 +153,7 @@
       },
       "Transform" : 
       {
-        "Position" : [13, 0, 0],
+        "Position" : [-3.18809, 1.8456, 0],
         "Rotation" : [0, 0, 0],
         "Scale" : [1, 1, 1]
       },
@@ -173,8 +193,8 @@
       },
       "Transform" : 
       {
-        "Position" : [0, -3.3, 0],
-        "Rotation" : [0, 0, 0],
+        "Position" : [0, -3.3, 23.239],
+        "Rotation" : [0, -0, 0],
         "Scale" : [1, 1, 1]
       },
       "Model3D" : 

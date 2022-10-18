@@ -24,7 +24,15 @@ void Model::LoadModel(const std::string& loadPath)
     }
 
     // retrieve the directory path of the filepath
-    directory = loadPath.substr(0, loadPath.find_last_of('/'));
+    if(loadPath.find('/') != std::string::npos)
+    {
+        directory = loadPath.substr(0, loadPath.find_last_of('/'));
+    }
+    else if (loadPath.find('\\') != std::string::npos)
+    {
+        directory = loadPath.substr(0, loadPath.find_last_of('\\'));
+    }
+
 
     // process ASSIMP's root node recursively
     ProcessNode(scene->mRootNode, scene);

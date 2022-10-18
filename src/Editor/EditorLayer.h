@@ -48,6 +48,8 @@ private:
 private:
     std::shared_ptr<Entity> selectedEntity;
     std::filesystem::path curDirectory;
+
+    int selectedOperation;
 };
 
 

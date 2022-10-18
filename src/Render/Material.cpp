@@ -224,6 +224,10 @@ void Material::LoadTextures(const aiMaterial *material, const std::string &direc
             filename = directory + path.C_Str();
         }
 
+        std::cerr << filename << "\n";
+        std::cerr << path.C_Str() << "\n";
+        std::cerr << directory << "\n";
+
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         bool skip = false;
         for(auto & j : texturesLoaded)
