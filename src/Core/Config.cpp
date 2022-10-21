@@ -6,7 +6,6 @@
 #include "Config.h"
 #include "ResourcesManager.h"
 #include "InGameException.h"
-#include "../Lighting/ShadowsHandler.h"
 #include "inipp.h"
 #include "json.hpp"
 #include "../Logging/easylogging++.h"
@@ -55,7 +54,6 @@ void Config::LoadIni(const std::string &configPath)
 
     Config::LoadJson(shadersConfigPath);
     ResourcesManager::RegisterPlayerScene(defaultScenePath);
-    ShadowsHandler::SetMapResolution(shadowsResolution);
 }
 
 void Config::LoadJson(const std::string &jsonConfigPath)

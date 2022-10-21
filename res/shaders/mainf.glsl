@@ -264,12 +264,6 @@ vec3 CalculatePointSpecularLighting(PointLight light, vec3 normal, vec3 viewDir)
 
 float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir)
 {
-	float ambientShadow = 0.9f;
-
-	// lightDir and normal vectors are normalized, so we are getting just a cosin value there
-	float faceNormalDot   = dot(Normal, lightDir);
-	float vectorNormalDot = dot(normal, lightDir);
-
 	float shadow = 0.0f;
 
 	// select cascade layer
@@ -316,10 +310,18 @@ float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir)
 		{
             float randomFactor = clamp(mix(0.0f, 1.0f, rand((projCoords.xy + vec2(x, y)) * depthValue * FragPos.xy)), 0.0f, 1.0f);
             float pcfDepth = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + randomFactor, y + randomFactor) * texelSize, layer)).r;
-			shadow += currentDepth > pcfDepth ? ambientShadow : 0.0f;
+			shadow += currentDepth > pcfDepth ? 1.0f : 0.0f;
 		}
 	}
 
 	shadow /= sampleRadiusCount;
+
+	const float shadowFadeDistance = 10.0f;
+	float delta = cascadePlaneDistances[layer] - depthValue;
+
+	if (layer == cascadeCount - 1 && delta < shadowFadeDistance)
+	{
+		shadow *= delta / shadowFadeDistance;
+	}
 	return shadow;
 }

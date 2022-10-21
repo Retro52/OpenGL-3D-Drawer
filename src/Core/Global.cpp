@@ -8,7 +8,6 @@
 #include "../Entity/Entity.h"
 #include "../Render/Renderer.h"
 #include "../Editor/EditorLayer.h"
-#include "../Lighting/ShadowsHandler.h"
 
 double Global::lastTime;
 double Global::deltaTime;
@@ -57,7 +56,6 @@ void Global::Initialize()
     {
         Config::LoadIni("config.ini");
         EventsHandler::Initialize();
-        ShadowsHandler::Initialize(4);
         Renderer::Initialize();
     }
     catch (std::exception& e)
@@ -149,11 +147,15 @@ double Global::GetWorldDeltaTime()
 
 void Global::Draw()
 {
+    auto& curScene = * ResourcesManager::GetPlayerScene();
     /* Preparing renderer for the new frame */
-    Renderer::Prepare(* ResourcesManager::GetPlayerScene(), drawMode);
+    Renderer::Prepare(curScene, drawMode);
 
-    /* Rendering shadow texture */
-    unsigned int shadowTexture = ShadowsHandler::RenderShadowMap();
+    if(Renderer::lightingType == LightingType::Dynamic)
+    {
+        /* Rendering shadow texture */
+        Renderer::RenderShadowMaps(curScene);
+    }
 
     if(!Renderer::shouldDrawFinalToFBO && !Renderer::isPostProcessingActivated)
     {
@@ -177,7 +179,8 @@ void Global::Draw()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    Renderer::Render(* ResourcesManager::GetPlayerScene(), shadowTexture);
+    Renderer::Render(curScene);
+
     if(Renderer::isPostProcessingActivated)
     {
         Renderer::ApplyPostProcessing();

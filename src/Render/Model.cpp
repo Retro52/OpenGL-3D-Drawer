@@ -3,7 +3,7 @@
 //
 #include <iomanip>
 #include <utility>
-
+#include <filesystem>
 #include "Model.h"
 
 
@@ -31,6 +31,11 @@ void Model::LoadModel(const std::string& loadPath)
     else if (loadPath.find('\\') != std::string::npos)
     {
         directory = loadPath.substr(0, loadPath.find_last_of('\\'));
+    }
+    else
+    {
+        auto fpath = std::filesystem::path(loadPath);
+        directory = fpath.parent_path().string();
     }
 
 

@@ -101,6 +101,26 @@ void EditorLayer::DrawImGuiTest()
 
     if(ImGui::BeginMainMenuBar())
     {
+        if (ImGui::BeginMenu("Scenes"))
+        {
+            if(ImGui::Button("Open"))
+            {
+
+            }
+
+            if(ImGui::Button("Save"))
+            {
+
+            }
+
+            if(ImGui::Button("Save as..."))
+            {
+
+            }
+
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Windows"))
         {
             ImGui::Checkbox("Settings", &isSettingsOpened);
@@ -269,6 +289,33 @@ void EditorLayer::DrawImGuiTest()
             ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "OFF");
         }
 
+
+        ImGui::Separator();
+        ImGui::Text("Lighting settings:");
+
+        if(ImGui::RadioButton("Dynamic", Renderer::lightingType == LightingType::Dynamic))
+        {
+            Renderer::lightingType = LightingType::Dynamic;
+        }
+
+        if(ImGui::RadioButton("Baked", Renderer::lightingType == LightingType::Baked))
+        {
+            Renderer::lightingType = LightingType::Baked;
+        }
+
+        if(Renderer::lightingType == LightingType::Baked && ImGui::Button("Bake lighting"))
+        {
+            LOG(DEBUG) << "Lighting baking requested";
+        }
+
+        ImGui::SliderFloat("Base offset", &Renderer::baseOffset, 0.0f, 100.0f);
+        ImGui::SliderFloat("Delta offset", &Renderer::deltaOffset, 0.0f, 100.0f);
+        ImGui::SliderFloat("Factor multiplier", &Renderer::factorMultiplier, 0.0f, 100.0f);
+        for(int i = 0; i < Renderer::GetCascadesCount(); i++)
+        {
+            ImGui::Text("Cascade level[%d]", i);
+            ImGui::InputFloat(("##cascade_level_" + std::to_string(i)).c_str(), &Renderer::cascadeLevels.at(i));
+        }
         ImGui::End();
     }
 
@@ -472,9 +519,9 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                 auto& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
                 ImGui::Checkbox("Is primary", &cameraComponent.isPrimary);
                 ImGui::InputFloat2("Aspect ratio", (float *)&cameraComponent.camera.aspectRatio);
-                float fov = cameraComponent.camera.GetFieldOfView();
+                float fov = glm::degrees(cameraComponent.camera.GetFieldOfView());
                 ImGui::SliderFloat("FOV", &fov, 0, 360);
-                cameraComponent.camera.SetFieldOfView(fov);
+                cameraComponent.camera.SetFieldOfView(glm::radians(fov));
             }
         }
 
@@ -484,6 +531,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
 
 void EditorLayer::OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent> &event)
 {
+    bool isControlPressed = EventsHandler::IsPressed(Key::LeftControl);
     switch (event->GetKeyCode())
     {
         case Key::Space:
@@ -502,6 +550,16 @@ void EditorLayer::OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent> &ev
                 selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
                 break;
             }
+        case Key::D:
+            if (!isControlPressed && EventsHandler::_cursor_locked)
+            {
+                break;
+            }
+            if(selectedEntity)
+            {
+                selectedEntity = std::make_shared<Entity>(selectedEntity->CopyEntity());
+            }
+            break;
         default:
             break;
     }

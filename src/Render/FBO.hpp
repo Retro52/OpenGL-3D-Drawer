@@ -51,8 +51,12 @@ public:
         bufferTextures[attachmentType] = texture;
     }
 
-    void AddTexture(const std::shared_ptr<Texture>& texture, unsigned int textureType, unsigned int attachmentType)
+    void AddTexture(const std::shared_ptr<Texture>& texture, unsigned int textureType, unsigned int attachmentType, bool isColorTexture = false)
     {
+        if (isColorTexture)
+        {
+            colorTextureType = textureType;
+        }
         glBindFramebuffer(GL_FRAMEBUFFER, id);
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureType, texture->GetId(), 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -100,7 +104,7 @@ public:
 
     std::shared_ptr<Texture>& GetColorTexture()
     {
-        return bufferTextures.at(GL_COLOR_ATTACHMENT0);
+        return bufferTextures.at(colorTextureType);
     }
 
     std::shared_ptr<Texture>& GetDepthStencilTexture()
@@ -122,6 +126,7 @@ public:
 
 private:
     unsigned int id { 0 };
+    unsigned int colorTextureType = GL_COLOR_ATTACHMENT0;
     std::unordered_map<unsigned int, std::shared_ptr<Texture>> bufferTextures;
 };
 

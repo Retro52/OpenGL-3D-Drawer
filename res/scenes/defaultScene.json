@@ -2,17 +2,179 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
+    "Entity16" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Statue_2"
+      },
+      "Transform" : 
+      {
+        "Position" : [-26.429, -1.75227, 49.892],
+        "Rotation" : [0, -0, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      },
+      "Point light" : 
+      {
+        "Linear" : 0.1,
+        "Ambient" : [0.5, 0.5, 0.5],
+        "Diffuse" : [0.5, 0.5, 0.5],
+        "Constant" : 0.1,
+        "Specular" : [0.5, 0.5, 0.5],
+        "Quadratic" : 0.1
+      }
+    },
+    "Entity15" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Statue_1"
+      },
+      "Transform" : 
+      {
+        "Position" : [-26.4293, -3.68835, 49.8923],
+        "Rotation" : [0, -0, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 20
+      }
+    },
+    "Entity14" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Sphere"
+      },
+      "Transform" : 
+      {
+        "Position" : [1.90826, 22.9967, 115.774],
+        "Rotation" : [0, -0, 0],
+        "Scale" : [3.63, 3.63, 3.63]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity1048589" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Piede"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1, 1, 1]
+      }
+    },
+    "Entity12" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall_8"
+      },
+      "Transform" : 
+      {
+        "Position" : [1.69592, 6.1168, 74.7519],
+        "Rotation" : [-90.0001, -3.1613e-05, -0.034558],
+        "Scale" : [6.86148, 7.72012, 0.807243]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
+    "Entity11" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall_7"
+      },
+      "Transform" : 
+      {
+        "Position" : [1.69593, 6.11677, 58.6245],
+        "Rotation" : [-90.0001, -3.1613e-05, -0.034558],
+        "Scale" : [6.86148, 3.58701, 0.807289]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
+    "Entity10" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall_6"
+      },
+      "Transform" : 
+      {
+        "Position" : [9.06316, 0.986124, 68.7361],
+        "Rotation" : [-90, -0.00010416, -90.0003],
+        "Scale" : [5.60327, 14.0317, 0.807542]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
+    "Entity9" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall_5"
+      },
+      "Transform" : 
+      {
+        "Position" : [-5.53627, 0.986194, 68.6023],
+        "Rotation" : [-90, -0.00010416, -90.0003],
+        "Scale" : [5.60462, 14.0317, 0.807542]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
     "Entity8" : 
     {
       "Name" : 
       {
-        "Name" : "Cube"
+        "Name" : "Wall_4"
       },
       "Transform" : 
       {
-        "Position" : [-1.47366, 1.80946, 71.7342],
-        "Rotation" : [0, -2.73226e-05, -90.0002],
-        "Scale" : [5.61312, 31.3116, 0.116083]
+        "Position" : [-31.9078, 0.98606, 50.2483],
+        "Rotation" : [-89.9999, -3.92736e-05, -90.0002],
+        "Scale" : [5.60552, 5.20149, 0.807268]
       },
       "Model3D" : 
       {
@@ -26,42 +188,33 @@
     {
       "Name" : 
       {
-        "Name" : "PL2"
+        "Name" : "Wall_3"
       },
       "Transform" : 
       {
-        "Position" : [-21.5, -0.5, -20.5],
-        "Rotation" : [0, -0, 0],
-        "Scale" : [0.05, 0.05, 0.05]
+        "Position" : [-18.7767, 0.986137, 55.5351],
+        "Rotation" : [0, -2.73226e-05, -90.0002],
+        "Scale" : [5.6058, 14.032, 0.807543]
       },
       "Model3D" : 
       {
-        "Path" : "../res/assets/Basics/bulb.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Point light" : 
-      {
-        "Linear" : 0.1,
-        "Ambient" : [0.504065, 0.504065, 0.504065],
-        "Diffuse" : [1, 1, 1],
-        "Constant" : 0.1,
-        "Specular" : [1, 1, 1],
-        "Quadratic" : 0.1
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
       }
     },
     "Entity6" : 
     {
       "Name" : 
       {
-        "Name" : "Floor_copy"
+        "Name" : "Cube_floor"
       },
       "Transform" : 
       {
-        "Position" : [0, -4.74477, 0],
-        "Rotation" : [-180.175, 0, 0],
-        "Scale" : [125, 125, 125]
+        "Position" : [-1.45815, -4.52069, 48.0721],
+        "Rotation" : [0.0702703, -0, 0],
+        "Scale" : [311.477, 206.908, 379.227]
       },
       "Model3D" : 
       {
@@ -75,32 +228,83 @@
     {
       "Name" : 
       {
-        "Name" : "PL"
+        "Name" : "Church"
       },
       "Transform" : 
       {
-        "Position" : [-18.282, -0.38368, -18.9418],
-        "Rotation" : [-4.27012, -0, 0],
-        "Scale" : [0.05, 0.05, 0.05]
+        "Position" : [-28.1902, -4.35, -21.9455],
+        "Rotation" : [0, -0, 0],
+        "Scale" : [5.168, 5.168, 5.168]
       },
       "Model3D" : 
       {
-        "Path" : "../res/assets/Basics/bulb.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 60
-      },
-      "Point light" : 
-      {
-        "Linear" : 0.09,
-        "Ambient" : [0.536585, 0.536585, 0.536585],
-        "Diffuse" : [1, 1, 1],
-        "Constant" : 0.3,
-        "Specular" : [1, 1, 1],
-        "Quadratic" : 0.012
+        "Path" : "../res/assets/monastyr/monastyr.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
       }
     },
     "Entity4" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall_2"
+      },
+      "Transform" : 
+      {
+        "Position" : [-1.46045, 0.986073, 44.3005],
+        "Rotation" : [0, -2.73226e-05, -90.0002],
+        "Scale" : [5.60685, 31.2864, 0.807543]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
+    "Entity1048579" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Wall_1"
+      },
+      "Transform" : 
+      {
+        "Position" : [18.5363, 0.986008, 55.5351],
+        "Rotation" : [0, -2.73226e-05, -90.0002],
+        "Scale" : [5.60682, 10.2044, 0.807543]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
+    "Entity1048578" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Roof"
+      },
+      "Transform" : 
+      {
+        "Position" : [-1.47311, 6.74558, 49.6486],
+        "Rotation" : [90, 90, 0],
+        "Scale" : [5.60616, 31.286, 0.807467]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 100
+      }
+    },
+    "Entity1" : 
     {
       "Name" : 
       {
@@ -108,8 +312,8 @@
       },
       "Transform" : 
       {
-        "Position" : [15.0835, 9.75381, -4.17342],
-        "Rotation" : [-38.4043, -2765.68, 0],
+        "Position" : [15.468, 69.1262, 194.117],
+        "Rotation" : [-22.4956, -2146.01, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -119,7 +323,7 @@
         "Aspect" : [16, 9]
       }
     },
-    "Entity3" : 
+    "Entity0" : 
     {
       "Name" : 
       {
@@ -127,9 +331,9 @@
       },
       "Transform" : 
       {
-        "Position" : [0, 48.3869, 0],
-        "Rotation" : [232.23, 121.961, 0],
-        "Scale" : [1, 1, 1]
+        "Position" : [5.78885, 45.1692, 83.0574],
+        "Rotation" : [-157.183, 45.634, 1.221e-06],
+        "Scale" : [0.999999, 0.999993, 0.999959]
       },
       "Model3D" : 
       {
@@ -140,69 +344,9 @@
       },
       "Directional light" : 
       {
-        "Ambient" : [0.841463, 0.841463, 0.841463],
-        "Diffuse" : [0.414634, 0.414634, 0.414634],
-        "Specular" : [1, 1, 1]
-      }
-    },
-    "Entity2" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Backpack"
-      },
-      "Transform" : 
-      {
-        "Position" : [-3.18809, 1.8456, 0],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/backpack/backpack.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      }
-    },
-    "Entity1" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Floor"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, -3, 0],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [100, 100, 100]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 100
-      }
-    },
-    "Entity0" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Church"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, -3.3, 23.239],
-        "Rotation" : [0, -0, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/monastyr/monastyr.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
+        "Ambient" : [0.388664, 0.388664, 0.388664],
+        "Diffuse" : [1, 1, 1],
+        "Specular" : [0.520005, 0.546559, 0.520005]
       }
     }
   }

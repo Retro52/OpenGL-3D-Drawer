@@ -66,6 +66,11 @@ public:
         scene->registry.template remove<T>(thisEntity);
     }
 
+    Entity CopyEntity()
+    {
+        return scene->CopyEntity(* this);
+    }
+
     /**
      * Compares two entities
      * @param other Entity to compare with

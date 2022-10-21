@@ -36,7 +36,13 @@ public:
         AddVariable(fos, "isPostProcessingActivated", Renderer::isPostProcessingActivated);
         AddVariable(fos, "shouldDrawFinalToFBO", Renderer::shouldDrawFinalToFBO);
         AddVariable(fos, "clearColor", Renderer::clearColor);
+        AddVariable(fos, "lightingType", Renderer::lightingType);
+        AddVariable(fos, "cascadesCount", Renderer::cascadesCount);
         AddVariable(fos, "cascadeLevels", Renderer::cascadeLevels);
+        AddVariable(fos, "baseOffset", Renderer::baseOffset);
+        AddVariable(fos, "deltaOffset", Renderer::deltaOffset);
+        AddVariable(fos, "factorMultiplier", Renderer::factorMultiplier);
+        AddVariable(fos, "shadowMapResolution", Renderer::shadowMapResolution);
 
         LOG(INFO) << "Renderer info serialized";
     }
@@ -68,7 +74,13 @@ public:
         LoadVariable(section, "shouldDrawFinalToFBO", Renderer::shouldDrawFinalToFBO);
         LoadVariable(section, "isPostProcessingActivated", Renderer::isPostProcessingActivated);
         LoadVariable(section, "clearColor", Renderer::clearColor);
-        LoadVariable(section, "cascadeLevels", Renderer::cascadeLevels);
+        LoadVariable(section, "lightingType", Renderer::lightingType);
+        LoadVariable(section, "cascadesCount", Renderer::cascadesCount);
+        LoadVariable(section, "cascadeLevels", Renderer::cascadeLevels, Renderer::cascadesCount);
+        LoadVariable(section, "baseOffset", Renderer::baseOffset);
+        LoadVariable(section, "deltaOffset", Renderer::deltaOffset);
+        LoadVariable(section, "factorMultiplier", Renderer::factorMultiplier);
+        LoadVariable(section, "shadowMapResolution", Renderer::shadowMapResolution);
 
         is.close();
 
@@ -81,6 +93,12 @@ public:
         inipp::get_value(section, varName, destination);
     }
 
+    static void LoadVariable(const std::map<std::string, std::string>& section, const std::string& varName, LightingType::Type& destination)
+    {
+        unsigned int res = -1;
+        inipp::get_value(section, varName, res);
+        destination = static_cast<LightingType::Type>(res);
+    }
     static void LoadVariable(const std::map<std::string, std::string>& section, const std::string& varName, glm::vec3& destination)
     {
         LoadArrayMember(section, varName, 0, destination.r);
@@ -107,6 +125,16 @@ public:
 
         ss << arrName << openBracket << index << closeBracket;
         LoadVariable(section, ss.str(), destination);
+    }
+
+    template<typename T>
+    static void LoadVariable(const std::map<std::string, std::string>& section, const std::string& varName, std::vector<T>& destination, size_t itemsCount)
+    {
+        destination.reserve(itemsCount);
+        for(size_t i = 0; i < itemsCount; i++)
+        {
+            LoadArrayMember(section, varName, i, destination[i]);
+        }
     }
 
 

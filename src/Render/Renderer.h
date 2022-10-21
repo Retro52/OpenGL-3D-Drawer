@@ -16,6 +16,15 @@
 #include "UBO.hpp"
 #include "FBO.hpp"
 
+namespace LightingType
+{
+    enum Type : unsigned int
+    {
+        Dynamic = 0,
+        Baked   = 1
+    };
+}
+
 class Renderer
 {
 public:
@@ -46,8 +55,10 @@ public:
      * @param scene scene to render
      * @param shadowMap directional light rendered shadow map
      */
-    static void Render(Scene& scene, unsigned int shadowMap);
+    static void Render(Scene& scene);
 
+
+    static void RenderShadowMaps(Scene &scene);
     /**
      * Renders scene to the depth buffer
      * @param scene scene to render
@@ -135,6 +146,8 @@ public:
 
     static inline unsigned int GetFboWidth() { return fboWidth; }
     static inline unsigned int GetFboHeight() { return fboHeight; }
+
+    static inline int GetCascadesCount() { return cascadesCount; }
 private:
     static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
 
@@ -147,12 +160,26 @@ public:
     static glm::vec3 clearColor;
     static bool isPostProcessingActivated, shouldDrawFinalToFBO;
 
-private:
+    // way to calculate shadows
+    static LightingType::Type lightingType;
+
+    // constants
+    static float baseOffset;
+    static float deltaOffset;
+    static float factorMultiplier;
     static std::vector<float> cascadeLevels;
+
+private:
+    // main render flow
     static unsigned int viewportVAO, viewportVBO;
     static unsigned int fboWidth, fboHeight;
     static std::unique_ptr<FBO> viewportFBO, postProcessFBO;
+
+    // shadows
+    static std::unique_ptr<FBO> shadowFBO;
+    static std::shared_ptr<Texture> shadowTexture;
     static std::unique_ptr<UBO<glm::mat4x4, 16>> lightMatricesUBO;
+    static int shadowMapResolution, cascadesCount;
 
     friend class RendererIniSerializer;
 };
@@ -160,9 +187,17 @@ private:
 inline glm::vec3 Renderer::clearColor;
 inline bool Renderer::shouldDrawFinalToFBO = true;
 inline bool Renderer::isPostProcessingActivated = true;
+inline LightingType::Type Renderer::lightingType = LightingType::Dynamic;
+
 
 inline unsigned int Renderer::fboWidth = 0, Renderer::fboHeight = 0;
 inline unsigned int Renderer::viewportVAO = 0, Renderer::viewportVBO = 0;
-inline std::unique_ptr<FBO> Renderer::viewportFBO = nullptr, Renderer::postProcessFBO = nullptr;
+inline std::unique_ptr<FBO> Renderer::viewportFBO = nullptr, Renderer::postProcessFBO = nullptr, Renderer::shadowFBO = nullptr;
+inline std::shared_ptr<Texture> Renderer::shadowTexture = nullptr;
+inline int Renderer::shadowMapResolution = 2048, Renderer::cascadesCount = 5;
+
+inline float Renderer::baseOffset        = 4.48f;
+inline float Renderer::deltaOffset       = 1.28f;
+inline float Renderer::factorMultiplier  = 4.0f;
 
 #endif //GRAPHICS_RENDERER_H

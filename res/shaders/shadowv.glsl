@@ -10,7 +10,9 @@ uniform vec3 lightDir;
 void main()
 {
 
-    const float offset = 0.00067f;
+//    const float offset = 0.00067f;
+//    const float offset = 0.0005f;
+    const float offset = 0.0f;
 
     vec3 lighrDirection = normalize(-lightDir);
     float cosAngle = clamp(1.0f - dot(lighrDirection, aNormal), 0.0, 1.0);

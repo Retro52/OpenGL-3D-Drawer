@@ -93,7 +93,6 @@ void Scene::LoadScene(const std::string &loadPath)
             const auto& pointLightComponent = components["Point light"];
             const auto& engineDefaultComponent = components["Engine default"];
             const auto& directionalLightComponent = components["Directional light"];
-
             if (components.contains("Transform"))
             {
                 e.GetComponent<TransformComponent>().scale       = glm::vec3(glm::vec3(transformComponent["Scale"][0], transformComponent["Scale"][1], transformComponent["Scale"][2]));
@@ -133,9 +132,12 @@ void Scene::LoadScene(const std::string &loadPath)
                     component.castsShadow  = model3Component["castsShadow"];
                     component.shouldBeLit  = model3Component["shouldBeLit"];
                     component.tilingFactor = model3Component["tilingFactor"];
+                    LOG(INFO) << "Model component successfully loaded for " << model.key();
                 }
-                catch(...) {}
-                LOG(INFO) << "Model component successfully loaded for " << model.key();
+                catch(std::exception& e)
+                {
+                    LOG(WARNING) << "Failed to load Model3D component" << e.what();
+                }
             }
 
             if (components.contains("Point light"))
@@ -151,6 +153,7 @@ void Scene::LoadScene(const std::string &loadPath)
 
                 LOG(INFO) << "Point light component successfully loaded for " << model.key();
             }
+
             if (components.contains("Directional light"))
             {
                 glm::vec3 amb(directionalLightComponent["Ambient"][0], directionalLightComponent["Ambient"][1], directionalLightComponent["Ambient"][2]);
@@ -161,6 +164,7 @@ void Scene::LoadScene(const std::string &loadPath)
 
                 LOG(INFO) << "Directional light component successfully loaded for " << model.key();
             }
+
             if (components.contains("Engine default"))
             {
                 e.AddComponent<EngineDefaultComponent>(engineDefaultComponent["Type"]);

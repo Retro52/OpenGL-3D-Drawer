@@ -13,7 +13,7 @@
 // stores all loaded textures
 std::vector<std::shared_ptr<Texture>> Material::texturesLoaded;
 
-Texture::Texture(const std::string &path, bool /*gamma*/) : path(path)
+Texture::Texture(const std::string& path, bool /*gamma*/) : path(path)
 {
     textureType = GL_TEXTURE_2D;
     std::string filename = std::quoted(path)._M_string;
@@ -23,7 +23,7 @@ Texture::Texture(const std::string &path, bool /*gamma*/) : path(path)
 
     unsigned char * data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
 
-    GAME_ASSERT(data != nullptr, "Failed to load texture " + path + "Reason: " + std::string(stbi_failure_reason()));
+    GAME_ASSERT(data != nullptr, "Failed to load texture " + path + "Reason: " + std::string(stbi_failure_reason() == nullptr ? "" : stbi_failure_reason()));
 
     GLenum format = 0;
     if (nrComponents == 1)
@@ -215,7 +215,8 @@ void Material::LoadTextures(const aiMaterial *material, const std::string &direc
         material->GetTexture(aiType, i, &path);
 
         std::string filename;
-        if (path.C_Str()[0] != '/' && directory[directory.length() - 1] != '/')
+        if (path.C_Str()[0] != '/' && directory[directory.length() - 1] != '/' &&
+            path.C_Str()[0] != '\\' && directory[directory.length() - 1] != '\\')
         {
             filename = directory + '/' + path.C_Str();
         }
@@ -223,10 +224,6 @@ void Material::LoadTextures(const aiMaterial *material, const std::string &direc
         {
             filename = directory + path.C_Str();
         }
-
-        std::cerr << filename << "\n";
-        std::cerr << path.C_Str() << "\n";
-        std::cerr << directory << "\n";
 
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         bool skip = false;

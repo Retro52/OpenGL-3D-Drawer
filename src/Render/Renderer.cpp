@@ -29,6 +29,7 @@ void Renderer::Initialize()
 
     RendererIniSerializer::LoadRendererSettings();
 
+    cascadesCount = cascadeLevels.size();
     viewportFBO->AddTexture(std::make_shared<Texture>(
             fboWidth,
             fboHeight,
@@ -61,6 +62,25 @@ void Renderer::Initialize()
     postProcessFBO->Check();
 
     FBO::Reset();
+
+    shadowTexture = std::make_shared<Texture>(
+            shadowMapResolution,
+            shadowMapResolution,
+            GL_DEPTH_COMPONENT,
+            GL_DEPTH_COMPONENT32F,
+            GL_UNSIGNED_BYTE,
+            false,
+            true,
+            cascadesCount
+    );
+
+    shadowFBO = std::make_unique<FBO>();
+
+    shadowFBO->AddTexture(shadowTexture, GL_DEPTH_ATTACHMENT);
+    shadowFBO->SetDrawBuffer(GL_NONE);
+    shadowFBO->SetReadBuffer(GL_NONE);
+    shadowFBO->Check();
+    shadowFBO->Reset();
 
     glGenVertexArrays(1, &viewportVAO);
     glGenBuffers(1, &viewportVBO);
@@ -136,7 +156,7 @@ void Renderer::Prepare(Scene &scene, int drawMode)
     Clear();
 }
 
-void Renderer::Render(Scene &scene, const unsigned int shadowMap)
+void Renderer::Render(Scene &scene)
 {
     const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
     auto& shader = ResourcesManager::GetShader("mainShader");
@@ -147,9 +167,45 @@ void Renderer::Render(Scene &scene, const unsigned int shadowMap)
         shader->Use();
         shader->setBool("material.shouldBeLit", m.shouldBeLit);
         shader->setInt("material.tilingFactor", m.tilingFactor);
-        m.model.Draw(* shader, t.GetTransform(), shadowMap);
+        m.model.Draw(* shader, t.GetTransform(), shadowTexture->GetId());
     }
     FBO::Reset();
+}
+
+void Renderer::RenderShadowMaps(Scene &scene)
+{
+    // Depth testing needed for Shadow Map
+    EnableDepthTesting();
+
+    //disabling face culling
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+
+    // adjusting bias by shadow map resolution
+    float offsetScale = (static_cast<float>(shadowMapResolution) / 2048) - 1.0f;
+
+    // calculating bias
+    float slopeOffset = baseOffset + (deltaOffset * offsetScale);
+
+    glPolygonOffset(slopeOffset, slopeOffset * factorMultiplier);
+
+    // Creating separate viewport for shadow map
+    glViewport(0, 0, shadowMapResolution, shadowMapResolution);
+
+    shadowFBO->Bind();
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+    RenderToDepthBuffer(scene);
+
+    shadowFBO->Reset();
+
+    glViewport(0, 0, (int) fboWidth, (int) fboHeight);
+
+    // re-enabling cull faces
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 void Renderer::RenderToDepthBuffer(Scene &scene)
