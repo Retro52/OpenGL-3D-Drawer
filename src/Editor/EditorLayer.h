@@ -45,6 +45,14 @@ private:
 
     void OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent>& event);
 
+    void RenderBrowserPanel(bool& isOpen);
+
+    void RenderSettingsPanel(bool& isOpen);
+
+    void RenderViewportPanel(bool& isOpen, std::unique_ptr<Scene>& scene);
+
+    void RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& scene);
+
 private:
     std::shared_ptr<Entity> selectedEntity;
     std::filesystem::path curDirectory;

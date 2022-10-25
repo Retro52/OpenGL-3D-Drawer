@@ -52,6 +52,7 @@ public:
      * @param path path to the scene to load
      */
     static void RegisterPlayerScene(const std::string& path);
+
     /**
      * Creates new application layer
      * @param layer Any class derived from Layer

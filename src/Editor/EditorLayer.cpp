@@ -16,7 +16,7 @@
 #include "../Core/Window.h"
 #include "../Core/Global.h"
 #include "../Input/EventsHandler.h"
-#include "../Core/ResourcesManager.h"
+#include "../Core/Utils.hpp"
 #include "../Render/Renderer.h"
 
 void EditorLayer::OnCreate()
@@ -101,21 +101,43 @@ void EditorLayer::DrawImGuiTest()
 
     if(ImGui::BeginMainMenuBar())
     {
-        if (ImGui::BeginMenu("Scenes"))
+        if (ImGui::BeginMenu("File"))
         {
+            if(ImGui::Button("New"))
+            {
+                std::string fname = Utils::OpenFile(SCENE_FILE_FILTER);
+
+                if(!fname.empty())
+                {
+                    ResourcesManager::RegisterPlayerScene(fname);
+                }
+            }
+
             if(ImGui::Button("Open"))
             {
+                std::string fname = Utils::OpenFile(SCENE_FILE_FILTER);
 
+                if(!fname.empty())
+                {
+                    ResourcesManager::RegisterPlayerScene(fname);
+                }
             }
 
             if(ImGui::Button("Save"))
             {
-
+                auto& scene = ResourcesManager::GetPlayerScene();
+                scene->SaveScene(scene->path);
             }
 
             if(ImGui::Button("Save as..."))
             {
+                std::string fname = Utils::SaveFile();
 
+                if(!fname.empty())
+                {
+                    auto& scene = ResourcesManager::GetPlayerScene();
+                    scene->SaveScene(fname);
+                }
             }
 
             ImGui::EndMenu();
@@ -133,242 +155,264 @@ void EditorLayer::DrawImGuiTest()
 
     auto& scene = ResourcesManager::GetPlayerScene();
 
-    if(isEntitiesListOpened)
-    {
-        ImGui::Begin("Entities list: ", &isEntitiesListOpened);
-
-        // create new entity
-        if (ImGui::BeginPopupContextWindow(nullptr, 1))
-        {
-            if (ImGui::MenuItem("Create new Entity"))
-            {
-                scene->CreateEntity("New entity");
-            }
-
-            ImGui::EndPopup();
-        }
-
-        scene->registry.each([&](auto id)
-                             {
-                                 std::shared_ptr<Entity> entity = std::make_shared<Entity>(id, scene.get());
-                                 auto& nameComponent = entity->template GetComponent<NameComponent>();
-                                 std::string label = nameComponent.name + "##" + std::to_string(nameComponent.id.Get());
-
-                                 static int entitiesCount = 30;
-                                 float bWidth  = ImGui::GetWindowWidth();
-                                 float bHeight = ImGui::GetWindowHeight() / static_cast<float>(entitiesCount);
-                                 float minHeight = 17.0f;
-
-                                 if(ImGui::Button(label.c_str(), ImVec2(bWidth, bHeight > minHeight ? bHeight : minHeight)))
-                                 {
-                                     selectedEntity = entity;
-                                 }
-                             });
-
-        // drop selected entity
-        if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered() && selectedEntity)
-            selectedEntity = nullptr;
-
-        ImGui::End();
-    }
-
+    RenderEntitiesListPanel(isEntitiesListOpened, scene);
     DrawEntityProperties(scene);
-
-    if(isViewportOpened)
-    {
-        // adding scene viewport
-        ImGui::Begin("Scene viewport", &isViewportOpened);
-        ImGui::Image(reinterpret_cast<void*>(Renderer::GetRenderedImage()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
-
-        // drop selected entity
-        if (ImGui::IsMouseDown(1) && ImGui::IsWindowHovered())
-            EventsHandler::ToggleCursor(true);
-
-        if(selectedEntity)
-        {
-            auto& transformComponent = selectedEntity->GetComponent<TransformComponent>();
-            auto& sceneCamera = scene->GetPrimaryCamera().GetComponent<CameraComponent>().camera;
-            auto& sceneCameraPosition = scene->GetPrimaryCamera().GetComponent<TransformComponent>().translation;
-
-            auto selEntityTransform = transformComponent.GetTransform();
-
-            glm::mat4 cameraProj = sceneCamera.GetProjection();
-            glm::mat4 cameraView = sceneCamera.GetView(sceneCameraPosition);
-
-            ImGuizmo::SetOrthographic(false);
-            ImGuizmo::SetDrawlist();
-
-            ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
-
-            static float deltaMove = 1.0f;
-
-            switch((ImGuizmo::OPERATION) selectedOperation)
-            {
-                case ImGuizmo::OPERATION::ROTATE:
-                    deltaMove = 5.0f;
-                    break;
-                case ImGuizmo::OPERATION::TRANSLATE:
-                    deltaMove = 0.5f;
-                    break;
-                case ImGuizmo::OPERATION::SCALE:
-                    deltaMove = 0.1f;
-                    break;
-                default:
-                    break;
-            }
-
-
-            float snapVals[3] = {deltaMove, deltaMove, deltaMove};
-
-            ImGuizmo::Manipulate(glm::value_ptr(cameraView),
-                                 glm::value_ptr(cameraProj),
-                                 (ImGuizmo::OPERATION) selectedOperation,
-                                 ImGuizmo::LOCAL,
-                                 glm::value_ptr(selEntityTransform),
-                                 nullptr,
-                                 isSnappingEnabled ? snapVals : nullptr);
-
-            if (ImGuizmo::IsUsing())
-            {
-                glm::vec3 translation, rotation, scale;
-                ImGuizmo::DecomposeMatrixToComponents(
-                        glm::value_ptr(selEntityTransform),
-                        glm::value_ptr(translation),
-                        glm::value_ptr(rotation),
-                        glm::value_ptr(scale)
-                );
-
-                auto deltaRot = rotation - transformComponent.rotation;
-
-                transformComponent.translation = translation;
-                transformComponent.rotation = rotation;
-                transformComponent.scale = scale;
-            }
-        }
-
-        ImGui::End();
-    }
-
-    if(isSettingsOpened)
-    {
-        ImGui::Begin("Settings", &isSettingsOpened);
-        ImGui::Text("Frame time: %f ms", Global::GetWorldDeltaTime() * 1000);
-        ImGui::Text("Total frames: %ul", Global::GetTotalFrames());
-        ImGui::Text("Current resolution: %u x %u", Renderer::GetFboWidth(), Renderer::GetFboHeight());
-        ImGui::Text("Frame rate: %f FPS", 1.0f / Global::GetWorldDeltaTime());
-        ImGui::ColorPicker3("Clear color", (float *)&Renderer::clearColor);
-        ImGui::Checkbox("Should draw final results to the FBO", &Renderer::shouldDrawFinalToFBO);
-        ImGui::Checkbox("Should apply post process effects", &Renderer::isPostProcessingActivated);
-
-        ImGui::Separator();
-        ImGui::Text("Gizmos current operation:");
-
-        if(ImGui::RadioButton("Move", selectedOperation == ImGuizmo::OPERATION::TRANSLATE))
-        {
-            selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
-        }
-
-        if(ImGui::RadioButton("Rotate", selectedOperation == ImGuizmo::OPERATION::ROTATE))
-        {
-            selectedOperation = ImGuizmo::OPERATION::ROTATE;
-        }
-
-        if(ImGui::RadioButton("Scale", selectedOperation == ImGuizmo::OPERATION::SCALE))
-        {
-            selectedOperation = ImGuizmo::OPERATION::SCALE;
-        }
-
-        ImGui::Text("Is snapping enabled: ");
-        ImGui::SameLine();
-        if (isSnappingEnabled)
-        {
-            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.24f, 1.0f), "ON");
-        }
-        else
-        {
-            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "OFF");
-        }
-
-
-        ImGui::Separator();
-        ImGui::Text("Lighting settings:");
-
-        if(ImGui::RadioButton("Dynamic", Renderer::lightingType == LightingType::Dynamic))
-        {
-            Renderer::lightingType = LightingType::Dynamic;
-        }
-
-        if(ImGui::RadioButton("Baked", Renderer::lightingType == LightingType::Baked))
-        {
-            Renderer::lightingType = LightingType::Baked;
-        }
-
-        if(Renderer::lightingType == LightingType::Baked && ImGui::Button("Bake lighting"))
-        {
-            LOG(DEBUG) << "Lighting baking requested";
-        }
-
-        ImGui::SliderFloat("Base offset", &Renderer::baseOffset, 0.0f, 100.0f);
-        ImGui::SliderFloat("Delta offset", &Renderer::deltaOffset, 0.0f, 100.0f);
-        ImGui::SliderFloat("Factor multiplier", &Renderer::factorMultiplier, 0.0f, 100.0f);
-        for(int i = 0; i < Renderer::GetCascadesCount(); i++)
-        {
-            ImGui::Text("Cascade level[%d]", i);
-            ImGui::InputFloat(("##cascade_level_" + std::to_string(i)).c_str(), &Renderer::cascadeLevels.at(i));
-        }
-        ImGui::End();
-    }
-
-    if(isFolderContentOpened)
-    {
-        ImGui::Begin("Opened directory:", &isFolderContentOpened);
-        ImGui::TextWrapped(curDirectory.string().c_str());
-        if(ImGui::Button("<-"))
-        {
-            curDirectory = curDirectory.parent_path();
-        }
-
-        static int buttonsPerRow = 5;
-
-        float buttonWidth = ImGui::GetContentRegionAvail().x / static_cast<float>(buttonsPerRow);
-        float buttonHeight = ImGui::GetFontSize() + 5.0f;
-
-        ImGui::Columns(buttonsPerRow, nullptr, false);
-
-        for(const auto& item : std::filesystem::directory_iterator(curDirectory))
-        {
-            std::string itemFilenameStr = item.path().filename().string();
-            const char * itemFilename = itemFilenameStr.c_str();
-            ImGui::Button(itemFilename, ImVec2(buttonWidth, buttonHeight));
-            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-            {
-                if(item.is_directory())
-                {
-                    curDirectory = item;
-                }
-            }
-            if (ImGui::BeginDragDropSource() && !item.is_directory())
-            {
-                auto relPathStr = std::filesystem::relative(item.path()).string();
-                auto relPath = relPathStr.c_str();
-                
-                if(relPathStr.length() > 32)
-                {
-                    LOG(WARNING) << "Path is too long\n";
-                }
-
-                // adding one to catch null terminator to the passed string
-                ImGui::SetDragDropPayload("FILE_SELECTED", relPath, (relPathStr.length() + 1) * sizeof(const char));
-                ImGui::EndDragDropSource();
-            }
-
-            ImGui::NextColumn();
-        }
-        ImGui::Columns();
-        ImGui::SliderInt("BPR", &buttonsPerRow, 1, 20);
-        ImGui::End();
-    }
+    RenderViewportPanel(isViewportOpened, scene);
+    RenderSettingsPanel(isSettingsOpened);
+    RenderBrowserPanel(isFolderContentOpened);
 }
+
+void EditorLayer::RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& scene)
+{
+    if( !isOpen ) { return; }
+    ImGui::Begin("Entities list: ", &isOpen);
+
+    // create new entity
+    if (ImGui::BeginPopupContextWindow(nullptr, 1))
+    {
+        if (ImGui::MenuItem("Create new Entity"))
+        {
+            scene->CreateEntity("New entity");
+        }
+
+        ImGui::EndPopup();
+    }
+
+    scene->registry.each([&](auto id)
+                         {
+                             std::shared_ptr<Entity> entity = std::make_shared<Entity>(id, scene.get());
+                             auto& nameComponent = entity->template GetComponent<NameComponent>();
+                             std::string label = nameComponent.name + "##" + std::to_string(nameComponent.id.Get());
+
+                             static int entitiesCount = 30;
+                             float bWidth  = ImGui::GetWindowWidth();
+                             float bHeight = ImGui::GetWindowHeight() / static_cast<float>(entitiesCount);
+                             float minHeight = 17.0f;
+
+                             if(ImGui::Button(label.c_str(), ImVec2(bWidth, bHeight > minHeight ? bHeight : minHeight)))
+                             {
+                                 selectedEntity = entity;
+                             }
+                         });
+
+    // drop selected entity
+    if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered() && selectedEntity)
+        selectedEntity = nullptr;
+
+    ImGui::End();
+}
+
+void EditorLayer::RenderViewportPanel(bool& isOpen, std::unique_ptr<Scene>& scene)
+{
+    if( !isOpen ) { return; }
+
+    // adding scene viewport
+    ImGui::Begin("Scene viewport", &isOpen);
+    if(!scene->HasPrimaryCamera())
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::Image(reinterpret_cast<void*>(Renderer::GetRenderedImage()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+
+    // drop selected entity
+    if (ImGui::IsMouseDown(1) && ImGui::IsWindowHovered())
+    {
+        EventsHandler::ToggleCursor(true);
+    }
+
+    if(selectedEntity)
+    {
+        auto& transformComponent = selectedEntity->GetComponent<TransformComponent>();
+
+        auto primCamera = scene->GetPrimaryCamera();
+
+        auto& sceneCamera = primCamera.GetComponent<CameraComponent>().camera;
+        auto& sceneCameraPosition = primCamera.GetComponent<TransformComponent>().translation;
+
+        auto selEntityTransform = transformComponent.GetTransform();
+
+        glm::mat4 cameraProj = sceneCamera.GetProjection();
+        glm::mat4 cameraView = sceneCamera.GetView(sceneCameraPosition);
+
+        ImGuizmo::SetOrthographic(false);
+        ImGuizmo::SetDrawlist();
+
+        ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowWidth(), ImGui::GetWindowHeight());
+
+        static float deltaMove = 1.0f;
+
+        switch((ImGuizmo::OPERATION) selectedOperation)
+        {
+            case ImGuizmo::OPERATION::ROTATE:
+                deltaMove = 5.0f;
+                break;
+            case ImGuizmo::OPERATION::TRANSLATE:
+                deltaMove = 0.5f;
+                break;
+            case ImGuizmo::OPERATION::SCALE:
+                deltaMove = 0.1f;
+                break;
+            default:
+                break;
+        }
+
+
+        float snapVals[3] = {deltaMove, deltaMove, deltaMove};
+
+        ImGuizmo::Manipulate(glm::value_ptr(cameraView),
+                             glm::value_ptr(cameraProj),
+                             (ImGuizmo::OPERATION) selectedOperation,
+                             ImGuizmo::LOCAL,
+                             glm::value_ptr(selEntityTransform),
+                             nullptr,
+                             EventsHandler::IsPressed(Key::LeftAlt) ? snapVals : nullptr);
+
+        if (ImGuizmo::IsUsing())
+        {
+            glm::vec3 translation, rotation, scale;
+            ImGuizmo::DecomposeMatrixToComponents(
+                    glm::value_ptr(selEntityTransform),
+                    glm::value_ptr(translation),
+                    glm::value_ptr(rotation),
+                    glm::value_ptr(scale)
+            );
+
+            auto deltaRot = rotation - transformComponent.rotation;
+
+            transformComponent.translation = translation;
+            transformComponent.rotation = rotation;
+            transformComponent.scale = scale;
+        }
+    }
+
+    ImGui::End();
+}
+
+void EditorLayer::RenderSettingsPanel(bool& isOpen)
+{
+    if( !isOpen ) { return; }
+
+    ImGui::Begin("Settings", &isOpen);
+    ImGui::Text("Frame time: %f ms", Global::GetWorldDeltaTime() * 1000);
+    ImGui::Text("Total frames: %ul", Global::GetTotalFrames());
+    ImGui::Text("Current resolution: %u x %u", Renderer::GetFboWidth(), Renderer::GetFboHeight());
+    ImGui::Text("Frame rate: %f FPS", 1.0f / Global::GetWorldDeltaTime());
+    ImGui::ColorPicker3("Clear color", (float *)&Renderer::clearColor);
+    ImGui::Checkbox("Should draw final results to the FBO (Shift + F2)", &Renderer::shouldDrawFinalToFBO);
+    ImGui::Checkbox("Should apply post process effects", &Renderer::isPostProcessingActivated);
+
+    ImGui::Separator();
+    ImGui::Text("Gizmos current operation:");
+
+    if(ImGui::RadioButton("Move", selectedOperation == ImGuizmo::OPERATION::TRANSLATE))
+    {
+        selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
+    }
+
+    if(ImGui::RadioButton("Rotate", selectedOperation == ImGuizmo::OPERATION::ROTATE))
+    {
+        selectedOperation = ImGuizmo::OPERATION::ROTATE;
+    }
+
+    if(ImGui::RadioButton("Scale", selectedOperation == ImGuizmo::OPERATION::SCALE))
+    {
+        selectedOperation = ImGuizmo::OPERATION::SCALE;
+    }
+
+    ImGui::Text("Is snapping enabled: ");
+    ImGui::SameLine();
+    if (EventsHandler::IsPressed(Key::LeftAlt))
+    {
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.24f, 1.0f), "ON");
+    }
+    else
+    {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "OFF");
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Lighting settings:");
+
+    if(ImGui::RadioButton("Dynamic", Renderer::lightingType == LightingType::Dynamic))
+    {
+        Renderer::lightingType = LightingType::Dynamic;
+    }
+
+    if(ImGui::RadioButton("Baked", Renderer::lightingType == LightingType::Baked))
+    {
+        Renderer::lightingType = LightingType::Baked;
+    }
+
+    if(Renderer::lightingType == LightingType::Baked && ImGui::Button("Bake lighting"))
+    {
+        LOG(DEBUG) << "Lighting baking requested";
+    }
+
+    ImGui::SliderFloat("Base offset", &Renderer::baseOffset, 0.0f, 100.0f);
+    ImGui::SliderFloat("Delta offset", &Renderer::deltaOffset, 0.0f, 100.0f);
+    ImGui::SliderFloat("Factor multiplier", &Renderer::factorMultiplier, 0.0f, 100.0f);
+    for(int i = 0; i < Renderer::GetCascadesCount(); i++)
+    {
+        ImGui::Text("Cascade level[%d]", i);
+        ImGui::InputFloat(("##cascade_level_" + std::to_string(i)).c_str(), &Renderer::cascadeLevels.at(i));
+    }
+    ImGui::End();
+}
+
+void EditorLayer::RenderBrowserPanel(bool& isOpen)
+{
+    if( !isOpen ) { return; }
+
+    ImGui::Begin("Opened directory:", &isOpen);
+    ImGui::TextWrapped(curDirectory.string().c_str());
+    if(ImGui::Button("<-"))
+    {
+        curDirectory = curDirectory.parent_path();
+    }
+
+    static int buttonsPerRow = 5;
+
+    float buttonWidth = ImGui::GetContentRegionAvail().x / static_cast<float>(buttonsPerRow);
+    float buttonHeight = ImGui::GetFontSize() + 5.0f;
+
+    ImGui::Columns(buttonsPerRow, nullptr, false);
+
+    for(const auto& item : std::filesystem::directory_iterator(curDirectory))
+    {
+        std::string itemFilenameStr = item.path().filename().string();
+        const char * itemFilename = itemFilenameStr.c_str();
+        ImGui::Button(itemFilename, ImVec2(buttonWidth, buttonHeight));
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+        {
+            if(item.is_directory())
+            {
+                curDirectory = item;
+            }
+        }
+        if (ImGui::BeginDragDropSource() && !item.is_directory())
+        {
+            auto relPathStr = std::filesystem::relative(item.path()).string();
+            auto relPath = relPathStr.c_str();
+
+            if(relPathStr.length() > 32)
+            {
+                LOG(WARNING) << "Path is too long\n";
+            }
+
+            // adding one to catch null terminator to the passed string
+            ImGui::SetDragDropPayload("FILE_SELECTED", relPath, (relPathStr.length() + 1) * sizeof(const char));
+            ImGui::EndDragDropSource();
+        }
+
+        ImGui::NextColumn();
+    }
+    ImGui::Columns();
+    ImGui::SliderInt("BPR", &buttonsPerRow, 1, 20);
+    ImGui::End();
+}
+
 
 void EditorLayer::ImGuiEndFrame()
 {
@@ -531,6 +575,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
 
 void EditorLayer::OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent> &event)
 {
+    bool isShiftPressed = EventsHandler::IsPressed(Key::LeftShift);
     bool isControlPressed = EventsHandler::IsPressed(Key::LeftControl);
     switch (event->GetKeyCode())
     {

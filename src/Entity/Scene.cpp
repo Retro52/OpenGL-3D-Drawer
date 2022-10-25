@@ -67,7 +67,17 @@ void Scene::LoadScene(const std::string &loadPath)
     std::ifstream is(loadPath);
     GAME_ASSERT(is.is_open(), "Failed to open scene: " + loadPath);
 
-    json data = json::parse(is);
+    json data;
+    try
+    {
+         data = json::parse(is);
+    }
+    catch(std::exception& e)
+    {
+        LOG(WARNING) << "Unable to parse " << loadPath << " file to load scene";
+        return;
+    }
+
     GAME_ASSERT(!data.empty(), "Failed to open scene: " + loadPath);
 
     if (!data["Name"].is_null())

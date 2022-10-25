@@ -102,8 +102,15 @@ void Renderer::ShutDown()
 void Renderer::Prepare(Scene &scene, int drawMode)
 {
     std::shared_ptr<Shader>& mShader = ResourcesManager::GetShader("mainShader");
-    auto& cameraComponent = scene.GetPrimaryCamera().GetComponent<CameraComponent>();
-    auto& cameraTransform = scene.GetPrimaryCamera().GetComponent<TransformComponent>();
+
+    if(!scene.HasPrimaryCamera())
+    {
+        return;
+    }
+
+    auto primaryCamera = scene.GetPrimaryCamera();
+    auto& cameraComponent = primaryCamera.GetComponent<CameraComponent>();
+    auto& cameraTransform = primaryCamera.GetComponent<TransformComponent>();
 
     cameraComponent.UpdateCamera(cameraTransform.rotation);
     glm::mat4 cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
@@ -141,7 +148,6 @@ void Renderer::Prepare(Scene &scene, int drawMode)
     catch(const InGameException& e)
     {
         mShader->setBool("dirLight.isPresent", false);
-        LOG(WARNING) << "Failed to bind directional light. Reason: " << e.what();
     }
 
     int idx = -1;

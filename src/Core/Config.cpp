@@ -16,7 +16,6 @@ void Config::LoadIni(const std::string &configPath)
     LOG(INFO) << "Start loading "<< configPath << " file";
     int windowHeight           = 900;
     int windowWidth            = 1200;
-    int shadowsResolution      = 1024;
 
     bool windowFullScreen  = false;
     std::string windowName        = "OpenGL Drawer";
@@ -44,7 +43,6 @@ void Config::LoadIni(const std::string &configPath)
     windowHeight = windowHeight > 399 ? windowHeight : 400;
 
     inipp::get_value(ini.sections["SHADERS"], "shadersConfigPath", shadersConfigPath);
-    inipp::get_value(ini.sections["SHADOWS"], "shadowsResolution", shadowsResolution);
 
     is.close();
     LOG(INFO) << configPath << " successfully loaded";

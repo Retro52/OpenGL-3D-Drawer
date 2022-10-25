@@ -14,6 +14,7 @@ class Entity;
 class Scene
 {
 public:
+    Scene() = default;
     explicit Scene(const std::string& path);
     ~Scene();
 
@@ -42,6 +43,19 @@ public:
      */
     Entity GetPrimaryCamera();
 
+    bool HasPrimaryCamera()
+    {
+        auto view = registry.view<CameraComponent>();
+        for (auto entity : view)
+        {
+            const auto& camera = view.get<CameraComponent>(entity);
+            if (camera.isPrimary)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * @return scene directional light. Several directional lights leads to UB
      */
