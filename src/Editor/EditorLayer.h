@@ -54,8 +54,9 @@ private:
     void RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& scene);
 
 private:
-    std::shared_ptr<Entity> selectedEntity;
     std::filesystem::path curDirectory;
+    std::shared_ptr<Mesh> selectedMesh = nullptr;
+    std::shared_ptr<Entity> selectedEntity = nullptr;
 
     int selectedOperation;
 };

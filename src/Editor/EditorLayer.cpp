@@ -541,10 +541,21 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
 
                 }
 
-
                 ImGui::Checkbox("Casts shadow", &modelComponent.castsShadow);
                 ImGui::Checkbox("Should be lit", &modelComponent.shouldBeLit);
                 ImGui::SliderInt("Tiling factor", &modelComponent.tilingFactor, 1, 100);
+
+                if(ImGui::CollapsingHeader("Model meshes: "))
+                {
+                    for (const auto& mesh : modelComponent.model.meshes)
+                    {
+                        if(ImGui::Button(mesh->name.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 16)))
+                        {
+                            selectedMesh = mesh;
+                        }
+                        ImGui::Separator();
+                    }
+                }
             }
         }
 
@@ -582,6 +593,25 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                 cameraComponent.camera.SetFieldOfView(glm::radians(fov));
             }
         }
+
+        ImGui::End();
+    }
+
+    if(selectedMesh)
+    {
+        ImGui::Begin("Mesh properties");
+        ImGui::InputText("Name: ", &selectedMesh->name);
+        ImGui::Separator();
+        ImGui::Text("Material");
+
+        auto& material = selectedMesh->material;
+        ImGui::SliderFloat("Opacity: ", &material.opacity, 0.0f, 1.0f);
+        ImGui::ColorPicker3("Material color: ", (float *) &material.defaultColor);
+
+//        for (auto& [type, texture] : material.materialTextures)
+//        {
+//
+//        }
 
         ImGui::End();
     }

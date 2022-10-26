@@ -88,10 +88,10 @@ private:
 
 public:
     std::string path;
+    std::vector<std::shared_ptr<Mesh>> meshes;
 
 private:
     bool gammaCorrection;
     std::string directory;
-    std::vector<std::shared_ptr<Mesh>> meshes;
 };
 #endif

@@ -124,5 +124,5 @@ std::shared_ptr<Mesh> Model::ProcessMesh(aiMesh * mesh, const aiScene * scene)
     }
 
     // return a mesh object created from the extracted mesh data
-    return std::make_shared<Mesh>(vertices, indices, Material(scene->mMaterials[mesh->mMaterialIndex], directory));
+    return std::make_shared<Mesh>(vertices, indices, Material(scene->mMaterials[mesh->mMaterialIndex], directory), mesh->mName.C_Str());
 }

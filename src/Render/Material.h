@@ -134,6 +134,11 @@ public:
      */
     void Bind(const Shader& shader, GLuint shadowTexture) const;
 
+public:
+    float opacity;
+    glm::vec3 defaultColor;
+    std::unordered_map<TextureType, TextureStack> materialTextures;
+
 private:
     /**
      * Loads all mterial textures
@@ -144,13 +149,8 @@ private:
      */
     void LoadTextures(const aiMaterial * material, const std::string& directory, aiTextureType aiType, TextureType texType);
 
-    glm::vec3 defaultColor;
-    std::unordered_map<TextureType, TextureStack> materialTextures;
-
     static std::vector<std::shared_ptr<Texture>> texturesLoaded;
 
-    float opacity;
-    float tilingFactor = 1.0f;
     bool isTwoSided = false;
 };
 #endif //GRAPHICS_MATERIAL_H

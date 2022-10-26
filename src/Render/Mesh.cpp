@@ -6,7 +6,7 @@
 
 #include <utility>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, const Material& material) : vertices(std::move(vertices)), indices(std::move(indices)), material(material)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, const Material& material, std::string name) : vertices(std::move(vertices)), indices(std::move(indices)), material(material), name(std::move(name))
 {
     SetUpMesh();
 }

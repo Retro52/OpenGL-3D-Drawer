@@ -125,7 +125,6 @@ void Material::Bind(const Shader& shader, GLuint shadowTexture) const
     unsigned int texturesCount = 0;
     shader.setVec3("material.colorDiffuse", defaultColor);
     shader.setFloat("material.opacity", opacity);
-    shader.setFloat("material.tilingFactor", tilingFactor);
 
     if (materialTextures.at(Diffuse).empty())
     {
