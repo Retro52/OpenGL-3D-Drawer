@@ -55,7 +55,6 @@ public:
      */
     static unsigned long GetTotalFrames();
 private:
-    static int drawMode;
     static unsigned long totalFrames;
     static double lastTime, deltaTime;
     static bool shouldDrawMesh, shouldDrawLights, shouldDrawAxis, shouldDrawOutline;

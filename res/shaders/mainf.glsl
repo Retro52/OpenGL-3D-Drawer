@@ -164,7 +164,7 @@ void main()
 
 	if(drawMode == 9)
 	{
-		FragColor = vec4(texture(material.mapShadow, vec3(textureCoordinates, 1)).rgb, 1);
+		FragColor = vec4(texture(material.mapRoughness_1, textureCoordinates).rgb, 1);
 		return;
 	}
 	if(!material.shouldBeLit)

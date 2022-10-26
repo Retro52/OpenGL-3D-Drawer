@@ -151,6 +151,18 @@ void EditorLayer::DrawImGuiTest()
             ImGui::Checkbox("Folder content", &isFolderContentOpened);
             ImGui::EndMenu();
         }
+
+        if (ImGui::BeginMenu("Viewport draw mode"))
+        {
+            for(int i = 0; i < 10; i++)
+            {
+                if(ImGui::RadioButton(Renderer::CurDrawModeToString(i).c_str(), Renderer::drawMode == i))
+                {
+                    Renderer::drawMode = i;
+                }
+            }
+            ImGui::EndMenu();
+        }
     }
 
     auto& scene = ResourcesManager::GetPlayerScene();
@@ -468,7 +480,9 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         ImGui::PushItemWidth(-1);
 
         if (ImGui::Button("Add Component"))
+        {
             ImGui::OpenPopup("AddComponent");
+        }
 
         if (ImGui::BeginPopup("AddComponent"))
         {
@@ -596,7 +610,7 @@ void EditorLayer::OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent> &ev
                 break;
             }
         case Key::D:
-            if (!isControlPressed && EventsHandler::_cursor_locked)
+            if (!isControlPressed || EventsHandler::_cursor_locked)
             {
                 break;
             }

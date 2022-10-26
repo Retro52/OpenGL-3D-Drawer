@@ -2,7 +2,47 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
-    "Entity8" : 
+    "Entity7" : 
+    {
+      "Name" : 
+      {
+        "Name" : "GraphicsTEst"
+      },
+      "Transform" : 
+      {
+        "Position" : [8.45863, 0, -24.383],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/source/AC_Unit/AC_Unit.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity6" : 
+    {
+      "Name" : 
+      {
+        "Name" : "backpack"
+      },
+      "Transform" : 
+      {
+        "Position" : [29.1205, 0, 0],
+        "Rotation" : [0, -764.153, -0.00646498],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/backpack/backpack.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity5" : 
     {
       "Name" : 
       {
@@ -22,36 +62,7 @@
         "tilingFactor" : 20
       }
     },
-    "Entity7" : 
-    {
-      "Name" : 
-      {
-        "Name" : "PL1_copy"
-      },
-      "Transform" : 
-      {
-        "Position" : [5.02131, 20.7595, 0.829443],
-        "Rotation" : [0.0404959, 0.0836795, 0.084999],
-        "Scale" : [0.05, 0.05, 0.05]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/bulb.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Point light" : 
-      {
-        "Linear" : 0.09,
-        "Ambient" : [0.5, 0.5, 0.5],
-        "Diffuse" : [0.5, 0.5, 0.5],
-        "Constant" : 0.3,
-        "Specular" : [0.5, 0.5, 0.5],
-        "Quadratic" : 0.012
-      }
-    },
-    "Entity6" : 
+    "Entity4" : 
     {
       "Name" : 
       {
@@ -80,7 +91,7 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity5" : 
+    "Entity3" : 
     {
       "Name" : 
       {
@@ -88,8 +99,8 @@
       },
       "Transform" : 
       {
-        "Position" : [251.133, 252.177, -291.446],
-        "Rotation" : [-26.4273, 492.824, 0],
+        "Position" : [9.10106, 1.4174, -22.5394],
+        "Rotation" : [-8.84386, -1433.25, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -99,7 +110,7 @@
         "Aspect" : [16, 9]
       }
     },
-    "Entity4" : 
+    "Entity2" : 
     {
       "Name" : 
       {
@@ -108,8 +119,8 @@
       "Transform" : 
       {
         "Position" : [0, 48.3869, 0],
-        "Rotation" : [-148.397, 182.535, 0],
-        "Scale" : [1, 1, 1]
+        "Rotation" : [50, 22.6339, -162.695],
+        "Scale" : [0.999995, 0.999997, 1]
       },
       "Model3D" : 
       {
@@ -120,55 +131,9 @@
       },
       "Directional light" : 
       {
-        "Ambient" : [0.8, 0.8, 0.8],
-        "Diffuse" : [0.8, 0.8, 0.8],
-        "Specular" : [0.5, 0.5, 0.5]
-      }
-    },
-    "Entity3" : 
-    {
-      "Name" : 
-      {
-        "Name" : "backpack"
-      },
-      "Transform" : 
-      {
-        "Position" : [29.1205, 0, 0],
-        "Rotation" : [0, -764.153, -0.00646498],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/backpack/backpack.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      }
-    },
-    "Entity2" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Directional light_copy"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, 48.3869, 0],
-        "Rotation" : [-148.397, 182.535, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/sun.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Directional light" : 
-      {
-        "Ambient" : [0.8, 0.8, 0.8],
-        "Diffuse" : [0.8, 0.8, 0.8],
-        "Specular" : [0.5, 0.5, 0.5]
+        "Ambient" : [0, 0, 0],
+        "Diffuse" : [0.478431, 0.478431, 0.478431],
+        "Specular" : [1, 1, 1]
       }
     },
     "Entity1" : 

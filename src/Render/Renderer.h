@@ -48,7 +48,7 @@ public:
      * @param scene scene to render
      * @param drawMode global drawMode, see Global class for reference
      */
-    static void Prepare(Scene& scene, int drawMode);
+    static void Prepare(Scene& scene);
 
     /**
      * Renders scene to the color buffer
@@ -148,6 +148,35 @@ public:
     static inline unsigned int GetFboHeight() { return fboHeight; }
 
     static inline int GetCascadesCount() { return cascadesCount; }
+
+    static std::string CurDrawModeToString(int dM = drawMode)
+    {
+        switch (dM)
+        {
+            case 0:
+                return "Wireframe";
+            case 1:
+                return "Lit";
+            case 2:
+                return "Lighting only";
+            case 3:
+                return "Directional lighting only";
+            case 4:
+                return "Point lighting only";
+            case 5:
+                return "Diffuse map view";
+            case 6:
+                return "Normal map view";
+            case 7:
+                return "Specular map view";
+            case 8:
+                return "Shadows factor";
+            case 9:
+                return "Roughness map view";
+            default:
+                return std::to_string(drawMode);
+        }
+    }
 private:
     static std::vector<glm::vec4> getFrustumCornersWorldSpace(const glm::mat4& projview);
 
@@ -157,6 +186,7 @@ private:
 
     static glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane, float zoom, float aspectRatio, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix);
 public:
+    static int drawMode;
     static glm::vec3 clearColor;
     static bool isPostProcessingActivated, shouldDrawFinalToFBO;
 
@@ -184,6 +214,7 @@ private:
     friend class RendererIniSerializer;
 };
 
+inline int Renderer::drawMode = 1;
 inline glm::vec3 Renderer::clearColor;
 inline bool Renderer::shouldDrawFinalToFBO = true;
 inline bool Renderer::isPostProcessingActivated = true;

@@ -99,7 +99,7 @@ void Renderer::ShutDown()
     RendererIniSerializer::SerializeRendererSettings();
 }
 
-void Renderer::Prepare(Scene &scene, int drawMode)
+void Renderer::Prepare(Scene &scene)
 {
     std::shared_ptr<Shader>& mShader = ResourcesManager::GetShader("mainShader");
 
@@ -116,10 +116,10 @@ void Renderer::Prepare(Scene &scene, int drawMode)
     glm::mat4 cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
 
     mShader->Use();
-    mShader->setInt("drawMode", drawMode);
     mShader->setMat4("view", cameraView);
-    mShader->setMat4("projection", cameraComponent.GetCameraProjection());
+    mShader->setInt("drawMode", drawMode);
     mShader->setVec3("ProjPos", cameraTransform.translation);
+    mShader->setMat4("projection", cameraComponent.GetCameraProjection());
 
     try
     {
@@ -137,8 +137,8 @@ void Renderer::Prepare(Scene &scene, int drawMode)
         lightMatricesUBO->FillData(lightMatrices);
         lightMatricesUBO->Reset();
 
-        mShader->setInt("cascadeCount", (int) cascadeLevels.size());
         mShader->setFloat("farPlane", camera.GetFarPlane());
+        mShader->setInt("cascadeCount", (int) cascadeLevels.size());
 
         for (size_t i = 0; i < cascadeLevels.size(); ++i)
         {
@@ -164,6 +164,16 @@ void Renderer::Prepare(Scene &scene, int drawMode)
 
 void Renderer::Render(Scene &scene)
 {
+    // enabling wireframe if necessary
+    if(drawMode == 0)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
     const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
     auto& shader = ResourcesManager::GetShader("mainShader");
     shader->Use();

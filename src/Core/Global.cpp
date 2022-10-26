@@ -12,38 +12,9 @@
 double Global::lastTime;
 double Global::deltaTime;
 
-int Global::drawMode = 1;
 
 unsigned long Global::totalFrames = 0;
 
-std::string drawModeToString(int drawMode)
-{
-    switch (drawMode)
-    {
-        case 0:
-            return "";
-        case 1:
-            return "Lit";
-        case 2:
-            return "Lighting only";
-        case 3:
-            return "Directional lighting only";
-        case 4:
-            return "Point lighting only";
-        case 5:
-            return "Diffuse map view";
-        case 6:
-            return "Normal map view";
-        case 7:
-            return "Specular map view";
-        case 8:
-            return "";
-        case 9:
-            return "Roughness map view";
-        default:
-            return std::to_string(drawMode);
-    }
-}
 
 void Global::Initialize()
 {
@@ -93,51 +64,6 @@ void Global::Tick()
     {
         return;
     }
-    /* Debug features */
-    if(EventsHandler::IsJustPressed(GLFW_KEY_0))
-    {
-        drawMode = 0;
-    }
-    if(EventsHandler::IsJustPressed(GLFW_KEY_1))
-    {
-        drawMode = 1;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_2))
-    {
-        drawMode = 2;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_3))
-    {
-        drawMode = 3;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_4))
-    {
-        drawMode = 4;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_5))
-    {
-        drawMode = 5;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_6))
-    {
-        drawMode = 6;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_7))
-    {
-        drawMode = 7;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_8))
-    {
-        drawMode = 8;
-    }
-    if (EventsHandler::IsJustPressed(GLFW_KEY_9))
-    {
-        drawMode = 9;
-    }
-    if(EventsHandler::IsJustPressed(GLFW_KEY_R))
-    {
-        ResourcesManager::RegisterPlayerScene("../res/scenes/defaultScene.json");
-    }
 }
 
 double Global::GetWorldDeltaTime()
@@ -149,7 +75,7 @@ void Global::Draw()
 {
     auto& curScene = * ResourcesManager::GetPlayerScene();
     /* Preparing renderer for the new frame */
-    Renderer::Prepare(curScene, drawMode);
+    Renderer::Prepare(curScene);
 
     if(Renderer::lightingType == LightingType::Dynamic)
     {
@@ -170,14 +96,6 @@ void Global::Draw()
     Renderer::Clear();
     Renderer::EnableDepthTesting();
 
-    if(drawMode == 4)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    }
-    else
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
 
     Renderer::Render(curScene);
 
