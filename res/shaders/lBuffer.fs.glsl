@@ -85,10 +85,10 @@ void main()
 
     vec3 viewDirection = normalize((ProjPos - fragPosition));
 
-    vec3 diffuseLighting;
-    vec3 ambientLighting;
-    vec3 specularLighting;
-    float shadowFactor;
+    float shadowFactor = 0.0f;
+    vec3 diffuseLighting  = vec3(0.0, 0.0, 0.0);
+    vec3 ambientLighting  = vec3(0.0, 0.0, 0.0);
+    vec3 specularLighting = vec3(0.0, 0.0, 0.0);
 
     if (dLight.isPresent)
     {
@@ -134,7 +134,7 @@ vec3 CalculateDirectionalDiffuseLighting(DirectionalLight light, vec3 normal, ve
 
     // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
-    return light.diffuse * diff + light.ambient;
+    return light.diffuse * diff;
 }
 
 vec3 CalculateDirectionalAmbientLighting(DirectionalLight light, vec3 normal, vec3 viewDir)
