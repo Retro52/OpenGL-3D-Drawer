@@ -9,6 +9,7 @@
 
 #include "glew.h"
 #include <glfw3.h>
+#include <chrono>
 #include "../Core/Window.h"
 #include "../Entity/Entity.h"
 #include "../Entity/Components.h"
@@ -57,8 +58,13 @@ public:
      */
     static void Render(Scene& scene);
 
+    static void RenderQuad()
+    {
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+    }
 
-    static void RenderShadowMaps(Scene &scene);
     /**
      * Renders scene to the depth buffer
      * @param scene scene to render
@@ -99,6 +105,12 @@ public:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
+    static void Clear(const glm::vec3& customColor)
+    {
+        glClearColor(customColor.r, customColor.g, customColor.b, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+
     /**
      * @return rendered frame FBO without post process effects applied
      */
@@ -121,6 +133,12 @@ public:
         }
     }
 
+    static void GeometryPass(Scene &scene);
+
+    static void RenderShadowMaps(Scene &scene);
+
+    static void LightingPass(Scene &scene);
+
     static void ApplyPostProcessing()
     {
         if(shouldDrawFinalToFBO)
@@ -137,10 +155,8 @@ public:
         Clear();
 
         ResourcesManager::GetShader("postProcessShader")->Use();
-        glBindVertexArray(viewportVAO);
-        glBindTexture(GL_TEXTURE_2D, viewportFBO->GetColorTexture()->GetId());
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
+        viewportFBO->GetColorTexture()->Bind();
+        RenderQuad();
         FBO::Reset();
     }
 
@@ -201,9 +217,9 @@ public:
 
 private:
     // main render flow
-    static unsigned int viewportVAO, viewportVBO;
+    static unsigned int quadVAO, quadVBO;
     static unsigned int fboWidth, fboHeight;
-    static std::unique_ptr<FBO> viewportFBO, postProcessFBO;
+    static std::unique_ptr<FBO> viewportFBO, postProcessFBO, gBufferFBO, lBufferFBO;
 
     // shadows
     static std::unique_ptr<FBO> shadowFBO;
@@ -222,8 +238,8 @@ inline LightingType::Type Renderer::lightingType = LightingType::Dynamic;
 
 
 inline unsigned int Renderer::fboWidth = 0, Renderer::fboHeight = 0;
-inline unsigned int Renderer::viewportVAO = 0, Renderer::viewportVBO = 0;
-inline std::unique_ptr<FBO> Renderer::viewportFBO = nullptr, Renderer::postProcessFBO = nullptr, Renderer::shadowFBO = nullptr;
+inline unsigned int Renderer::quadVAO = 0, Renderer::quadVBO = 0;
+inline std::unique_ptr<FBO> Renderer::viewportFBO = nullptr, Renderer::postProcessFBO = nullptr, Renderer::shadowFBO = nullptr, Renderer::gBufferFBO = nullptr, Renderer::lBufferFBO = nullptr;
 inline std::shared_ptr<Texture> Renderer::shadowTexture = nullptr;
 inline int Renderer::shadowMapResolution = 2048, Renderer::cascadesCount = 5;
 

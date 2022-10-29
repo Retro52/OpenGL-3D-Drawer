@@ -5,13 +5,14 @@
 #include <iomanip>
 #include "Material.h"
 #include "../Core/InGameException.h"
+#include "../Core/Profiler.hpp"
 
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 // stores all loaded textures
-std::vector<std::shared_ptr<Texture>> Material::texturesLoaded;
+std::vector<std::shared_ptr<Texture>> Texture::texturesLoaded;
 
 Texture::Texture(const std::string& path, bool /*gamma*/) : path(path)
 {
@@ -52,7 +53,6 @@ Texture::Texture(const std::string& path, bool /*gamma*/) : path(path)
     glTexParameteri(textureType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     LOG(INFO) << "Texture " << path << " loaded, taking " << nrComponents * width * height << " bytes of memory; Generated id: " << id;
-
     stbi_image_free(data);
 }
 
@@ -71,7 +71,7 @@ Texture::Texture(GLsizei width, GLsizei height, unsigned int format, unsigned in
 
     if (!isTextureArray)
     {
-        glTexImage2D(textureType, 0, static_cast<int>(format), width, height, 0, format, pixelType, nullptr);
+        glTexImage2D(textureType, 0, static_cast<GLsizei>(internalFormat), width, height, 0, format, pixelType, nullptr);
     }
     else
     {
@@ -111,6 +111,11 @@ Material::Material(const aiMaterial *material, const std::string &directory)
         opacity = 1.0f;
     }
 
+    if (material->Get(AI_MATKEY_SPECULAR_FACTOR, specular) != AI_SUCCESS)
+    {
+        specular = 0.0f;
+    }
+
     LoadTextures(material, directory, aiTextureType_NORMALS, Normal);
     LoadTextures(material, directory, aiTextureType_DIFFUSE, Diffuse);
     LoadTextures(material, directory, aiTextureType_SPECULAR, Specular);
@@ -119,71 +124,74 @@ Material::Material(const aiMaterial *material, const std::string &directory)
     LoadTextures(material, directory, aiTextureType_OPACITY, Translucency);
 }
 
-void Material::Bind(const Shader& shader, GLuint shadowTexture) const
+void Material::Bind(const std::shared_ptr<Shader>& shader) const
 {
     // bind appropriate textures
     unsigned int texturesCount = 0;
-    shader.setVec3("material.colorDiffuse", defaultColor);
-    shader.setFloat("material.opacity", opacity);
+    shader->setFloat("material.opacity", opacity);
+    shader->setFloat("material.specular", specular);
+    shader->setVec3("material.colorDiffuse", defaultColor);
 
     if (materialTextures.at(Diffuse).empty())
     {
-        shader.setBool("material.hasDiffuseTexture", false);
+        shader->setBool("material.hasDiffuseTexture", false);
         glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-        shader.setInt("material.mapDiffuse_1", (int) texturesCount++);
+        shader->setInt("material.mapDiffuse_1", (int) texturesCount++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
     {
-        shader.setBool("material.hasDiffuseTexture", true);
+        shader->setBool("material.hasDiffuseTexture", true);
         for(const auto& texture : materialTextures.at(Diffuse))
         {
             unsigned int count = 1;
             glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-            shader.setInt("material.mapDiffuse_" + std::to_string(count++), (int) texturesCount++);
+            shader->setInt("material.mapDiffuse_" + std::to_string(count++), (int) texturesCount++);
             glBindTexture(GL_TEXTURE_2D, texture->GetId());
         }
     }
 
     if (materialTextures.at(Normal).empty())
     {
-        shader.setBool("material.hasNormalTexture", false);
+        shader->setBool("material.hasNormalTexture", false);
         glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-        shader.setInt("material.mapNormal_1", (int) texturesCount++);
+        shader->setInt("material.mapNormal_1", (int) texturesCount++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
     {
-        shader.setBool("material.hasNormalTexture", true);
+        shader->setBool("material.hasNormalTexture", true);
         for(const auto& texture : materialTextures.at(Normal))
         {
             unsigned int count = 1;
             glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-            shader.setInt("material.mapNormal_" + std::to_string(count++), (int) texturesCount++);
+            shader->setInt("material.mapNormal_" + std::to_string(count++), (int) texturesCount++);
             glBindTexture(GL_TEXTURE_2D, texture->GetId());
         }
     }
 
     if (materialTextures.at(Specular).empty())
     {
+        shader->setBool("material.hasSpecularTexture", false);
         glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-        shader.setInt("material.mapSpecular_1", (int) texturesCount++);
+        shader->setInt("material.mapSpecular_1", (int) texturesCount++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
     {
+        shader->setBool("material.hasSpecularTexture", true);
         for(const auto& texture : materialTextures.at(Specular))
         {
             unsigned int count = 1;
             glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-            shader.setInt("material.mapSpecular_" + std::to_string(count++), (int) texturesCount++);
+            shader->setInt("material.mapSpecular_" + std::to_string(count++), (int) texturesCount++);
             glBindTexture(GL_TEXTURE_2D, texture->GetId());
         }
     }
     if (materialTextures.at(Roughness).empty())
     {
         glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-        shader.setInt("material.mapRoughness_1", (int) texturesCount++);
+        shader->setInt("material.mapRoughness_1", (int) texturesCount++);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
     else
@@ -192,14 +200,10 @@ void Material::Bind(const Shader& shader, GLuint shadowTexture) const
         {
             unsigned int count = 1;
             glActiveTexture(GL_TEXTURE0 + texturesCount); // active proper texture unit before binding
-            shader.setInt("material.mapRoughness_" + std::to_string(count++), (int) texturesCount++);
+            shader->setInt("material.mapRoughness_" + std::to_string(count++), (int) texturesCount++);
             glBindTexture(GL_TEXTURE_2D, texture->GetId());
         }
     }
-
-    glActiveTexture(GL_TEXTURE0 + texturesCount);
-    shader.setInt("material.mapShadow", (int) texturesCount);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, shadowTexture);
 }
 
 void Material::LoadTextures(const aiMaterial *material, const std::string &directory, aiTextureType aiType, TextureType texType)
@@ -213,11 +217,12 @@ void Material::LoadTextures(const aiMaterial *material, const std::string &direc
         aiString path;
         material->GetTexture(aiType, i, &path);
 
+        // TODO: replace with std::filesystem
         std::string filename;
         if (path.C_Str()[0] != '/' && directory[directory.length() - 1] != '/' &&
             path.C_Str()[0] != '\\' && directory[directory.length() - 1] != '\\')
         {
-            filename = directory + '/' + path.C_Str();
+            filename = directory + '\\' + path.C_Str();
         }
         else
         {
@@ -226,7 +231,7 @@ void Material::LoadTextures(const aiMaterial *material, const std::string &direc
 
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         bool skip = false;
-        for(auto & j : texturesLoaded)
+        for(auto & j : Texture::texturesLoaded)
         {
             if(* j == filename)
             {
@@ -239,7 +244,7 @@ void Material::LoadTextures(const aiMaterial *material, const std::string &direc
         {
             std::shared_ptr<Texture> texture = std::make_shared<Texture>(filename);
             materialTextures[texType].push_back(texture);
-            texturesLoaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessarily load duplicate textures.
+            Texture::texturesLoaded.push_back(texture);  // store it as texture loaded for entire model, to ensure we won't unnecessarily load duplicate textures.
         }
     }
 }

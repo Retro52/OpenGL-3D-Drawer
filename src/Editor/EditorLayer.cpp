@@ -17,6 +17,7 @@
 #include "../Core/Global.h"
 #include "../Input/EventsHandler.h"
 #include "../Core/Utils.hpp"
+#include "../Core/Profiler.hpp"
 #include "../Render/Renderer.h"
 
 void EditorLayer::OnCreate()
@@ -24,6 +25,67 @@ void EditorLayer::OnCreate()
     LoadImGui();
     curDirectory = std::filesystem::current_path();
     selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    style.WindowMinSize        = ImVec2( 160, 20 );
+    style.FramePadding         = ImVec2( 4, 2 );
+    style.ItemSpacing          = ImVec2( 6, 2 );
+    style.ItemInnerSpacing     = ImVec2( 6, 4 );
+    style.Alpha                = 0.95f;
+    style.WindowRounding       = 4.0f;
+    style.FrameRounding        = 2.0f;
+    style.IndentSpacing        = 6.0f;
+    style.ItemInnerSpacing     = ImVec2( 2, 4 );
+    style.ColumnsMinSpacing    = 50.0f;
+    style.GrabMinSize          = 14.0f;
+    style.GrabRounding         = 16.0f;
+    style.ScrollbarSize        = 12.0f;
+    style.ScrollbarRounding    = 16.0f;
+
+    style.Colors[ImGuiCol_Text]                  = ImVec4(0.86f, 0.93f, 0.89f, 0.78f);
+    style.Colors[ImGuiCol_TextDisabled]          = ImVec4(0.86f, 0.93f, 0.89f, 0.28f);
+    style.Colors[ImGuiCol_WindowBg]              = ImVec4(0.13f, 0.14f, 0.17f, 1.00f);
+    style.Colors[ImGuiCol_Border]                = ImVec4(0.31f, 0.31f, 1.00f, 0.00f);
+    style.Colors[ImGuiCol_BorderShadow]          = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    style.Colors[ImGuiCol_FrameBg]               = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    style.Colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+    style.Colors[ImGuiCol_FrameBgActive]         = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_TitleBg]               = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    style.Colors[ImGuiCol_TitleBgCollapsed]      = ImVec4(0.20f, 0.22f, 0.27f, 0.75f);
+    style.Colors[ImGuiCol_TitleBgActive]         = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_MenuBarBg]             = ImVec4(0.20f, 0.22f, 0.27f, 0.47f);
+    style.Colors[ImGuiCol_ScrollbarBg]           = ImVec4(0.20f, 0.22f, 0.27f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrab]         = ImVec4(0.09f, 0.15f, 0.16f, 1.00f);
+    style.Colors[ImGuiCol_ScrollbarGrabHovered]  = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+    style.Colors[ImGuiCol_ScrollbarGrabActive]   = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_CheckMark]             = ImVec4(0.71f, 0.22f, 0.27f, 1.00f);
+    style.Colors[ImGuiCol_SliderGrab]            = ImVec4(0.47f, 0.77f, 0.83f, 0.14f);
+    style.Colors[ImGuiCol_SliderGrabActive]      = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_Button]                = ImVec4(0.47f, 0.77f, 0.83f, 0.14f);
+    style.Colors[ImGuiCol_ButtonHovered]         = ImVec4(0.92f, 0.18f, 0.29f, 0.86f);
+    style.Colors[ImGuiCol_ButtonActive]          = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_Header]                = ImVec4(0.92f, 0.18f, 0.29f, 0.76f);
+    style.Colors[ImGuiCol_HeaderHovered]         = ImVec4(0.92f, 0.18f, 0.29f, 0.86f);
+    style.Colors[ImGuiCol_HeaderActive]          = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_Separator]             = ImVec4(0.14f, 0.16f, 0.19f, 1.00f);
+    style.Colors[ImGuiCol_SeparatorHovered]      = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+    style.Colors[ImGuiCol_SeparatorActive]       = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_ResizeGrip]            = ImVec4(0.47f, 0.77f, 0.83f, 0.04f);
+    style.Colors[ImGuiCol_ResizeGripHovered]     = ImVec4(0.92f, 0.18f, 0.29f, 0.78f);
+    style.Colors[ImGuiCol_ResizeGripActive]      = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_PlotLines]             = ImVec4(0.86f, 0.93f, 0.89f, 0.63f);
+    style.Colors[ImGuiCol_PlotLinesHovered]      = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_PlotHistogram]         = ImVec4(0.86f, 0.93f, 0.89f, 0.63f);
+    style.Colors[ImGuiCol_PlotHistogramHovered]  = ImVec4(0.92f, 0.18f, 0.29f, 1.00f);
+    style.Colors[ImGuiCol_TextSelectedBg]        = ImVec4(0.92f, 0.18f, 0.29f, 0.43f);
+    style.Colors[ImGuiCol_PopupBg]               = ImVec4(0.20f, 0.22f, 0.27f, 0.9f);
+    style.Colors[ImGuiCol_ModalWindowDimBg]      = ImVec4(0.20f, 0.22f, 0.27f, 0.73f);
+    style.Colors[ImGuiCol_Tab]                   = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+    style.Colors[ImGuiCol_TabActive]             = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+    style.Colors[ImGuiCol_TabHovered]            = ImVec4(0.20f, 0.22f, 0.27f, 0.73f);
+    style.Colors[ImGuiCol_TabUnfocused]          = ImVec4(0.09f, 0.15f, 0.16f, 1.00f);
+    style.Colors[ImGuiCol_TabUnfocusedActive]    = ImVec4(0.09f, 0.15f, 0.16f, 1.00f);
 }
 
 void EditorLayer::OnDestroy()
@@ -120,6 +182,8 @@ void EditorLayer::DrawImGuiTest()
                 if(!fname.empty())
                 {
                     ResourcesManager::RegisterPlayerScene(fname);
+                    selectedEntity = nullptr;
+                    selectedMesh = nullptr;
                 }
             }
 
@@ -208,8 +272,16 @@ void EditorLayer::RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& 
                          });
 
     // drop selected entity
-    if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered() && selectedEntity)
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Right) && ImGui::IsWindowHovered() && selectedEntity)
+    {
         selectedEntity = nullptr;
+        selectedMesh = nullptr;
+    }
+    else if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered() && selectedMesh)
+    {
+        selectedMesh = nullptr;
+    }
+
 
     ImGui::End();
 }
@@ -276,7 +348,7 @@ void EditorLayer::RenderViewportPanel(bool& isOpen, std::unique_ptr<Scene>& scen
         ImGuizmo::Manipulate(glm::value_ptr(cameraView),
                              glm::value_ptr(cameraProj),
                              (ImGuizmo::OPERATION) selectedOperation,
-                             ImGuizmo::LOCAL,
+                             ImGuizmo::MODE::WORLD,
                              glm::value_ptr(selEntityTransform),
                              nullptr,
                              EventsHandler::IsPressed(Key::LeftAlt) ? snapVals : nullptr);
@@ -306,12 +378,32 @@ void EditorLayer::RenderSettingsPanel(bool& isOpen)
 {
     if( !isOpen ) { return; }
 
+    float pTime = static_cast<float>(Profiler::prepTimer.duration<std::chrono::nanoseconds>().count()) / 1000000.0f;
+    float cTime = static_cast<float>(Profiler::cpuTimer.duration<std::chrono::nanoseconds>().count()) / 1000000.0f;
+    float gTime = static_cast<float>(Profiler::gTimer.duration<std::chrono::nanoseconds>().count())   / 1000000.0f;
+    float sTime = static_cast<float>(Profiler::sTimer.duration<std::chrono::nanoseconds>().count())   / 1000000.0f;
+    float lTime = static_cast<float>(Profiler::lTimer.duration<std::chrono::nanoseconds>().count())   / 1000000.0f;
+    float ctTotal = cTime + gTime + sTime + lTime + pTime;
+
     ImGui::Begin("Settings", &isOpen);
-    ImGui::Text("Frame time: %f ms", Global::GetWorldDeltaTime() * 1000);
-    ImGui::Text("Total frames: %ul", Global::GetTotalFrames());
+    ImGui::Separator();
     ImGui::Text("Current resolution: %u x %u", Renderer::GetFboWidth(), Renderer::GetFboHeight());
+    ImGui::Text("Total frames: %ul", Global::GetTotalFrames());
     ImGui::Text("Frame rate: %f FPS", 1.0f / Global::GetWorldDeltaTime());
-    ImGui::ColorPicker3("Clear color", (float *)&Renderer::clearColor);
+    ImGui::Text("Total meshes:               %u", Profiler::totalMeshes);
+    ImGui::Text("Total vertices:             %u", Profiler::totalVertices);
+    ImGui::Text("Update time (ms):           %f", cTime);
+    ImGui::Text("Prep time:                  %f", pTime);
+    ImGui::Text("G-pass time (ms):           %f", gTime);
+    ImGui::Text("Shadow rendering time (ms): %f", sTime);
+    ImGui::Text("L-pass time (ms):           %f", lTime);
+    ImGui::Separator();
+    ImGui::Text("Total CPU time:             %f", ctTotal);
+    ImGui::Separator();
+    ImGui::Text("ImGui and SwapBuffers:      %f", Global::GetWorldDeltaTime() * 1000 - ctTotal);
+    ImGui::Separator();
+    ImGui::Text("Total frame time (s):       %f", Global::GetWorldDeltaTime() * 1000);
+    ImGui::Separator();
     ImGui::Checkbox("Should draw final results to the FBO (Shift + F2)", &Renderer::shouldDrawFinalToFBO);
     ImGui::Checkbox("Should apply post process effects", &Renderer::isPostProcessingActivated);
 
@@ -473,6 +565,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         {
             scene->DeleteEntity(* selectedEntity);
             selectedEntity = nullptr;
+            selectedMesh = nullptr;
             return;
         }
 
@@ -498,13 +591,13 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         auto& nameComponent = selectedEntity->GetComponent<NameComponent>();
         auto& transformComponent = selectedEntity->GetComponent<TransformComponent>();
         ImGui::InputText("Name", &nameComponent.name);
-        ImGui::InputFloat3("Position", (float*)&transformComponent.translation);
+        ImGui::DragFloat3("Position", (float*)&transformComponent.translation, 0.1);
 
         glm::vec3 rotation = glm::degrees(transformComponent.rotation);
         ImGui::SliderFloat3("Rotation", (float*)&rotation, 0.0f, 360.0f);
         transformComponent.rotation = glm::radians(rotation);
 
-        ImGui::InputFloat3("Scale", (float*)&transformComponent.scale);
+        ImGui::DragFloat3("Scale", (float*)&transformComponent.scale, 0.05);
 
         if(selectedEntity->HasComponent<Model3DComponent>())
         {
@@ -605,13 +698,52 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         ImGui::Text("Material");
 
         auto& material = selectedMesh->material;
-        ImGui::SliderFloat("Opacity: ", &material.opacity, 0.0f, 1.0f);
+        ImGui::SliderFloat("Specular: ", &material.specular, 0.0, 1.0);
         ImGui::ColorPicker3("Material color: ", (float *) &material.defaultColor);
+        for (auto& [type, textures] : material.materialTextures)
+        {
+            if(textures.empty())
+            {
+                continue;
+            }
+            ImGui::Text(typeid(type).name());
+            for (auto& texture : textures)
+            {
+                ImGui::Image(reinterpret_cast<void*>(texture->GetId()), ImVec2(32, 32));
+                ImGui::SameLine();
+                ImGui::Text(texture->GetPath().c_str());
 
-//        for (auto& [type, texture] : material.materialTextures)
-//        {
-//
-//        }
+                if(ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_SELECTED"))
+                    {
+                        if(payload->Data)
+                        {
+                            bool loaded = false;
+                            for(const auto& tex : Texture::texturesLoaded)
+                            {
+                                if (* tex == ((char *) payload->Data))
+                                {
+                                    loaded = true;
+                                    texture = tex;
+                                    break;
+                                }
+                            }
+                            if(!loaded)
+                            {
+                                texture = std::make_shared<Texture>((char *) payload->Data);
+                            }
+                        }
+                        else
+                        {
+                            LOG(WARNING) << " Accepted payload of type FILE_SELECTED is nullptr\n";
+                        }
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+            }
+            ImGui::Separator();
+        }
 
         ImGui::End();
     }

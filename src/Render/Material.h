@@ -62,6 +62,11 @@ struct Texture
     [[nodiscard]] inline unsigned int GetId() const { return id; }
 
     void Bind() const { glBindTexture(textureType, id); }
+
+    [[nodiscard]] std::string GetPath() const
+    {
+        return path;
+    }
     /**
      * Texture comparison operator
      * @param other other texture`s path
@@ -87,6 +92,9 @@ struct Texture
      * Deleting texture when we are done
      */
     ~Texture();
+public:
+    static std::vector<std::shared_ptr<Texture>> texturesLoaded;
+
 private:
     int width = 0;
     int height = 0;
@@ -106,11 +114,11 @@ public:
      */
     static void UnloadUnusedTextures()
     {
-        for (auto it = texturesLoaded.begin(); it != texturesLoaded.end();)
+        for (auto it = Texture::texturesLoaded.begin(); it != Texture::texturesLoaded.end();)
         {
             if ((* it).use_count() == 1)
             {
-                it = texturesLoaded.erase(it);
+                it = Texture::texturesLoaded.erase(it);
             }
             else
             {
@@ -132,25 +140,23 @@ public:
      * @param shader draw shader
      * @param shadowTexture shadow texture, rendered by ShadowHandler
      */
-    void Bind(const Shader& shader, GLuint shadowTexture) const;
+    void Bind(const std::shared_ptr<Shader>& shader) const;
 
 public:
     float opacity;
+    float specular;
     glm::vec3 defaultColor;
     std::unordered_map<TextureType, TextureStack> materialTextures;
 
 private:
     /**
-     * Loads all mterial textures
+     * Loads all material textures
      * @param material assimp material
      * @param directory material texture directory
      * @param aiType texture type
      * @param texType engine texture type
      */
     void LoadTextures(const aiMaterial * material, const std::string& directory, aiTextureType aiType, TextureType texType);
-
-    static std::vector<std::shared_ptr<Texture>> texturesLoaded;
-
     bool isTwoSided = false;
 };
 #endif //GRAPHICS_MATERIAL_H

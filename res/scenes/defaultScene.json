@@ -2,22 +2,42 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
+    "Entity8" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Plane"
+      },
+      "Transform" : 
+      {
+        "Position" : [16.3157, -0.169248, 54.6001],
+        "Rotation" : [-1.76286e-10, 0.000133619, -4.1999e-08],
+        "Scale" : [0.999975, 1, 0.999975]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
     "Entity7" : 
     {
       "Name" : 
       {
-        "Name" : "GraphicsTEst"
+        "Name" : "GraphicsTest"
       },
       "Transform" : 
       {
-        "Position" : [8.45863, 0, -24.383],
-        "Rotation" : [0, 0, 0],
+        "Position" : [33.7887, 3.79266, 16.3814],
+        "Rotation" : [0, 0, -1.04292e-05],
         "Scale" : [1, 1, 1]
       },
       "Model3D" : 
       {
         "Path" : "../res/assets/source/AC_Unit/AC_Unit.obj",
-        "castsShadow" : false,
+        "castsShadow" : true,
         "shouldBeLit" : true,
         "tilingFactor" : 1
       }
@@ -50,8 +70,8 @@
       },
       "Transform" : 
       {
-        "Position" : [0, -4.74477, 0],
-        "Rotation" : [-180.175, 0, 0],
+        "Position" : [0, -5, 0],
+        "Rotation" : [180, 0, 0],
         "Scale" : [74.5271, 74.5271, 74.5271]
       },
       "Model3D" : 
@@ -70,7 +90,7 @@
       },
       "Transform" : 
       {
-        "Position" : [-7.14514, -1.1234, -25.3236],
+        "Position" : [-4.48129, 0.379132, -28.2727],
         "Rotation" : [-4.27012, 0, 0],
         "Scale" : [0.05, 0.05, 0.05]
       },
@@ -99,8 +119,8 @@
       },
       "Transform" : 
       {
-        "Position" : [11.365, 2.62373, -19.7063],
-        "Rotation" : [-22.0617, -1756.45, 0],
+        "Position" : [-9.32769, 6.12652, 32.6621],
+        "Rotation" : [-5.11246, -3248.62, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -118,9 +138,9 @@
       },
       "Transform" : 
       {
-        "Position" : [0, 48.3869, 0],
-        "Rotation" : [50, 22.6339, -162.695],
-        "Scale" : [0.999995, 0.999997, 1]
+        "Position" : [34.7121, 37.0197, -34.8742],
+        "Rotation" : [50.741, 18.7933, -165.77],
+        "Scale" : [1.00005, 1.00003, 1]
       },
       "Model3D" : 
       {
@@ -132,8 +152,8 @@
       "Directional light" : 
       {
         "Ambient" : [0.478431, 0.478431, 0.478431],
-        "Diffuse" : [0.784314, 0.784314, 0.784314],
-        "Specular" : [1, 1, 1]
+        "Diffuse" : [0.478431, 0.478431, 0.478431],
+        "Specular" : [0.478431, 0.478431, 0.478431]
       }
     },
     "Entity1" : 
@@ -144,16 +164,16 @@
       },
       "Transform" : 
       {
-        "Position" : [0, -3, 0],
-        "Rotation" : [0.166708, 0, 0],
-        "Scale" : [52.1194, 52.1194, 52.1194]
+        "Position" : [7, -3, 3],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [60, 1, 60]
       },
       "Model3D" : 
       {
         "Path" : "../res/assets/brickwall/plane.obj",
         "castsShadow" : true,
         "shouldBeLit" : true,
-        "tilingFactor" : 60
+        "tilingFactor" : 100
       }
     },
     "Entity0" : 
@@ -164,7 +184,7 @@
       },
       "Transform" : 
       {
-        "Position" : [14.9483, -2.94273, 18.1369],
+        "Position" : [12.5566, -2.94273, 17.5596],
         "Rotation" : [0, 0, 0],
         "Scale" : [1, 1, 1]
       },

@@ -22,6 +22,9 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
     if (fullScreen)
     {
         Window::window = glfwCreateWindow(w, h, name.c_str(), glfwGetPrimaryMonitor(), nullptr);
@@ -47,16 +50,17 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, 
         throw InGameException("Failure during GLEW initialization");
     }
 
-    glViewport(0, 0, 2048, 2048);
-    glClearColor(0.0f,0.0f,0.0f,1);
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
     glDepthFunc(GL_LESS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0f, 0.0f, 0.0f, 1);
+
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_MULTISAMPLE);
+//    glEnable(GL_STENCIL_TEST);
+//    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glfwSwapInterval(0);
     Window::width = w;

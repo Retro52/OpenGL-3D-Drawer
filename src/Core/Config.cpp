@@ -69,7 +69,7 @@ void Config::LoadJson(const std::string &jsonConfigPath)
     {
         if(!shader.value()[2].is_null())
         {
-            // re-write with template<typename .. Args>
+            // TODO: re-write with template<typename .. Args>
             ResourcesManager::RegisterShader(shader.key(), shader.value()[0], shader.value()[1], shader.value()[2]);
         }
         else

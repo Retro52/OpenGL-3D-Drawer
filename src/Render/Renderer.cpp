@@ -5,19 +5,18 @@
 #include "UBO.hpp"
 #include "Renderer.h"
 #include "RendererIniSerializer.hpp"
+#include "../Core/Profiler.hpp"
+
 
 std::unique_ptr<UBO<glm::mat4x4, 16>> Renderer::lightMatricesUBO;
 std::vector<float> Renderer::cascadeLevels({ 25.0f, 50.0f, 100.0f, 200.0f, 750.0f });
 
 constexpr float quadVertices[] = {
         // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-        1.0f, -1.0f,  1.0f, 0.0f,
-
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        1.0f, -1.0f,  1.0f, 0.0f,
-        1.0f,  1.0f,  1.0f, 1.0f
+        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 };
 
 void Renderer::Initialize()
@@ -29,7 +28,7 @@ void Renderer::Initialize()
 
     RendererIniSerializer::LoadRendererSettings();
 
-    cascadesCount = cascadeLevels.size();
+    cascadesCount = static_cast<int>(cascadeLevels.size());
     viewportFBO->AddTexture(std::make_shared<Texture>(
             fboWidth,
             fboHeight,
@@ -40,14 +39,7 @@ void Renderer::Initialize()
     ), GL_TEXTURE_2D, GL_COLOR_ATTACHMENT0);
 
 
-    viewportFBO->AddTexture(std::make_shared<Texture>(
-            fboWidth,
-            fboHeight,
-            GL_DEPTH_STENCIL,
-            GL_DEPTH24_STENCIL8,
-            GL_UNSIGNED_INT_24_8,
-            false
-    ), GL_TEXTURE_2D, GL_DEPTH_STENCIL_ATTACHMENT);
+    viewportFBO->GenerateRenderBufferDepthAttachment(static_cast<int>(fboWidth), static_cast<int>(fboHeight));
 
     postProcessFBO->AddTexture(std::make_shared<Texture>(
             fboWidth,
@@ -82,16 +74,61 @@ void Renderer::Initialize()
     shadowFBO->Check();
     shadowFBO->Reset();
 
-    glGenVertexArrays(1, &viewportVAO);
-    glGenBuffers(1, &viewportVBO);
-    glBindVertexArray(viewportVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, viewportVBO);
+    gBufferFBO = std::make_unique<FBO>();
+    lBufferFBO = std::make_unique<FBO>();
+
+    gBufferFBO->AddTexture(
+            std::make_shared<Texture>
+                    (
+                            fboWidth,
+                            fboHeight,
+                            GL_RGBA,
+                            GL_RGBA32F,
+                            GL_FLOAT
+                            ),
+            GL_COLOR_ATTACHMENT0
+            );
+
+    gBufferFBO->AddTexture(
+            std::make_shared<Texture>
+                    (
+                            fboWidth,
+                            fboHeight,
+                            GL_RGBA,
+                            GL_RGBA32F,
+                            GL_FLOAT
+                    ),
+            GL_COLOR_ATTACHMENT1
+    );
+
+    gBufferFBO->AddTexture(
+            std::make_shared<Texture>
+                    (
+                            fboWidth,
+                            fboHeight,
+                            GL_RGBA,
+                            GL_RGBA,
+                            GL_UNSIGNED_BYTE
+                    ),
+            GL_COLOR_ATTACHMENT2
+    );
+
+    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    gBufferFBO->SetDrawBuffer(3, attachments);
+    gBufferFBO->GenerateRenderBufferDepthAttachment(static_cast<int>(fboWidth), static_cast<int>(fboHeight));
+    gBufferFBO->Check();
+    FBO::Reset();
+
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) (2 * sizeof(float)));
-    glBindVertexArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
 }
 
 void Renderer::ShutDown()
@@ -101,7 +138,10 @@ void Renderer::ShutDown()
 
 void Renderer::Prepare(Scene &scene)
 {
-    std::shared_ptr<Shader>& mShader = ResourcesManager::GetShader("mainShader");
+    Clear(glm::vec3(0, 0, 0));
+
+    std::shared_ptr<Shader>& gShader = ResourcesManager::GetShader("gBufferShader");
+    std::shared_ptr<Shader>& lShader = ResourcesManager::GetShader("lBufferShader");
 
     if(!scene.HasPrimaryCamera())
     {
@@ -111,43 +151,35 @@ void Renderer::Prepare(Scene &scene)
     auto primaryCamera = scene.GetPrimaryCamera();
     auto& cameraComponent = primaryCamera.GetComponent<CameraComponent>();
     auto& cameraTransform = primaryCamera.GetComponent<TransformComponent>();
+    const auto& camera = cameraComponent.camera;
 
     cameraComponent.UpdateCamera(cameraTransform.rotation);
-    glm::mat4 cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
+    const auto cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
 
-    mShader->Use();
-    mShader->setMat4("view", cameraView);
-    mShader->setInt("drawMode", drawMode);
-    mShader->setVec3("ProjPos", cameraTransform.translation);
-    mShader->setMat4("projection", cameraComponent.GetCameraProjection());
+    auto sceneDirLight = scene.GetDirectionalLight();
+    const auto& dLight = sceneDirLight.GetComponent<DirectionalLightComponent>().directionalLight;
+    const auto& dlRotation = scene.GetDirectionalLight().GetComponent<TransformComponent>().rotation;
 
-    try
+    auto lightMatrices = getLightSpaceMatrices(camera.GetNearPlane(), camera.GetFarPlane(), camera.GetFieldOfView(), camera.GetAspectRatioFloat(), DirectionalLight::GetDirection(dlRotation), cameraView, cascadeLevels);
+
+    gShader->Use();
+    gShader->setMat4("view", cameraView);
+    gShader->setMat4("projection", cameraComponent.GetCameraProjection());
+
+    lShader->Use();
+    lShader->setInt("drawMode", drawMode);
+    lShader->setMat4("view", cameraView);
+    lShader->setVec3("ProjPos", cameraTransform.translation);
+
+    lShader->setBool("dLight.isPresent", true);
+    lShader->setDirLight(dLight, dlRotation);
+
+    lShader->setFloat("farPlane", camera.GetFarPlane());
+    lShader->setInt("cascadeCount", (int) cascadeLevels.size());
+
+    for (size_t i = 0; i < cascadeLevels.size(); ++i)
     {
-        auto sceneDirLight = scene.GetDirectionalLight();
-        const auto& dirLight = sceneDirLight.GetComponent<DirectionalLightComponent>().directionalLight;
-        const auto& dlRotation = scene.GetDirectionalLight().GetComponent<TransformComponent>().rotation;
-        const auto& camera = cameraComponent.camera;
-
-        std::vector<glm::mat4> lightMatrices = getLightSpaceMatrices(camera.GetNearPlane(), camera.GetFarPlane(), camera.GetFieldOfView(), camera.GetAspectRatioFloat(), DirectionalLight::GetDirection(dlRotation), cameraView, cascadeLevels);
-
-        mShader->setDirLight(dirLight, dlRotation);
-        mShader->setBool("dirLight.isPresent", true);
-
-        lightMatricesUBO->Bind();
-        lightMatricesUBO->FillData(lightMatrices);
-        lightMatricesUBO->Reset();
-
-        mShader->setFloat("farPlane", camera.GetFarPlane());
-        mShader->setInt("cascadeCount", (int) cascadeLevels.size());
-
-        for (size_t i = 0; i < cascadeLevels.size(); ++i)
-        {
-            mShader->setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
-        }
-    }
-    catch(const InGameException& e)
-    {
-        mShader->setBool("dirLight.isPresent", false);
+        lShader->setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
     }
 
     int idx = -1;
@@ -156,10 +188,13 @@ void Renderer::Prepare(Scene &scene)
     {
         idx++;
         auto [t, p] = view.get<TransformComponent, PointLightComponent>(entity);
-        mShader->setPointLight(idx, p.pointLight, t.translation);
+        lShader->setPointLight(idx, p.pointLight, t.translation);
     }
-    mShader->setInt("pointLightsCount", idx + 1);
-    Clear();
+    lShader->setInt("pointLightsCount", idx + 1);
+
+    lightMatricesUBO->Bind();
+    lightMatricesUBO->FillData(lightMatrices);
+    lightMatricesUBO->Reset();
 }
 
 void Renderer::Render(Scene &scene)
@@ -174,17 +209,93 @@ void Renderer::Render(Scene &scene)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
+    Profiler::StartGPass();
+    GeometryPass(scene);
+    Profiler::EndGPass();
+
+    Profiler::StartSPass();
+    RenderShadowMaps(scene);
+    Profiler::EndSPass();
+
+    Profiler::StartLPass();
+    LightingPass(scene);
+    Profiler::EndLPass();
+
+//    glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
+//
+//    ResourcesManager::GetShader("postProcessShader")->Use();
+//    viewportFBO->GetColorTexture()->Bind();
+//    RenderQuad();
+//    FBO::Reset();
+
+//    glBindFramebuffer(GL_READ_FRAMEBUFFER, gBufferFBO->Get());
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+//    // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
+//    // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the
+//    // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
+//    glBlitFramebuffer(0, 0, fboWidth, fboHeight, 0, 0, fboWidth, fboHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+////    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//
+//    FBO::Reset();
+}
+
+void Renderer::GeometryPass(Scene &scene)
+{
     const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
-    auto& shader = ResourcesManager::GetShader("mainShader");
+    auto& shader = ResourcesManager::GetShader("gBufferShader");
+
+    gBufferFBO->Bind();
+    Clear(glm::vec3(0, 0, 0));
+
+    glViewport(0, 0, static_cast<int>(fboWidth), static_cast<int>(fboHeight));
+
     shader->Use();
     for (const auto& entity : view)
     {
         auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
-        shader->Use();
-        shader->setBool("material.shouldBeLit", m.shouldBeLit);
+
         shader->setInt("material.tilingFactor", m.tilingFactor);
-        m.model.Draw(* shader, t.GetTransform(), shadowTexture->GetId());
+        m.model.Draw(shader, t.GetTransform());
     }
+}
+
+void Renderer::LightingPass(Scene &scene)
+{
+    if(!shouldDrawFinalToFBO && !isPostProcessingActivated)
+    {
+        FBO::Reset();
+        glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
+    }
+    else
+    {
+        viewportFBO->Bind();
+        glViewport(0, 0, static_cast<int>(fboWidth), static_cast<int>(fboHeight));
+    }
+
+    Clear(glm::vec3(0, 0, 0));
+
+    auto& lShader = ResourcesManager::GetShader("lBufferShader");
+
+    lShader->Use();
+    lShader->setInt("gNormal", 1);
+    lShader->setInt("gPosition", 0);
+    lShader->setInt("gAlbedoSpec", 2);
+    lShader->setInt("dLight.mapShadow", 3);
+
+    glActiveTexture(GL_TEXTURE0);
+    gBufferFBO->GetTexture(GL_COLOR_ATTACHMENT0)->Bind();
+
+    glActiveTexture(GL_TEXTURE1);
+    gBufferFBO->GetTexture(GL_COLOR_ATTACHMENT1)->Bind();
+
+    glActiveTexture(GL_TEXTURE2);
+    gBufferFBO->GetTexture(GL_COLOR_ATTACHMENT2)->Bind();
+
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, shadowTexture->GetId());
+    glActiveTexture(GL_TEXTURE0);
+    RenderQuad();
+
     FBO::Reset();
 }
 
@@ -215,8 +326,6 @@ void Renderer::RenderShadowMaps(Scene &scene)
 
     shadowFBO->Reset();
 
-    glViewport(0, 0, (int) fboWidth, (int) fboHeight);
-
     // re-enabling cull faces
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -229,14 +338,6 @@ void Renderer::RenderToDepthBuffer(Scene &scene)
     auto& shader = ResourcesManager::GetShader("shadowShader");
     const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
     shader->Use();
-    try
-    {
-        shader->setVec3("lightDir", DirectionalLight::GetDirection(scene.GetDirectionalLight().GetComponent<TransformComponent>().rotation));
-    }
-    catch(const InGameException& e)
-    {
-        LOG(WARNING) << "Failed to set shadow shader light direction. Reason: " << e.what();
-    }
     for (const auto& entity : view)
     {
         auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);

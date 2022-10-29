@@ -8,6 +8,7 @@
 
 #include "Shader.h"
 #include "Material.h"
+#include "../Core/Profiler.hpp"
 
 #include <string>
 #include <vector>
@@ -45,6 +46,9 @@ public:
     /* Cleaning OpenGL stuff */
     ~Mesh()
     {
+        Profiler::totalMeshes--;
+        Profiler::totalVertices -= vertices.size();
+
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
         glDeleteVertexArrays(1, &VAO);
@@ -53,7 +57,7 @@ public:
      * Draws mesh instance
      * @param shader shader to be applied to the instance when drawing
      */
-    void Draw(const Shader &shader, GLuint shadowMap) const;
+    void Draw(const std::shared_ptr<Shader> &shader) const;
 
     /**
      * Draws mesh, without applying any textures, useful for depth buffer draw

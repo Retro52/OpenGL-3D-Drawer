@@ -5,6 +5,7 @@
 #include "imgui.h"
 #include "Global.h"
 #include "Config.h"
+#include "Profiler.hpp"
 #include "../Entity/Entity.h"
 #include "../Render/Renderer.h"
 #include "../Editor/EditorLayer.h"
@@ -35,11 +36,13 @@ void Global::Initialize()
     }
     ResourcesManager::RegisterLayer(std::make_shared<EditorLayer>());
 
-    EventsHandler::ToggleCursor(true);
+    EventsHandler::ToggleCursor(false);
 }
 
 void Global::Tick()
 {
+    Profiler::StartCpu();
+
     totalFrames++;
     /* Updating delta time */
     double curTime = glfwGetTime();
@@ -59,11 +62,6 @@ void Global::Tick()
         }
         tickEvents.pop();
     }
-
-    if(!EventsHandler::_cursor_locked)
-    {
-        return;
-    }
 }
 
 double Global::GetWorldDeltaTime()
@@ -73,15 +71,14 @@ double Global::GetWorldDeltaTime()
 
 void Global::Draw()
 {
+    Profiler::EndCpu();
+    Profiler::StartDrawPrep();
+
     auto& curScene = * ResourcesManager::GetPlayerScene();
     /* Preparing renderer for the new frame */
     Renderer::Prepare(curScene);
 
-    if(Renderer::lightingType == LightingType::Dynamic)
-    {
-        /* Rendering shadow texture */
-        Renderer::RenderShadowMaps(curScene);
-    }
+    Profiler::EndDrawPrep();
 
     if(!Renderer::shouldDrawFinalToFBO && !Renderer::isPostProcessingActivated)
     {
@@ -92,10 +89,6 @@ void Global::Draw()
         /* Binding viewport FBO */
         Renderer::GetViewportFBO()->Bind();
     }
-
-    Renderer::Clear();
-    Renderer::EnableDepthTesting();
-
 
     Renderer::Render(curScene);
 

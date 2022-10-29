@@ -65,6 +65,18 @@ public:
     }
 
     /**
+     * Sets OpenGL glDrawBuffers to given value
+     * @param count number of buffers
+     * @param attachments buffers
+     */
+    inline void SetDrawBuffer(int count, unsigned int * attachments) const
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        glDrawBuffers(count, attachments);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    /**
      * Sets OpenGL glDrawBuffer to given value
      * @param mode glDrawBuffer mode
      */
@@ -117,7 +129,17 @@ public:
         return bufferTextures.at(attachmentType);
     }
 
-    void Check()
+    void GenerateRenderBufferDepthAttachment(int width, int height)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        glGenRenderbuffers(1, &rboId);
+        glBindRenderbuffer(GL_RENDERBUFFER, rboId);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboId);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void Check() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
         GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "WINDOW::ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
@@ -126,6 +148,7 @@ public:
 
 private:
     unsigned int id { 0 };
+    unsigned int rboId { 0 };
     unsigned int colorTextureType = GL_COLOR_ATTACHMENT0;
     std::unordered_map<unsigned int, std::shared_ptr<Texture>> bufferTextures;
 };

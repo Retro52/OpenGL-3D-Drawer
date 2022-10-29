@@ -19,12 +19,12 @@ public:
     /**
      * Creates empty UBO
      */
-    UBO()
+    explicit UBO(int bindingBase = 0)
     {
         glGenBuffers(1, &id);
         glBindBuffer(GL_UNIFORM_BUFFER, id);
         glBufferData(GL_UNIFORM_BUFFER, sizeof(T) * size, nullptr, GL_STATIC_DRAW);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, id);
+        glBindBufferBase(GL_UNIFORM_BUFFER, bindingBase, id);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 

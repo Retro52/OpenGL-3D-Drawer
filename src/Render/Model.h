@@ -40,12 +40,12 @@ public:
      * @param shader shader to apply
      * @param shadowMap directional light shadow map texture
      */
-    void Draw(const Shader &shader, const glm::mat4& model, unsigned int shadowMap) const
+    void Draw(const std::shared_ptr<Shader> &shader, const glm::mat4& model) const
     {
-        shader.setMat4("model", model);
+        shader->setMat4("model", model);
         for(const auto& mesh : meshes)
         {
-            mesh->Draw(shader, shadowMap);
+            mesh->Draw(shader);
         }
     };
 

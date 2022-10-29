@@ -197,6 +197,9 @@ void main()
 
 	finalColor = (diffuseLighting + ambientLighting) * finalColor + specularLighting * texture(material.mapSpecular_1, textureCoordinates).rgb;
 	FragColor = vec4(finalColor, material.opacity);
+
+//	float gamma = 2.2;
+//	FragColor.rgb = pow(FragColor.rgb, vec3(1.0/gamma));
 }
 
 
@@ -308,7 +311,7 @@ float CalculateDirecionalShadowFactor(vec3 lightDir, vec3 normal, vec3 viewDir)
 	{
 		for(int y = -sampleRadius; y <= sampleRadius; ++y)
 		{
-            float randomFactor = clamp(mix(0.0f, 1.0f, rand((projCoords.xy + vec2(x, y)) * depthValue * FragPos.xy)), 0.0f, 1.0f);
+            float randomFactor = (rand((projCoords.xy + vec2(x, y)) * depthValue * FragPos.xy) - .5) * 2;
             float pcfDepth = texture(material.mapShadow, vec3(projCoords.xy + vec2(x + randomFactor, y + randomFactor) * texelSize, layer)).r;
 			shadow += currentDepth > pcfDepth ? 1.0f : 0.0f;
 		}
