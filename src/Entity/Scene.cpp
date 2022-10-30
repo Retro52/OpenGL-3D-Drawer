@@ -38,7 +38,7 @@ Entity Scene::CreateEntity(const std::string& name)
     return e;
 }
 
-Entity Scene::GetPrimaryCamera()
+std::unique_ptr<Entity> Scene::GetPrimaryCamera()
 {
     auto view = registry.view<CameraComponent>();
     for (auto entity : view)
@@ -46,20 +46,20 @@ Entity Scene::GetPrimaryCamera()
         const auto& camera = view.get<CameraComponent>(entity);
         if (camera.isPrimary)
         {
-            return { entity, this };
+            return std::make_unique<Entity>(entity, this);
         }
     }
-    throw InGameException("There are no primary cameras");
+    return nullptr;
 }
 
-Entity Scene::GetDirectionalLight()
+std::unique_ptr<Entity> Scene::GetDirectionalLight()
 {
     auto view = registry.view<DirectionalLightComponent>();
     for (auto entity : view)
     {
-        return { entity, this };
+        return std::make_unique<Entity>(entity, this);
     }
-    throw InGameException("There is no directional light");
+    return nullptr;
 }
 
 void Scene::LoadScene(const std::string &loadPath)
@@ -196,44 +196,6 @@ void Scene::SaveScene(const std::string& savePath)
     JsonSceneSerializer::SaveScene(savePath, this);
 }
 
-Entity Scene::GetSelectedEntity(int& index)
-{
-    auto view = registry.view<TransformComponent>(entt::exclude<CameraComponent, EngineDefaultComponent>);
-    int counter = 0;
-    entt::entity last;
-    for(const auto& entity : view)
-    {
-        if (index == counter)
-        {
-            return { entity, this };
-        }
-        counter++;
-        last = entity;
-    }
-
-    if (index < 0)
-    {
-        index = counter - 1;
-        return { last, this };
-    }
-
-    index = 0;
-    return { * view.begin(), this };
-}
-
-Entity Scene::GetEngineDefault(EngineDefaultTypes target)
-{
-    auto view = registry.view<EngineDefaultComponent>();
-    for (const auto &item: view)
-    {
-        if (view.get<EngineDefaultComponent>(item).type == target)
-        {
-            return { item, this };
-        }
-    }
-    throw InGameException("Engine default type " + std::to_string(target) + " is not registered");
-}
-
 void Scene::OnUpdate(double deltaTime)
 {
     if(!EventsHandler::_cursor_locked)
@@ -249,8 +211,15 @@ void Scene::OnUpdate(double deltaTime)
 
     const float mouseSensitivity = 150.0f;
 
-    auto& t = GetPrimaryCamera().GetComponent<TransformComponent>();
-    auto& c = GetPrimaryCamera().GetComponent<CameraComponent>();
+    auto camera = GetPrimaryCamera();
+
+    if(!camera)
+    {
+        return;
+    }
+
+    auto& t = camera->GetComponent<TransformComponent>();
+    auto& c = camera->GetComponent<CameraComponent>();
     
     if (EventsHandler::IsPressed(Key::LeftShift))
     {
@@ -297,14 +266,9 @@ void Scene::OnUpdate(double deltaTime)
     }
 }
 
-Entity Scene::GetSelectedEntity()
-{
-    return GetSelectedEntity(idx);
-}
-
 Entity Scene::CopyEntity(const Entity &source)
 {
-    Entity newEntity = CreateEntity(source.GetComponent<NameComponent>().name + "_copy");
+    Entity newEntity = CreateEntity(source.GetComponent<NameComponent>().name);
     if (source.HasComponent<TransformComponent>())
     {
         newEntity.GetComponent<TransformComponent>() = source.GetComponent<TransformComponent>();

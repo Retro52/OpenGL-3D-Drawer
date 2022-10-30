@@ -41,12 +41,12 @@ public:
      * Fills UBO with data of T type
      * @param data vector of data to fill
      */
-    void FillData(const std::vector<T>& data) const
+    void FillData(const std::vector<T>& data, int offset = 0) const
     {
         size_t optSize = data.size() < size ? data.size() : size;
-        for (size_t i = 0; i < optSize; ++i)
+        for (size_t i = 0 + offset; i < optSize; ++i)
         {
-            glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(T), sizeof(T), &data[i]);
+            glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(T), sizeof(T), &data.at(i));
         }
     }
 

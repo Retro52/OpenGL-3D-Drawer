@@ -246,9 +246,28 @@ void EditorLayer::RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& 
     // create new entity
     if (ImGui::BeginPopupContextWindow(nullptr, 1))
     {
-        if (ImGui::MenuItem("Create new Entity"))
+        if (ImGui::BeginMenu("Create new entity"))
         {
-            scene->CreateEntity("New entity");
+            if (ImGui::MenuItem("Empty entity"))
+            {
+                scene->CreateEntity("New entity");
+            }
+            if (ImGui::MenuItem("Directional light"))
+            {
+                auto ent = scene->CreateEntity("Directional light");
+                ent.AddComponent<DirectionalLightComponent>();
+            }
+            if (ImGui::MenuItem("Point light"))
+            {
+                auto ent = scene->CreateEntity("Point light");
+                ent.AddComponent<PointLightComponent>();
+            }
+            if (ImGui::MenuItem("Mesh"))
+            {
+                auto ent = scene->CreateEntity("Mesh");
+                ent.AddComponent<Model3DComponent>();
+            }
+            ImGui::EndMenu();
         }
 
         ImGui::EndPopup();
@@ -292,11 +311,6 @@ void EditorLayer::RenderViewportPanel(bool& isOpen, std::unique_ptr<Scene>& scen
 
     // adding scene viewport
     ImGui::Begin("Scene viewport", &isOpen);
-    if(!scene->HasPrimaryCamera())
-    {
-        ImGui::End();
-        return;
-    }
 
     ImGui::Image(reinterpret_cast<void*>(Renderer::GetRenderedImage()), ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 
@@ -312,8 +326,13 @@ void EditorLayer::RenderViewportPanel(bool& isOpen, std::unique_ptr<Scene>& scen
 
         auto primCamera = scene->GetPrimaryCamera();
 
-        auto& sceneCamera = primCamera.GetComponent<CameraComponent>().camera;
-        auto& sceneCameraPosition = primCamera.GetComponent<TransformComponent>().translation;
+        if(!primCamera)
+        {
+            return;
+        }
+
+        auto& sceneCamera = primCamera->GetComponent<CameraComponent>().camera;
+        auto& sceneCameraPosition = primCamera->GetComponent<TransformComponent>().translation;
 
         auto selEntityTransform = transformComponent.GetTransform();
 
@@ -603,6 +622,12 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         {
             if(ImGui::CollapsingHeader("Model 3D"))
             {
+                bool shouldDelete = false;
+                if (ImGui::Button("Delete component"))
+                {
+                    shouldDelete = true;
+                }
+
                 auto& modelComponent = selectedEntity->GetComponent<Model3DComponent>();
                 ImGui::Text("Path: %s", modelComponent.model.path.c_str());
                 if(ImGui::BeginDragDropTarget())
@@ -631,7 +656,6 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                     {
                         LOG(WARNING) << "Failed to reload model. Reason: " << e.what();
                     }
-
                 }
 
                 ImGui::Checkbox("Casts shadow", &modelComponent.castsShadow);
@@ -649,6 +673,11 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                         ImGui::Separator();
                     }
                 }
+
+                if(shouldDelete)
+                {
+                    selectedEntity->RemoveComponent<Model3DComponent>();
+                }
             }
         }
 
@@ -656,10 +685,22 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         {
             if(ImGui::CollapsingHeader("DirectionalLight"))
             {
+                bool shouldDelete = false;
+                if (ImGui::Button("Delete component"))
+                {
+                    shouldDelete = true;
+                }
+
                 auto& dirLightComponent = selectedEntity->GetComponent<DirectionalLightComponent>();
                 ImGui::ColorPicker3("Ambient", (float *)&dirLightComponent.directionalLight.ambient);
                 ImGui::ColorPicker3("Diffuse", (float *)&dirLightComponent.directionalLight.diffuse);
                 ImGui::ColorPicker3("Specular", (float *)&dirLightComponent.directionalLight.specular);
+
+                if(shouldDelete)
+                {
+                    selectedEntity->RemoveComponent<Model3DComponent>();
+                    selectedMesh = nullptr;
+                }
             }
         }
 
@@ -667,10 +708,21 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         {
             if(ImGui::CollapsingHeader("PointLight"))
             {
+                bool shouldDelete = false;
+                if (ImGui::Button("Delete component"))
+                {
+                    shouldDelete = true;
+                }
+
                 auto& pointLightComponent = selectedEntity->GetComponent<PointLightComponent>();
                 ImGui::ColorPicker3("Ambient", (float *)&pointLightComponent.pointLight.ambient);
                 ImGui::ColorPicker3("Diffuse", (float *)&pointLightComponent.pointLight.diffuse);
                 ImGui::ColorPicker3("Specular", (float *)&pointLightComponent.pointLight.specular);
+
+                if(shouldDelete)
+                {
+                    selectedEntity->RemoveComponent<Model3DComponent>();
+                }
             }
         }
 
@@ -678,12 +730,23 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         {
             if(ImGui::CollapsingHeader("Camera"))
             {
+                bool shouldDelete = false;
+                if (ImGui::Button("Delete component"))
+                {
+                    shouldDelete = true;
+                }
+
                 auto& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
                 ImGui::Checkbox("Is primary", &cameraComponent.isPrimary);
                 ImGui::InputFloat2("Aspect ratio", (float *)&cameraComponent.camera.aspectRatio);
                 float fov = glm::degrees(cameraComponent.camera.GetFieldOfView());
                 ImGui::SliderFloat("FOV", &fov, 0, 360);
                 cameraComponent.camera.SetFieldOfView(glm::radians(fov));
+
+                if(shouldDelete)
+                {
+                    selectedEntity->RemoveComponent<Model3DComponent>();
+                }
             }
         }
 

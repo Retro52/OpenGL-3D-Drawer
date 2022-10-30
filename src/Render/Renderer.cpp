@@ -143,24 +143,18 @@ void Renderer::Prepare(Scene &scene)
     std::shared_ptr<Shader>& gShader = ResourcesManager::GetShader("gBufferShader");
     std::shared_ptr<Shader>& lShader = ResourcesManager::GetShader("lBufferShader");
 
-    if(!scene.HasPrimaryCamera())
+    auto primaryCamera = scene.GetPrimaryCamera();
+
+    if(!primaryCamera)
     {
         return;
     }
-
-    auto primaryCamera = scene.GetPrimaryCamera();
-    auto& cameraComponent = primaryCamera.GetComponent<CameraComponent>();
-    auto& cameraTransform = primaryCamera.GetComponent<TransformComponent>();
+    auto& cameraComponent = primaryCamera->GetComponent<CameraComponent>();
+    auto& cameraTransform = primaryCamera->GetComponent<TransformComponent>();
     const auto& camera = cameraComponent.camera;
 
     cameraComponent.UpdateCamera(cameraTransform.rotation);
     const auto cameraView = cameraComponent.GetCameraView(cameraTransform.translation);
-
-    auto sceneDirLight = scene.GetDirectionalLight();
-    const auto& dLight = sceneDirLight.GetComponent<DirectionalLightComponent>().directionalLight;
-    const auto& dlRotation = scene.GetDirectionalLight().GetComponent<TransformComponent>().rotation;
-
-    auto lightMatrices = getLightSpaceMatrices(camera.GetNearPlane(), camera.GetFarPlane(), camera.GetFieldOfView(), camera.GetAspectRatioFloat(), DirectionalLight::GetDirection(dlRotation), cameraView, cascadeLevels);
 
     gShader->Use();
     gShader->setMat4("view", cameraView);
@@ -171,15 +165,29 @@ void Renderer::Prepare(Scene &scene)
     lShader->setMat4("view", cameraView);
     lShader->setVec3("ProjPos", cameraTransform.translation);
 
-    lShader->setBool("dLight.isPresent", true);
-    lShader->setDirLight(dLight, dlRotation);
+    auto sceneDirLight = scene.GetDirectionalLight();
 
-    lShader->setFloat("farPlane", camera.GetFarPlane());
-    lShader->setInt("cascadeCount", (int) cascadeLevels.size());
-
-    for (size_t i = 0; i < cascadeLevels.size(); ++i)
+    if(sceneDirLight)
     {
-        lShader->setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
+        const auto& dLight = sceneDirLight->GetComponent<DirectionalLightComponent>().directionalLight;
+        const auto& dlRotation = scene.GetDirectionalLight()->GetComponent<TransformComponent>().rotation;
+
+        auto lightMatrices = getLightSpaceMatrices(camera.GetNearPlane(), camera.GetFarPlane(), camera.GetFieldOfView(), camera.GetAspectRatioFloat(), DirectionalLight::GetDirection(dlRotation), cameraView, cascadeLevels);
+
+        lShader->setBool("dLight.isPresent", true);
+        lShader->setDirLight(dLight, dlRotation);
+
+        lShader->setFloat("farPlane", camera.GetFarPlane());
+        lShader->setInt("cascadeCount", (int) cascadeLevels.size());
+
+        for (size_t i = 0; i < cascadeLevels.size(); ++i)
+        {
+            lShader->setFloat("cascadePlaneDistances[" + std::to_string(i) + "]", cascadeLevels[i]);
+        }
+
+        lightMatricesUBO->Bind();
+        lightMatricesUBO->FillData(lightMatrices);
+        lightMatricesUBO->Reset();
     }
 
     int idx = -1;
@@ -191,10 +199,6 @@ void Renderer::Prepare(Scene &scene)
         lShader->setPointLight(idx, p.pointLight, t.translation);
     }
     lShader->setInt("pointLightsCount", idx + 1);
-
-    lightMatricesUBO->Bind();
-    lightMatricesUBO->FillData(lightMatrices);
-    lightMatricesUBO->Reset();
 }
 
 void Renderer::Render(Scene &scene)

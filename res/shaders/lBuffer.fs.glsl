@@ -105,7 +105,7 @@ void main()
         specularLighting += CalculatePointSpecularLighting(pointLights[i], normalVector, viewDirection, fragPosition);
     }
 
-    vec3 finalColor = (diffuseLighting + ambientLighting) * diffuseColor + specularLighting * specularFactor;
+    vec3 finalColor = (diffuseLighting + ambientLighting + specularLighting * specularFactor) * diffuseColor;
     if (drawMode == 1)
     {
         FragColor = vec4(finalColor, 1.0);
@@ -148,7 +148,8 @@ vec3 CalculateDirectionalSpecularLighting(DirectionalLight light, vec3 normal, v
 
     // specular shading
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+    float spec = pow(max(dot(halfwayDir, normal), 0.0), 32.0);
+
     return light.specular * spec;
 }
 

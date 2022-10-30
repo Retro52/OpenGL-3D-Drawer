@@ -41,48 +41,18 @@ public:
     /**
      * @return scene primary camera. Several primaries leads to UB
      */
-    Entity GetPrimaryCamera();
+    std::unique_ptr<Entity> GetPrimaryCamera();
 
-    bool HasPrimaryCamera()
-    {
-        auto view = registry.view<CameraComponent>();
-        for (auto entity : view)
-        {
-            const auto& camera = view.get<CameraComponent>(entity);
-            if (camera.isPrimary)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
     /**
      * @return scene directional light. Several directional lights leads to UB
      */
-    Entity GetDirectionalLight();
+    std::unique_ptr<Entity> GetDirectionalLight();
 
     /**
      * Saves current scene
      * @param savePath path to save scene by
      */
     void SaveScene(const std::string& savePath);
-
-    /**
-     * @return scene selected entity
-     */
-    [[nodiscard]] Entity GetSelectedEntity();
-
-    /*
-     * @param index entity index
-     * @return entity by index
-     */
-    [[nodiscard]] Entity GetSelectedEntity(int& index);
-
-    /**
-     * @param type entity type
-     * @return engine default entity
-     */
-    [[nodiscard]] Entity GetEngineDefault(EngineDefaultTypes type);
 
     /**
      * Called every frame

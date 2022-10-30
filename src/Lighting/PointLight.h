@@ -22,8 +22,6 @@ public:
     PointLight(const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad);
     ~PointLight() = default;
 
-    float affectDistance { 500.0f };
-
     float constant;
     float linear;
     float quadratic;
