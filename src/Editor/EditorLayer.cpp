@@ -831,7 +831,7 @@ void EditorLayer::RenderMaterialTextures(TextureStack& stack)
             ImGui::EndDragDropTarget();
         }
 
-        ImGui::PushID(texture->GetId());
+        ImGui::PushID(&stack + 1);
         if(ImGui::Button("-"))
         {
             i = stack.erase(i);
