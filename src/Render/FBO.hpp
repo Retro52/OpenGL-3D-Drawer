@@ -8,8 +8,10 @@
 #define GLEW_STATIC
 #include "glew.h"
 #include "glm/glm.hpp"
+#include "Material.h"
 #include <iostream>
-#include <vector>
+#include <unordered_map>
+#include "../Core/InGameException.h"
 
 class FBO
 {
@@ -40,10 +42,37 @@ public:
      * @param texture texture id
      * @param attachmentType attachment type
      */
-    inline void AddTexture(unsigned int texture, unsigned int attachmentType) const
+    void AddTexture(const std::shared_ptr<Texture>& texture, unsigned int attachmentType)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
-        glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, texture, 0);
+        glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, texture->GetId(), 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        bufferTextures[attachmentType] = texture;
+    }
+
+    void AddTexture(const std::shared_ptr<Texture>& texture, unsigned int textureType, unsigned int attachmentType, bool isColorTexture = false)
+    {
+        if (isColorTexture)
+        {
+            colorTextureType = textureType;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, textureType, texture->GetId(), 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        bufferTextures[attachmentType] = texture;
+    }
+
+    /**
+     * Sets OpenGL glDrawBuffers to given value
+     * @param count number of buffers
+     * @param attachments buffers
+     */
+    inline void SetDrawBuffer(int count, unsigned int * attachments) const
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        glDrawBuffers(count, attachments);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
@@ -80,13 +109,48 @@ public:
     /**
      * Binds current FBO to 0
      */
-    inline void Reset() const
+    static inline void Reset()
     {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    std::shared_ptr<Texture>& GetColorTexture()
+    {
+        return bufferTextures.at(colorTextureType);
+    }
+
+    std::shared_ptr<Texture>& GetDepthStencilTexture()
+    {
+        return bufferTextures.at(GL_DEPTH_STENCIL_ATTACHMENT);
+    }
+
+    std::shared_ptr<Texture>& GetTexture(unsigned int attachmentType)
+    {
+        return bufferTextures.at(attachmentType);
+    }
+
+    void GenerateRenderBufferDepthAttachment(int width, int height)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        glGenRenderbuffers(1, &rboId);
+        glBindRenderbuffer(GL_RENDERBUFFER, rboId);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboId);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    void Check() const
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "WINDOW::ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
 private:
     unsigned int id { 0 };
+    unsigned int rboId { 0 };
+    unsigned int colorTextureType = GL_COLOR_ATTACHMENT0;
+    std::unordered_map<unsigned int, std::shared_ptr<Texture>> bufferTextures;
 };
 
 #endif //GRAPHICS_FBO_HPP

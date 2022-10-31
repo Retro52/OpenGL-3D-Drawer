@@ -16,6 +16,9 @@ public:
     /* Constructor from pre-created id */
     explicit UniqueID(unsigned long id) : id(id) {};
 
+    /* returns id value */
+    unsigned long Get() { return id; }
+
     /* Equality operator */
     bool operator == (const UniqueID& other) const { return other.id == id; }
 

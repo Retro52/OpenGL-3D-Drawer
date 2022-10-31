@@ -66,6 +66,11 @@ public:
         scene->registry.template remove<T>(thisEntity);
     }
 
+    Entity CopyEntity()
+    {
+        return scene->CopyEntity(* this);
+    }
+
     /**
      * Compares two entities
      * @param other Entity to compare with
@@ -90,7 +95,9 @@ public:
      * Conversion operator from Entity class to entt:entity type
      * @return Entity.thisEntity
      */
-    operator entt::entity() { return thisEntity; }
+    operator const entt::entity() { return thisEntity; }
+
+    [[nodiscard]] inline entt::entity Get() const { return thisEntity; }
 private:
      entt::entity thisEntity { 0 };
      Scene * scene;

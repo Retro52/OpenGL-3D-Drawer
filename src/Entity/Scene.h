@@ -14,6 +14,7 @@ class Entity;
 class Scene
 {
 public:
+    Scene() = default;
     explicit Scene(const std::string& path);
     ~Scene();
 
@@ -33,61 +34,25 @@ public:
 
     /**
      * Deletes entity and frees all the resources it holds
-     * @param id Entity id
+     * @param entity Entity reference to delete
      */
-    void DeleteEntity(const UniqueID& id)
-    {
-        const auto& view = registry.view<NameComponent>();
-        for(const auto& entity : view)
-        {
-            /* temp */
-            const auto& n = view.get<NameComponent>(entity);
-            if (n.id == id)
-            {
-                bool t = registry.any_of<Model3DComponent>(entity);
-                registry.destroy(entity);
-                if (t)
-                {
-                    Material::UnloadUnusedTextures();
-                }
-                return;
-            }
-        }
-        throw InGameException("Entity #id" + std::to_string(id.operator unsigned long()) + " not found");
-    }
+    void DeleteEntity(Entity& entity);
 
     /**
      * @return scene primary camera. Several primaries leads to UB
      */
-    Entity GetPrimaryCamera();
+    std::unique_ptr<Entity> GetPrimaryCamera();
 
     /**
      * @return scene directional light. Several directional lights leads to UB
      */
-    Entity GetDirectionalLight();
+    std::unique_ptr<Entity> GetDirectionalLight();
 
     /**
      * Saves current scene
      * @param savePath path to save scene by
      */
     void SaveScene(const std::string& savePath);
-
-    /**
-     * @return scene selected entity
-     */
-    [[nodiscard]] Entity GetSelectedEntity();
-
-    /*
-     * @param index entity index
-     * @return entity by index
-     */
-    [[nodiscard]] Entity GetSelectedEntity(int& index);
-
-    /**
-     * @param type entity type
-     * @return engine default entity
-     */
-    [[nodiscard]] Entity GetEngineDefault(EngineDefaultTypes type);
 
     /**
      * Called every frame
@@ -108,6 +73,7 @@ private:
 
     friend class Entity;
     friend class Renderer;
+    friend class EditorLayer;
     friend class JsonSceneSerializer;
 };
 

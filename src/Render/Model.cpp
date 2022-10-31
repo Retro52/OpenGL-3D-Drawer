@@ -3,7 +3,7 @@
 //
 #include <iomanip>
 #include <utility>
-
+#include <filesystem>
 #include "Model.h"
 
 
@@ -24,7 +24,20 @@ void Model::LoadModel(const std::string& loadPath)
     }
 
     // retrieve the directory path of the filepath
-    directory = loadPath.substr(0, loadPath.find_last_of('/'));
+    if(loadPath.find('/') != std::string::npos)
+    {
+        directory = loadPath.substr(0, loadPath.find_last_of('/'));
+    }
+    else if (loadPath.find('\\') != std::string::npos)
+    {
+        directory = loadPath.substr(0, loadPath.find_last_of('\\'));
+    }
+    else
+    {
+        auto fpath = std::filesystem::path(loadPath);
+        directory = fpath.parent_path().string();
+    }
+
 
     // process ASSIMP's root node recursively
     ProcessNode(scene->mRootNode, scene);
@@ -111,5 +124,5 @@ std::shared_ptr<Mesh> Model::ProcessMesh(aiMesh * mesh, const aiScene * scene)
     }
 
     // return a mesh object created from the extracted mesh data
-    return std::make_shared<Mesh>(vertices, indices, Material(scene->mMaterials[mesh->mMaterialIndex], directory));
+    return std::make_shared<Mesh>(vertices, indices, Material(scene->mMaterials[mesh->mMaterialIndex], directory), mesh->mName.C_Str());
 }

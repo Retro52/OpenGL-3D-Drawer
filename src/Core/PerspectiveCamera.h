@@ -13,10 +13,16 @@ class PerspectiveCamera
 public:
     /**
      * Camera constructor
-     * @param position camera position
      * @param fov camera field of view, in radians
      */
     explicit PerspectiveCamera(float fov);
+
+    /**
+     * Camera constructor
+     * @param fov camera field of view, in radians
+     * @param aspectRatio camera aspect ratio
+     */
+    explicit PerspectiveCamera(float fov, const glm::vec2& aspectRatio);
 
     /**
      * Updates camera internal matrices and vectors, must be called before getting view and projection matrices
@@ -90,6 +96,14 @@ public:
      * @return camera direction vector
      */
     [[nodiscard]] inline const glm::vec3& GetDirection() const { return dir; };
+
+    /**
+    * @return camera selected aspect ratio as vector
+    */
+    [[nodiscard]] inline float GetAspectRatioFloat() const { return aspectRatio.x / aspectRatio.y; }
+
+public:
+    glm::vec2 aspectRatio;
 
 private:
     float fov, zoom;

@@ -8,7 +8,9 @@
 #include "../Entity/Entity.h"
 
 std::unique_ptr<Scene> ResourcesManager::pScene;
+std::vector<std::shared_ptr<Layer>> ResourcesManager::layers;
 std::map<std::string, std::shared_ptr<Shader>> ResourcesManager::shaders;
+
 std::mutex ResourcesManager::m;
 
 void ResourcesManager::RegisterShader(const std::string &name, const std::string &vFile, const std::string &fFile, const std::string &gFile)
@@ -48,9 +50,4 @@ void ResourcesManager::RegisterPlayerScene(const std::string &path)
     {
         std::cerr << e.what();
     }
-}
-
-std::unique_ptr<Scene>& ResourcesManager::GetPlayerScene()
-{
-    return pScene;
 }

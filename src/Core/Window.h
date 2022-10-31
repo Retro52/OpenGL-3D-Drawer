@@ -7,9 +7,12 @@
 
 #define GLEW_STATIC
 
+#include <memory>
 #include <glew.h>
 #include <glfw3.h>
 #include <string>
+#include "../Render/FBO.hpp"
+#include "../Render/Material.h"
 
 class Window
 {
@@ -29,7 +32,7 @@ public:
      * @param name window name
      * @param fullScreen true if full screen, false otherwise
      */
-    static void Initialize(int w, int h, const std::string &name, bool fullScreen);
+    static void Initialize(int w, int h, const std::string &name, bool fullScreen = false, int nativeWidth = 1920, int nativeHeight = 1080);
 
     /**
      * Terminates the window after program is shut
@@ -60,18 +63,6 @@ public:
     static void SwapBuffers();
 
     /**
-     * Get window width
-     * @return window current width
-     */
-    static int GetWidth();
-
-    /**
-     * Get window height
-     * @return window height
-     */
-    static int GetHeight();
-
-    /**
      * Get current window
      * @return current window
      */
@@ -90,6 +81,18 @@ public:
     static void SetHeight(int h);
 
     /**
+     * Get window width
+     * @return window current width
+     */
+    static int GetWidth();
+
+    /**
+     * Get window height
+     * @return window height
+     */
+    static int GetHeight();
+
+    /**
      * Executed every frame
      */
     static void Tick();
@@ -98,11 +101,6 @@ public:
      * Updates window width and height
      */
     static void Update();
-
-    /**
-     * @return current window aspect ratio
-     */
-    inline static float GetAspectRatio() { return static_cast<float> (width) / static_cast<float> (height); }
 };
 
 

@@ -24,6 +24,11 @@
 class Model
 {
 public:
+    explicit Model()
+    {
+        path = "";
+    }
+
     /**
      * @param path path to the model file
      */
@@ -35,12 +40,12 @@ public:
      * @param shader shader to apply
      * @param shadowMap directional light shadow map texture
      */
-    void Draw(const Shader &shader, const glm::mat4& model, unsigned int shadowMap) const
+    void Draw(const std::shared_ptr<Shader> &shader, const glm::mat4& model) const
     {
-        shader.setMat4("model", model);
+        shader->setMat4("model", model);
         for(const auto& mesh : meshes)
         {
-            mesh->Draw(shader, shadowMap);
+            mesh->Draw(shader);
         }
     };
 
@@ -58,10 +63,7 @@ public:
         }
     };
 
-    /**
-     * @return model path model was loaded from
-     */
-    [[nodiscard]] inline std::string GetPath() const { return path; }
+    void LoadModel() { LoadModel(path); }
 
 private:
     /**
@@ -83,11 +85,13 @@ private:
      * @return new Mesh new loaded mesh
      */
     std::shared_ptr<Mesh> ProcessMesh(aiMesh *mesh, const aiScene *scene);
+
+public:
+    std::string path;
+    std::vector<std::shared_ptr<Mesh>> meshes;
+
 private:
     bool gammaCorrection;
     std::string directory;
-    std::vector<std::shared_ptr<Mesh>> meshes;
-
-    std::string path;
 };
 #endif

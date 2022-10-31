@@ -38,7 +38,7 @@ Entity Scene::CreateEntity(const std::string& name)
     return e;
 }
 
-Entity Scene::GetPrimaryCamera()
+std::unique_ptr<Entity> Scene::GetPrimaryCamera()
 {
     auto view = registry.view<CameraComponent>();
     for (auto entity : view)
@@ -46,20 +46,20 @@ Entity Scene::GetPrimaryCamera()
         const auto& camera = view.get<CameraComponent>(entity);
         if (camera.isPrimary)
         {
-            return { entity, this };
+            return std::make_unique<Entity>(entity, this);
         }
     }
-    throw InGameException("There are no primary cameras");
+    return nullptr;
 }
 
-Entity Scene::GetDirectionalLight()
+std::unique_ptr<Entity> Scene::GetDirectionalLight()
 {
     auto view = registry.view<DirectionalLightComponent>();
     for (auto entity : view)
     {
-        return { entity, this };
+        return std::make_unique<Entity>(entity, this);
     }
-    throw InGameException("There is no directional light");
+    return nullptr;
 }
 
 void Scene::LoadScene(const std::string &loadPath)
@@ -67,7 +67,17 @@ void Scene::LoadScene(const std::string &loadPath)
     std::ifstream is(loadPath);
     GAME_ASSERT(is.is_open(), "Failed to open scene: " + loadPath);
 
-    json data = json::parse(is);
+    json data;
+    try
+    {
+         data = json::parse(is);
+    }
+    catch(std::exception& e)
+    {
+        LOG(WARNING) << "Unable to parse " << loadPath << " file to load scene";
+        return;
+    }
+
     GAME_ASSERT(!data.empty(), "Failed to open scene: " + loadPath);
 
     if (!data["Name"].is_null())
@@ -93,7 +103,6 @@ void Scene::LoadScene(const std::string &loadPath)
             const auto& pointLightComponent = components["Point light"];
             const auto& engineDefaultComponent = components["Engine default"];
             const auto& directionalLightComponent = components["Directional light"];
-
             if (components.contains("Transform"))
             {
                 e.GetComponent<TransformComponent>().scale       = glm::vec3(glm::vec3(transformComponent["Scale"][0], transformComponent["Scale"][1], transformComponent["Scale"][2]));
@@ -121,6 +130,7 @@ void Scene::LoadScene(const std::string &loadPath)
             {
                 e.AddComponent<CameraComponent>(cameraComponent["FOV"]);
                 e.GetComponent<CameraComponent>().isPrimary = cameraComponent["isPrimary"];
+                e.GetComponent<CameraComponent>().camera.aspectRatio = glm::vec2(cameraComponent["Aspect"][0], cameraComponent["Aspect"][1]);
                 LOG(INFO) << "Camera component successfully loaded for " << model.key();
             }
 
@@ -132,9 +142,12 @@ void Scene::LoadScene(const std::string &loadPath)
                     component.castsShadow  = model3Component["castsShadow"];
                     component.shouldBeLit  = model3Component["shouldBeLit"];
                     component.tilingFactor = model3Component["tilingFactor"];
+                    LOG(INFO) << "Model component successfully loaded for " << model.key();
                 }
-                catch(...) {}
-                LOG(INFO) << "Model component successfully loaded for " << model.key();
+                catch(std::exception& e)
+                {
+                    LOG(WARNING) << "Failed to load Model3D component" << e.what();
+                }
             }
 
             if (components.contains("Point light"))
@@ -150,6 +163,7 @@ void Scene::LoadScene(const std::string &loadPath)
 
                 LOG(INFO) << "Point light component successfully loaded for " << model.key();
             }
+
             if (components.contains("Directional light"))
             {
                 glm::vec3 amb(directionalLightComponent["Ambient"][0], directionalLightComponent["Ambient"][1], directionalLightComponent["Ambient"][2]);
@@ -160,6 +174,7 @@ void Scene::LoadScene(const std::string &loadPath)
 
                 LOG(INFO) << "Directional light component successfully loaded for " << model.key();
             }
+
             if (components.contains("Engine default"))
             {
                 e.AddComponent<EngineDefaultComponent>(engineDefaultComponent["Type"]);
@@ -181,48 +196,14 @@ void Scene::SaveScene(const std::string& savePath)
     JsonSceneSerializer::SaveScene(savePath, this);
 }
 
-Entity Scene::GetSelectedEntity(int& index)
-{
-    auto view = registry.view<TransformComponent>(entt::exclude<CameraComponent, EngineDefaultComponent>);
-    int counter = 0;
-    entt::entity last;
-    for(const auto& entity : view)
-    {
-        if (index == counter)
-        {
-            return { entity, this };
-        }
-        counter++;
-        last = entity;
-    }
-
-    if (index < 0)
-    {
-        index = counter - 1;
-        return { last, this };
-    }
-
-    index = 0;
-    return { * view.begin(), this };
-}
-
-Entity Scene::GetEngineDefault(EngineDefaultTypes target)
-{
-    auto view = registry.view<EngineDefaultComponent>();
-    for (const auto &item: view)
-    {
-        if (view.get<EngineDefaultComponent>(item).type == target)
-        {
-            return { item, this };
-        }
-    }
-    throw InGameException("Engine default type " + std::to_string(target) + " is not registered");
-}
-
 void Scene::OnUpdate(double deltaTime)
 {
+    if(!EventsHandler::_cursor_locked)
+    {
+        return;
+    }
+
     float speed = 10.0f;
-    static bool shouldAlignToGrid = false;
 
     const glm::vec3 up(0, 1, 0);
     const glm::vec3 right(1, 0, 0);
@@ -230,39 +211,46 @@ void Scene::OnUpdate(double deltaTime)
 
     const float mouseSensitivity = 150.0f;
 
-    auto& t = GetPrimaryCamera().GetComponent<TransformComponent>();
-    auto& c = GetPrimaryCamera().GetComponent<CameraComponent>();
+    auto camera = GetPrimaryCamera();
+
+    if(!camera)
+    {
+        return;
+    }
+
+    auto& t = camera->GetComponent<TransformComponent>();
+    auto& c = camera->GetComponent<CameraComponent>();
     
-    if (EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT))
+    if (EventsHandler::IsPressed(Key::LeftShift))
     {
         speed *= 10;
     }
-    else if (EventsHandler::IsPressed(GLFW_KEY_LEFT_CONTROL))
+    else if (EventsHandler::IsPressed(Key::LeftControl))
     {
         speed /= 10;
     }
 
-    if (EventsHandler::IsPressed(GLFW_KEY_W))
+    if (EventsHandler::IsPressed(Key::W))
     {
         t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_S))
+    if (EventsHandler::IsPressed(Key::S))
     {
         t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetFrontVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_D) && !EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
+    if (EventsHandler::IsPressed(Key::D) && !EventsHandler::IsPressed(Key::LeftAlt))
     {
         t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_A))
+    if (EventsHandler::IsPressed(Key::A))
     {
         t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetRightVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_Q))
+    if (EventsHandler::IsPressed(Key::Q))
     {
         t.translation += static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
     }
-    if (EventsHandler::IsPressed(GLFW_KEY_E))
+    if (EventsHandler::IsPressed(Key::E))
     {
         t.translation -= static_cast<float>(deltaTime) * speed * c.camera.GetUpVector();
     }
@@ -270,151 +258,17 @@ void Scene::OnUpdate(double deltaTime)
     /* PerspectiveCamera world orientation */
     if (EventsHandler::_cursor_locked)
     {
-        t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Window::GetHeight() * 2),
+        t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Renderer::GetFboHeight() * 2),
                                   - glm::radians(89.0f),
                                   glm::radians(89.0f));
-        t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Window::GetWidth() * 2);
+        t.rotation.y += static_cast<float>(- EventsHandler::deltaX * deltaTime * mouseSensitivity / (float) Renderer::GetFboWidth() * 2);
         c.camera.Update(t.rotation);
     }
-
-    //iterating through entities
-    if (EventsHandler::IsJustPressed(GLFW_KEY_LEFT))
-    {
-        idx--;
-    }
-    else if (EventsHandler::IsJustPressed(GLFW_KEY_RIGHT))
-    {
-        idx++;
-    }
-
-    auto selectedEntity   = GetSelectedEntity(idx);
-    auto &selEntTransform = selectedEntity.GetComponent<TransformComponent>();
-
-    // move selected
-    if (EventsHandler::IsPressed(GLFW_KEY_U))
-    {
-        selEntTransform.translation -= static_cast<float>(deltaTime) * speed * front;
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_J))
-    {
-        selEntTransform.translation += static_cast<float>(deltaTime) * speed * front;
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_K))
-    {
-        selEntTransform.translation += static_cast<float>(deltaTime) * speed * right;
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_H))
-    {
-        selEntTransform.translation -= static_cast<float>(deltaTime) * speed * right;
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_Y))
-    {
-        selEntTransform.translation += static_cast<float>(deltaTime) * speed * up;
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_I))
-    {
-        selEntTransform.translation -= static_cast<float>(deltaTime) * speed * up;
-    }
-
-    //scale
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_ADD))
-    {
-        selEntTransform.scale += static_cast<float>(deltaTime) * speed;
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_KP_SUBTRACT))
-    {
-        selEntTransform.scale -= static_cast<float>(deltaTime) * speed;
-    }
-
-    if (EventsHandler::IsJustPressed(GLFW_KEY_DELETE))
-    {
-        DeleteEntity(selectedEntity.GetComponent<NameComponent>().id);
-    }
-
-    // temp placeholders
-    if (EventsHandler::IsJustPressed(GLFW_KEY_D) && EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
-    {
-        CopyEntity(selectedEntity);
-    }
-
-    // add new directional light
-    if (EventsHandler::IsJustPressed(GLFW_KEY_L) && EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
-    {
-        const auto& dirLight = CreateEntity("Directional light");
-        dirLight.AddComponent<DirectionalLightComponent>(
-                glm::vec3(0.5f),
-                glm::vec3(0.5f),
-                glm::vec3(0.5f)
-                );
-        auto& mComponent = dirLight.AddComponent<Model3DComponent>("../res/assets/Basics/sun.obj");
-        mComponent.shouldBeLit = false;
-        mComponent.castsShadow = false;
-    }
-
-    // add new point light
-    if (EventsHandler::IsJustPressed(GLFW_KEY_P) && EventsHandler::IsPressed(GLFW_KEY_LEFT_ALT))
-    {
-        const auto& pLight = CreateEntity("Point light");
-        pLight.GetComponent<TransformComponent>().scale = glm::vec3(0.05f);
-        pLight.AddComponent<PointLightComponent>(
-                glm::vec3(0.5f),
-                glm::vec3(0.5f),
-                glm::vec3(0.5f),
-                0.3f,
-                0.09f,
-                0.012f
-        );
-        auto& mComponent = pLight.AddComponent<Model3DComponent>("../res/assets/Basics/bulb.obj");
-        mComponent.shouldBeLit = false;
-        mComponent.castsShadow = false;
-    }
-
-    static int selectedAxis = 0;
-    glm::vec3 rotationVector;
-
-    if(EventsHandler::IsJustPressed(GLFW_KEY_RIGHT_SHIFT))
-    {
-        selectedAxis++;
-        selectedAxis %= 3;
-    }
-
-    switch (selectedAxis)
-    {
-        case 0:
-            rotationVector = glm::vec3(1, 0, 0);
-            break;
-        case 1:
-            rotationVector = glm::vec3(0, 1, 0);
-            break;
-        case 2:
-            rotationVector = glm::vec3(0, 0, 1);
-            break;
-        default:
-            rotationVector = glm::vec3(0, 0, 0);
-            break;
-    }
-
-    //rotate
-    if (EventsHandler::IsPressed(GLFW_KEY_T))
-    {
-        selEntTransform.rotation += glm::radians(static_cast<float>(deltaTime) * speed * rotationVector);
-    }
-    if (EventsHandler::IsPressed(GLFW_KEY_O))
-    {
-        selEntTransform.rotation -= glm::radians(static_cast<float>(deltaTime) * speed * rotationVector);
-    }
-
-    GetEngineDefault(Axes).GetComponent<TransformComponent>().translation = selEntTransform.translation;
-}
-
-Entity Scene::GetSelectedEntity()
-{
-    return GetSelectedEntity(idx);
 }
 
 Entity Scene::CopyEntity(const Entity &source)
 {
-    Entity newEntity = CreateEntity(source.GetComponent<NameComponent>().name + "_copy");
+    Entity newEntity = CreateEntity(source.GetComponent<NameComponent>().name);
     if (source.HasComponent<TransformComponent>())
     {
         newEntity.GetComponent<TransformComponent>() = source.GetComponent<TransformComponent>();
@@ -440,4 +294,9 @@ Entity Scene::CopyEntity(const Entity &source)
     }
 
     return newEntity;
+}
+
+void Scene::DeleteEntity(Entity &entity)
+{
+    registry.destroy(entity);
 }

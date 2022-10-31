@@ -8,7 +8,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-/* TODO: turn it into the singleton */
 class DirectionalLight
 {
 public:

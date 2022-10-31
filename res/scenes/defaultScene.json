@@ -2,53 +2,30 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
-    "Entity9" : 
-    {
-      "Name" : 
-      {
-        "Name" : "PL1_copy_copy"
-      },
-      "Transform" : 
-      {
-        "Position" : [-3.94467, -1.0492, -23.8455],
-        "Rotation" : [6.62294, 0.0836795, 0.084999],
-        "Scale" : [0.05, 0.05, 0.05]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/bulb.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Point light" : 
-      {
-        "Linear" : 0.09,
-        "Ambient" : [0.5, 0.5, 0.5],
-        "Diffuse" : [0.5, 0.5, 0.5],
-        "Constant" : 0.3,
-        "Specular" : [0.5, 0.5, 0.5],
-        "Quadratic" : 0.012
-      }
-    },
     "Entity8" : 
     {
       "Name" : 
       {
-        "Name" : "Floor_copy"
+        "Name" : "Directional light"
       },
       "Transform" : 
       {
-        "Position" : [0, -4.74477, 0],
-        "Rotation" : [-180.175, 0, 0],
-        "Scale" : [74.5271, 74.5271, 74.5271]
+        "Position" : [0, 24.2536, 0],
+        "Rotation" : [-45.2807, -30.2824, 1.87849e-05],
+        "Scale" : [0.999997, 0.999998, 0.999997]
       },
       "Model3D" : 
       {
-        "Path" : "../res/assets/brickwall/plane.obj",
-        "castsShadow" : true,
+        "Path" : "../res/assets/Basics/sun.obj",
+        "castsShadow" : false,
         "shouldBeLit" : true,
-        "tilingFactor" : 20
+        "tilingFactor" : 1
+      },
+      "Directional light" : 
+      {
+        "Ambient" : [1, 1, 1],
+        "Diffuse" : [1, 1, 1],
+        "Specular" : [1, 1, 1]
       }
     },
     "Entity7" : 
@@ -59,15 +36,15 @@
       },
       "Transform" : 
       {
-        "Position" : [5.02131, 20.7595, 0.829443],
-        "Rotation" : [0.0404959, 0.0836795, 0.084999],
+        "Position" : [45.9591, 0.212254, -16.8521],
+        "Rotation" : [-4.27012, 0, 0],
         "Scale" : [0.05, 0.05, 0.05]
       },
       "Model3D" : 
       {
         "Path" : "../res/assets/Basics/bulb.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
+        "castsShadow" : true,
+        "shouldBeLit" : true,
         "tilingFactor" : 1
       },
       "Point light" : 
@@ -84,11 +61,71 @@
     {
       "Name" : 
       {
+        "Name" : "GraphicsTest"
+      },
+      "Transform" : 
+      {
+        "Position" : [33.604, 5.64575, 25.3043],
+        "Rotation" : [0, 0, -1.04292e-05],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/source/AC_Unit/AC_Unit.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity5" : 
+    {
+      "Name" : 
+      {
+        "Name" : "backpack"
+      },
+      "Transform" : 
+      {
+        "Position" : [29.1205, 0, 0],
+        "Rotation" : [0, -764.153, -0.00646498],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/backpack/backpack.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity4" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Floor_copy"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, -5, 0],
+        "Rotation" : [180, 0, 0],
+        "Scale" : [74.5271, 74.5271, 74.5271]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 20
+      }
+    },
+    "Entity3" : 
+    {
+      "Name" : 
+      {
         "Name" : "PL1"
       },
       "Transform" : 
       {
-        "Position" : [-7.14514, -1.1234, -25.3236],
+        "Position" : [6.23538, -1.06854, -17.6371],
         "Rotation" : [-4.27012, 0, 0],
         "Scale" : [0.05, 0.05, 0.05]
       },
@@ -109,31 +146,7 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity5" : 
-    {
-      "Name" : 
-      {
-        "Name" : "axes"
-      },
-      "Transform" : 
-      {
-        "Position" : [-3.94467, -1.0492, -23.8455],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/axes.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Engine default" : 
-      {
-        "Type" : 0
-      }
-    },
-    "Entity4" : 
+    "Entity2" : 
     {
       "Name" : 
       {
@@ -141,60 +154,15 @@
       },
       "Transform" : 
       {
-        "Position" : [-20.4665, 8.17769, -8.23612],
-        "Rotation" : [-31.6373, -15508.3, 0],
+        "Position" : [5.8054, 12.7203, 2.61534],
+        "Rotation" : [-17.6512, -1037.3, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
       {
         "FOV" : 1.0472,
-        "isPrimary" : true
-      }
-    },
-    "Entity3" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Directional light"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, 48.3869, 0],
-        "Rotation" : [-148.397, -782.218, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/sun.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Directional light" : 
-      {
-        "Ambient" : [0.8, 0.8, 0.8],
-        "Diffuse" : [0.8, 0.8, 0.8],
-        "Specular" : [0.5, 0.5, 0.5]
-      }
-    },
-    "Entity2" : 
-    {
-      "Name" : 
-      {
-        "Name" : "backpack"
-      },
-      "Transform" : 
-      {
-        "Position" : [29.1205, 0, 0],
-        "Rotation" : [0, -764.153, -0.00646498],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/backpack/backpack.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
+        "isPrimary" : true,
+        "Aspect" : [16, 9]
       }
     },
     "Entity1" : 
@@ -205,16 +173,16 @@
       },
       "Transform" : 
       {
-        "Position" : [0, -3, 0],
+        "Position" : [7, -3, 3],
         "Rotation" : [0, 0, 0],
-        "Scale" : [52.1194, 52.1194, 52.1194]
+        "Scale" : [60, 1, 60]
       },
       "Model3D" : 
       {
         "Path" : "../res/assets/brickwall/plane.obj",
         "castsShadow" : true,
         "shouldBeLit" : true,
-        "tilingFactor" : 60
+        "tilingFactor" : 100
       }
     },
     "Entity0" : 
@@ -225,7 +193,7 @@
       },
       "Transform" : 
       {
-        "Position" : [14.9483, -2.94273, 18.1369],
+        "Position" : [12.5566, -2.94273, 17.5596],
         "Rotation" : [0, 0, 0],
         "Scale" : [1, 1, 1]
       },

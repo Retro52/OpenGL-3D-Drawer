@@ -6,23 +6,19 @@
 #include "Config.h"
 #include "ResourcesManager.h"
 #include "InGameException.h"
-#include "../Lighting/ShadowsHandler.h"
 #include "inipp.h"
 #include "json.hpp"
 #include "../Logging/easylogging++.h"
-#include "../UI/UIHandler.h"
 
 
 void Config::LoadIni(const std::string &configPath)
 {
     LOG(INFO) << "Start loading "<< configPath << " file";
-    int windowHeight       = 900;
-    int windowWidth        = 1200;
-    int defaultFontSize    = 16;
-    int shadowsResolution  = 1024;
+    int windowHeight           = 900;
+    int windowWidth            = 1200;
+
     bool windowFullScreen  = false;
     std::string windowName        = "OpenGL Drawer";
-    std::string defaultFontPath   = "../res/fonts/arial/arial.ttf";
     std::string defaultScenePath  = "../res/scenes/defaultScene.json";
     std::string shadersConfigPath = "config.json";
 
@@ -40,8 +36,6 @@ void Config::LoadIni(const std::string &configPath)
     inipp::get_value(ini.sections["DEFAULT"], "windowWidth", windowWidth);
     inipp::get_value(ini.sections["DEFAULT"], "windowHeight", windowHeight);
     inipp::get_value(ini.sections["DEFAULT"], "windowFullScreen", windowFullScreen);
-    inipp::get_value(ini.sections["DEFAULT"], "defaultFontSize", defaultFontSize);
-    inipp::get_value(ini.sections["DEFAULT"], "defaultFontPath", defaultFontPath);
     inipp::get_value(ini.sections["DEFAULT"], "defaultScenePath", defaultScenePath);
 
 
@@ -50,8 +44,6 @@ void Config::LoadIni(const std::string &configPath)
 
     inipp::get_value(ini.sections["SHADERS"], "shadersConfigPath", shadersConfigPath);
 
-    inipp::get_value(ini.sections["SHADOWS"], "shadowsResolution", shadowsResolution);
-
     is.close();
     LOG(INFO) << configPath << " successfully loaded";
 
@@ -59,9 +51,7 @@ void Config::LoadIni(const std::string &configPath)
     Window::Initialize(windowWidth, windowHeight, windowName, windowFullScreen);
 
     Config::LoadJson(shadersConfigPath);
-    UIHandler::Initialize(defaultFontPath, defaultFontSize);
     ResourcesManager::RegisterPlayerScene(defaultScenePath);
-    ShadowsHandler::SetMapResolution(shadowsResolution);
 }
 
 void Config::LoadJson(const std::string &jsonConfigPath)
@@ -79,7 +69,7 @@ void Config::LoadJson(const std::string &jsonConfigPath)
     {
         if(!shader.value()[2].is_null())
         {
-            // re-write with template<typename .. Args>
+            // TODO: re-write with template<typename .. Args>
             ResourcesManager::RegisterShader(shader.key(), shader.value()[0], shader.value()[1], shader.value()[2]);
         }
         else

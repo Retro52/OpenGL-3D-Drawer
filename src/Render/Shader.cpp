@@ -4,6 +4,7 @@
 
 #include "Shader.h"
 #include "../Core/InGameException.h"
+#include "../Logging/easylogging++.h"
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath)
 {
@@ -104,7 +105,7 @@ void Shader::Use() const
 void Shader::setBool(const std::string &name, bool value) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform1i(location, (int)value);
 }
@@ -112,7 +113,7 @@ void Shader::setBool(const std::string &name, bool value) const
 void Shader::setInt(const std::string &name, int value) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform1i(location, value);
 }
@@ -120,14 +121,14 @@ void Shader::setInt(const std::string &name, int value) const
 void Shader::setFloat(const std::string &name, float value) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
     glUniform1f(location, value);
 }
 
 void Shader::setVec2(const std::string &name, const glm::vec2 &value) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform2fv(location, 1, &value[0]);
 }
@@ -135,7 +136,7 @@ void Shader::setVec2(const std::string &name, const glm::vec2 &value) const
 void Shader::setVec2(const std::string &name, float x, float y) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform2f(location, x, y);
 }
@@ -143,7 +144,7 @@ void Shader::setVec2(const std::string &name, float x, float y) const
 void Shader::setVec3(const std::string &name, const glm::vec3 &value) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform3fv(location, 1, &value[0]);
 }
@@ -151,7 +152,7 @@ void Shader::setVec3(const std::string &name, const glm::vec3 &value) const
 void Shader::setVec3(const std::string &name, float x, float y, float z) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform3f(location, x, y, z);
 }
@@ -159,7 +160,7 @@ void Shader::setVec3(const std::string &name, float x, float y, float z) const
 void Shader::setVec4(const std::string &name, const glm::vec4 &value) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform4fv(location, 1, &value[0]);
 }
@@ -167,7 +168,7 @@ void Shader::setVec4(const std::string &name, const glm::vec4 &value) const
 void Shader::setVec4(const std::string &name, float x, float y, float z, float w) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniform4f(location, x, y, z, w);
 }
@@ -175,7 +176,7 @@ void Shader::setVec4(const std::string &name, float x, float y, float z, float w
 void Shader::setMat2(const std::string &name, const glm::mat2 &mat) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniformMatrix2fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
@@ -183,7 +184,7 @@ void Shader::setMat2(const std::string &name, const glm::mat2 &mat) const
 void Shader::setMat3(const std::string &name, const glm::mat3 &mat) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniformMatrix3fv(location, 1, GL_FALSE, &mat[0][0]);
 }
@@ -191,17 +192,17 @@ void Shader::setMat3(const std::string &name, const glm::mat3 &mat) const
 void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
 {
     auto location = glGetUniformLocation(id, name.c_str());
-    // GAME_ASSERT(location != -1, "Failed to locate shader uniform" + name);
+   //  if (location == -1 ) { LOG(WARNING) << "Failed to locate shader uniform " + name; }
 
     glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::setDirLight(const DirectionalLight& dirLight, const glm::vec3& rotation) const
+void Shader::setDirLight(const DirectionalLight& dLight, const glm::vec3& rotation) const
 {
-    setVec3("dirLight.diffuse", dirLight.diffuse);
-    setVec3("dirLight.ambient", dirLight.ambient);
-    setVec3("dirLight.specular", dirLight.specular);
-    setVec3("dirLight.direction", DirectionalLight::GetDirection(rotation));
+    setVec3("dLight.diffuse", dLight.diffuse);
+    setVec3("dLight.ambient", dLight.ambient);
+    setVec3("dLight.specular", dLight.specular);
+    setVec3("dLight.direction", DirectionalLight::GetDirection(rotation));
 }
 
 void Shader::setPointLight(int idx, const PointLight& pointLight, const glm::vec3& position) const

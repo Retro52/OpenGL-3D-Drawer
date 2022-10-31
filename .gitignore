@@ -22,5 +22,10 @@
 *.out
 *.app
 
-# Custom
+# Programm logs
 *.log
+
+# CLion directories
+.idea/
+cmake-build-debug/
+cmake-build-release/

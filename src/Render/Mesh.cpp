@@ -6,14 +6,17 @@
 
 #include <utility>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, const Material& material) : vertices(std::move(vertices)), indices(std::move(indices)), material(material)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, const Material& material, std::string name) : vertices(std::move(vertices)), indices(std::move(indices)), material(material), name(std::move(name))
 {
     SetUpMesh();
+
+    Profiler::totalMeshes++;
+    Profiler::totalVertices += this->vertices.size();
 }
 
-void Mesh::Draw(const Shader &shader, GLuint shadowMap) const
+void Mesh::Draw(const std::shared_ptr<Shader> &shader) const
 {
-    material.Bind(shader, shadowMap);
+    material.Bind(shader);
 
     // draw mesh
     glBindVertexArray(VAO);

@@ -33,6 +33,7 @@ struct TransformComponent
 
 struct NameComponent
 {
+    NameComponent() = default;
     NameComponent(const NameComponent&) = default;
     explicit NameComponent(std::string name = "Entity") : name(std::move(name)) {}
 
@@ -59,13 +60,13 @@ struct CameraComponent
     [[nodiscard]] inline glm::mat4 GetCameraView(const glm::vec3& position) { return camera.GetView(position); }
 
     PerspectiveCamera camera;
-    bool isPrimary = true;
+    bool isPrimary = false;
 };
 
 
 struct Model3DComponent
 {
-    Model3DComponent() = delete;
+    Model3DComponent() = default;
     Model3DComponent(const std::string& modelPath) : model(modelPath) {};
 
     int tilingFactor = 1;
@@ -76,9 +77,10 @@ struct Model3DComponent
     Model model;
 };
 
-/* TODO: remove direction from DirectionalLight, calculate using rotation from TransformComponent */
 struct DirectionalLightComponent
 {
+    DirectionalLightComponent() : directionalLight(DirectionalLight(glm::vec3(0.5), glm::vec3(0.5), glm::vec3(0.5))) {};
+
     DirectionalLightComponent(const glm::vec3& amb, const glm::vec3& diff, const glm::vec3& spec)
         : directionalLight(amb, diff, spec) {};
     ~DirectionalLightComponent() = default;
@@ -88,6 +90,7 @@ struct DirectionalLightComponent
 
 struct PointLightComponent
 {
+    PointLightComponent() : pointLight(PointLight(glm::vec3(0.5), glm::vec3(0.5), glm::vec3(0.5), 0.1, 0.1, 0.1)) {};
     PointLightComponent(const glm::vec3 &amb, const glm::vec3 &diff, const glm::vec3 &spec, float con, float lin, float quad)
         : pointLight(PointLight(amb, diff, spec, con, lin, quad)) {};
 

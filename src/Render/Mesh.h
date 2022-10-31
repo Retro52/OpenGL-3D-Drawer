@@ -8,6 +8,7 @@
 
 #include "Shader.h"
 #include "Material.h"
+#include "../Core/Profiler.hpp"
 
 #include <string>
 #include <vector>
@@ -40,11 +41,14 @@ public:
      * @param indices  vector of mesh indices
      * @param textures vector of mesh textures
      */
-    Mesh(std::vector<Vertex>  vertices, std::vector<unsigned int>  indices, const Material& material);
+    Mesh(std::vector<Vertex>  vertices, std::vector<unsigned int>  indices, const Material& material, std::string name = "No name");
 
     /* Cleaning OpenGL stuff */
     ~Mesh()
     {
+        Profiler::totalMeshes--;
+        Profiler::totalVertices -= vertices.size();
+
         glDeleteBuffers(1, &VBO);
         glDeleteBuffers(1, &EBO);
         glDeleteVertexArrays(1, &VAO);
@@ -53,18 +57,21 @@ public:
      * Draws mesh instance
      * @param shader shader to be applied to the instance when drawing
      */
-    void Draw(const Shader &shader, GLuint shadowMap) const;
+    void Draw(const std::shared_ptr<Shader> &shader) const;
 
     /**
      * Draws mesh, without applying any textures, useful for depth buffer draw
      */
     void DrawIntoDepth() const;
+public:
+    Material material;
+    std::string name;
+
 private:
     unsigned int VBO{}, EBO{};
     unsigned int VAO{};
     std::vector<Vertex>       vertices;
     std::vector<unsigned int> indices;
-    Material material;
 
     /***
      * Initializes buffers and textures for OpenGL

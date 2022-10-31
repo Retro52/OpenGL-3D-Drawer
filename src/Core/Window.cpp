@@ -4,17 +4,17 @@
 #define GLEW_STATIC
 
 #include "Window.h"
+#include "../Render/Renderer.h"
 #include "../Input/EventsHandler.h"
 #include "InGameException.h"
 #include <iostream>
 #include <thread>
 
-GLFWwindow * Window::window;
 int Window::width = 0;
 int Window::height = 0;
+GLFWwindow * Window::window;
 
-
-void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
+void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, int nativeWidth, int nativeHeight)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -22,6 +22,9 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
     if (fullScreen)
     {
         Window::window = glfwCreateWindow(w, h, name.c_str(), glfwGetPrimaryMonitor(), nullptr);
@@ -34,7 +37,6 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
 
     if (Window::window == nullptr)
     {
-        std::cerr << "Failed to create GLFW Window" << std::endl;
         glfwTerminate();
         throw InGameException("Failure during GLFW window creation");
     }
@@ -45,20 +47,20 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen)
 
     if (glewInit() != GLEW_OK)
     {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
         throw InGameException("Failure during GLEW initialization");
     }
 
-    glViewport(0, 0, w, h);
-    glClearColor(0.0f,0.0f,0.0f,1);
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
     glDepthFunc(GL_LESS);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0f, 0.0f, 0.0f, 1);
+
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_MULTISAMPLE);
+//    glEnable(GL_STENCIL_TEST);
+//    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glfwSwapInterval(0);
     Window::width = w;
@@ -92,12 +94,12 @@ void Window::SwapBuffers()
 
 int Window::GetWidth()
 {
-    return Window::width;
+    return width;
 }
 
 int Window::GetHeight()
 {
-    return Window::height;
+    return height;
 }
 
 void Window::SetWidth(int w)
@@ -128,14 +130,10 @@ void Window::Tick()
         Window::SetShouldClose(true);
     }
     /* Show/hide cursor */
-    if (EventsHandler::IsJustPressed(GLFW_KEY_TAB))
+    if ((EventsHandler::IsJustPressed(GLFW_KEY_F1) && EventsHandler::IsPressed(GLFW_KEY_LEFT_SHIFT)) || EventsHandler::IsPressed(GLFW_KEY_TAB) && EventsHandler::IsJustPressed(GLFW_KEY_F1))
     {
         EventsHandler::ToggleCursor();
     }
-//    if (EventsHandler::_cursor_locked)
-//    {
-//        glfwSetCursorPos(window, static_cast<int>(width / 2), static_cast<int>(height / 2));
-//    }
 }
 
 void Window::Update()

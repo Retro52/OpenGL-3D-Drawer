@@ -1,0 +1,6 @@
+[submodule "vendors/include/imgui"]
+	path = vendors/include/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "vendors\\include\\ImGuizmo"]
+	path = vendors\\include\\ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git

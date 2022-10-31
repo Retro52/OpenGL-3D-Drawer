@@ -42,13 +42,31 @@ struct Texture
      * @param path texture path
      * @param gamma gamma correction (not implemented)
      */
-    Texture(const std::string& path, bool gamma = false);
+    explicit Texture(const std::string& path, bool gamma = false);
+
+    /**
+     * Creates an empty texture
+     * @param width texture width
+     * @param height texture height
+     * @param format texture format, GL_RGBA by default
+     * @param internalFormat texture internal format, GL_RGBA by default
+     * @param repeat if texture should be repeated or clamped to the border, true by default
+     * @param isTextureArray true if required texture has to be TEXTURE_2D_ARRAY, false by default
+     * @param textureArraySize texture array size, use only if texture is texture 2D array, -1 by default
+     */
+    Texture(GLsizei width, GLsizei height, unsigned int format = GL_RGBA, unsigned int internalFormat = GL_RGBA, unsigned int pixelType = GL_UNSIGNED_BYTE, bool repeat = true, bool isTextureArray = false, unsigned int textureArraySize = 0);
 
     /**
      * @return texture id
      */
     [[nodiscard]] inline unsigned int GetId() const { return id; }
 
+    void Bind() const { glBindTexture(textureType, id); }
+
+    [[nodiscard]] std::string GetPath() const
+    {
+        return path;
+    }
     /**
      * Texture comparison operator
      * @param other other texture`s path
@@ -74,11 +92,15 @@ struct Texture
      * Deleting texture when we are done
      */
     ~Texture();
+public:
+    static std::vector<std::shared_ptr<Texture>> texturesLoaded;
+
 private:
     int width = 0;
     int height = 0;
     float blend = 1.0f;
     unsigned int id = 0;
+    unsigned int textureType = 0;
     std::string path;
 };
 
@@ -92,11 +114,11 @@ public:
      */
     static void UnloadUnusedTextures()
     {
-        for (auto it = texturesLoaded.begin(); it != texturesLoaded.end();)
+        for (auto it = Texture::texturesLoaded.begin(); it != Texture::texturesLoaded.end();)
         {
             if ((* it).use_count() == 1)
             {
-                it = texturesLoaded.erase(it);
+                it = Texture::texturesLoaded.erase(it);
             }
             else
             {
@@ -118,25 +140,23 @@ public:
      * @param shader draw shader
      * @param shadowTexture shadow texture, rendered by ShadowHandler
      */
-    void Bind(const Shader& shader, GLuint shadowTexture) const;
+    void Bind(const std::shared_ptr<Shader>& shader) const;
+
+public:
+    float opacity;
+    float specular;
+    glm::vec3 defaultColor;
+    std::unordered_map<TextureType, TextureStack> materialTextures;
 
 private:
     /**
-     * Loads all mterial textures
+     * Loads all material textures
      * @param material assimp material
      * @param directory material texture directory
      * @param aiType texture type
      * @param texType engine texture type
      */
     void LoadTextures(const aiMaterial * material, const std::string& directory, aiTextureType aiType, TextureType texType);
-
-    glm::vec3 defaultColor;
-    std::unordered_map<TextureType, TextureStack> materialTextures;
-
-    static std::vector<std::shared_ptr<Texture>> texturesLoaded;
-
-    float opacity;
-    float tilingFactor = 1.0f;
     bool isTwoSided = false;
 };
 #endif //GRAPHICS_MATERIAL_H
