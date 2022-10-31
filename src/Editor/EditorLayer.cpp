@@ -183,7 +183,7 @@ void EditorLayer::DrawImGuiTest()
                 {
                     ResourcesManager::RegisterPlayerScene(fname);
                     selectedEntity = nullptr;
-                    selectedMesh = nullptr;
+                    selectedMaterial = nullptr;
                 }
             }
 
@@ -294,11 +294,11 @@ void EditorLayer::RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& 
     if (ImGui::IsMouseDown(ImGuiMouseButton_Right) && ImGui::IsWindowHovered() && selectedEntity)
     {
         selectedEntity = nullptr;
-        selectedMesh = nullptr;
+        selectedMaterial = nullptr;
     }
-    else if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered() && selectedMesh)
+    else if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered() && selectedMaterial)
     {
-        selectedMesh = nullptr;
+        selectedMaterial = nullptr;
     }
 
 
@@ -584,7 +584,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         {
             scene->DeleteEntity(* selectedEntity);
             selectedEntity = nullptr;
-            selectedMesh = nullptr;
+            selectedMaterial = nullptr;
             return;
         }
 
@@ -662,13 +662,13 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                 ImGui::Checkbox("Should be lit", &modelComponent.shouldBeLit);
                 ImGui::SliderInt("Tiling factor", &modelComponent.tilingFactor, 1, 100);
 
-                if(ImGui::CollapsingHeader("Model meshes: "))
+                if(ImGui::CollapsingHeader("Materials: "))
                 {
                     for (const auto& mesh : modelComponent.model.meshes)
                     {
                         if(ImGui::Button(mesh->name.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 16)))
                         {
-                            selectedMesh = mesh;
+                            selectedMaterial = mesh;
                         }
                         ImGui::Separator();
                     }
@@ -677,6 +677,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                 if(shouldDelete)
                 {
                     selectedEntity->RemoveComponent<Model3DComponent>();
+                    selectedMaterial = nullptr;
                 }
             }
         }
@@ -692,14 +693,14 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                 }
 
                 auto& dirLightComponent = selectedEntity->GetComponent<DirectionalLightComponent>();
-                ImGui::ColorPicker3("Ambient", (float *)&dirLightComponent.directionalLight.ambient);
-                ImGui::ColorPicker3("Diffuse", (float *)&dirLightComponent.directionalLight.diffuse);
-                ImGui::ColorPicker3("Specular", (float *)&dirLightComponent.directionalLight.specular);
+                ImGui::ColorEdit3("Ambient", (float *)&dirLightComponent.directionalLight.ambient);
+                ImGui::ColorEdit3("Diffuse", (float *)&dirLightComponent.directionalLight.diffuse);
+                ImGui::ColorEdit3("Specular", (float *)&dirLightComponent.directionalLight.specular);
 
                 if(shouldDelete)
                 {
                     selectedEntity->RemoveComponent<Model3DComponent>();
-                    selectedMesh = nullptr;
+                    selectedMaterial = nullptr;
                 }
             }
         }
@@ -715,9 +716,9 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                 }
 
                 auto& pointLightComponent = selectedEntity->GetComponent<PointLightComponent>();
-                ImGui::ColorPicker3("Ambient", (float *)&pointLightComponent.pointLight.ambient);
-                ImGui::ColorPicker3("Diffuse", (float *)&pointLightComponent.pointLight.diffuse);
-                ImGui::ColorPicker3("Specular", (float *)&pointLightComponent.pointLight.specular);
+                ImGui::ColorEdit3("Ambient", (float *)&pointLightComponent.pointLight.ambient);
+                ImGui::ColorEdit3("Diffuse", (float *)&pointLightComponent.pointLight.diffuse);
+                ImGui::ColorEdit3("Specular", (float *)&pointLightComponent.pointLight.specular);
 
                 if(shouldDelete)
                 {
@@ -753,62 +754,92 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
         ImGui::End();
     }
 
-    if(selectedMesh)
+    if(selectedMaterial)
     {
-        ImGui::Begin("Mesh properties");
-        ImGui::InputText("Name: ", &selectedMesh->name);
+        ImGui::Begin("Material properties");
+        ImGui::InputText("Name: ", &selectedMaterial->name);
         ImGui::Separator();
-        ImGui::Text("Material");
 
-        auto& material = selectedMesh->material;
+        auto& material = selectedMaterial->material;
         ImGui::SliderFloat("Specular: ", &material.specular, 0.0, 1.0);
-        ImGui::ColorPicker3("Material color: ", (float *) &material.defaultColor);
-        for (auto& [type, textures] : material.materialTextures)
-        {
-            if(textures.empty())
-            {
-                continue;
-            }
-            ImGui::Text(typeid(type).name());
-            for (auto& texture : textures)
-            {
-                ImGui::Image(reinterpret_cast<void*>(texture->GetId()), ImVec2(32, 32));
-                ImGui::SameLine();
-                ImGui::Text(texture->GetPath().c_str());
+        ImGui::ColorEdit3("Material color: ", (float *) &material.defaultColor);
 
-                if(ImGui::BeginDragDropTarget())
-                {
-                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE_SELECTED"))
-                    {
-                        if(payload->Data)
-                        {
-                            bool loaded = false;
-                            for(const auto& tex : Texture::texturesLoaded)
-                            {
-                                if (* tex == ((char *) payload->Data))
-                                {
-                                    loaded = true;
-                                    texture = tex;
-                                    break;
-                                }
-                            }
-                            if(!loaded)
-                            {
-                                texture = std::make_shared<Texture>((char *) payload->Data);
-                            }
-                        }
-                        else
-                        {
-                            LOG(WARNING) << " Accepted payload of type FILE_SELECTED is nullptr\n";
-                        }
-                    }
-                    ImGui::EndDragDropTarget();
-                }
-            }
-            ImGui::Separator();
-        }
+        ImGui::Text("Diffuse texture");
+        RenderMaterialTextures(material.materialTextures.at(TextureType::Diffuse));
+
+        ImGui::Text("Normal texture");
+        RenderMaterialTextures(material.materialTextures.at(TextureType::Normal));
+
+        ImGui::Text("Specular texture");
+        RenderMaterialTextures(material.materialTextures.at(TextureType::Specular));
 
         ImGui::End();
+    }
+}
+
+void EditorLayer::RenderMaterialTextures(TextureStack& stack)
+{
+    if(stack.empty())
+    {
+        ImGui::PushID(&stack);
+        if(ImGui::Button("+"))
+        {
+            stack.push_back(std::make_shared<Texture>(64, 64));
+        }
+    }
+    for (auto i = stack.begin(); i != stack.end();)
+    {
+        auto& texture = * i;
+        ImGui::Image(reinterpret_cast<void*>(texture->GetId()), ImVec2(64, 64));
+        ImGui::SameLine();
+        auto path = texture->GetPath();
+        if(path.empty())
+        {
+            ImGui::Text("Empty texture");
+        }
+        else
+        {
+            ImGui::Text(texture->GetPath().c_str());
+        }
+
+        if(ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("FILE_SELECTED"))
+            {
+                if (payload->Data)
+                {
+                    bool loaded = false;
+                    for (const auto &tex: Texture::texturesLoaded)
+                    {
+                        if (*tex == ((char *) payload->Data))
+                        {
+                            loaded = true;
+                            texture = tex;
+                            break;
+                        }
+                    }
+                    if (!loaded)
+                    {
+                        texture = std::make_shared<Texture>((char *) payload->Data);
+                    }
+                }
+                else
+                {
+                    LOG(WARNING) << " Accepted payload of type FILE_SELECTED is nullptr\n";
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        ImGui::PushID(texture->GetId());
+        if(ImGui::Button("-"))
+        {
+            i = stack.erase(i);
+        }
+        else
+        {
+            i++;
+        }
     }
 }
 

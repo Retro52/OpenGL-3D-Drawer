@@ -53,9 +53,11 @@ private:
 
     void RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& scene);
 
+    static void RenderMaterialTextures(TextureStack& stack);
+
 private:
     std::filesystem::path curDirectory;
-    std::shared_ptr<Mesh> selectedMesh = nullptr;
+    std::shared_ptr<Mesh> selectedMaterial = nullptr;
     std::shared_ptr<Entity> selectedEntity = nullptr;
 
     int selectedOperation;
