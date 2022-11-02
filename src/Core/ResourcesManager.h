@@ -80,6 +80,22 @@ public:
         return layers;
     }
 
+    static void ShutDown()
+    {
+        // destroying the opened scene
+        pScene = nullptr;
+
+        // clearing layers
+        for (const auto& layer : layers)
+        {
+            layer->OnDestroy();
+        }
+        layers.clear();
+
+        // clearing shaders
+        shaders.clear();
+    }
+
 private:
     static std::unique_ptr<Scene> pScene;
     static std::vector<std::shared_ptr<Layer>> layers;

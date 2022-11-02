@@ -227,6 +227,7 @@ void EditorLayer::DrawImGuiTest()
             }
             ImGui::EndMenu();
         }
+        ImGui::EndMainMenuBar();
     }
 
     auto& scene = ResourcesManager::GetPlayerScene();

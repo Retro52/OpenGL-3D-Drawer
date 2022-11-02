@@ -25,15 +25,17 @@ public:
         os << std::boolalpha;
         os << openBracket;
 
+        // cast is required for function to hit the overloaded template for strings
+        // FIXME: remove the cast
         InsertVariable(os, "Name", (const std::string&) "SceneDefaultName");
-
         StartMap(os, "Entities");
 
         scene->registry.each([&](auto id)
         {
             auto u32id = (uint32_t) id;
             StartMap(os, "Entity" + std::to_string(u32id));
-            // implicitly creating Entity using id gathered from registry, then serializing it to the json file
+            
+            // creating Entity using id gathered from registry, then serializing it to the json file
             SerializeEntity(os, { id, scene });
             CloseMap(os);
         });

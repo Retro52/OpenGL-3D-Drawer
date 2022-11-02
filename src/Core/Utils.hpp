@@ -5,9 +5,11 @@
 #ifndef GRAPHICS_UTILS_HPP
 #define GRAPHICS_UTILS_HPP
 
-#ifdef __WIN32
+#ifdef _WIN32
 #include "windows.h"
 constexpr const char * SCENE_FILE_FILTER = "Editor scene (*.json)\0*.json\0";
+#else
+constexpr const char* SCENE_FILE_FILTER = "";
 #endif
 
 #include <string>
@@ -16,7 +18,7 @@ constexpr const char * SCENE_FILE_FILTER = "Editor scene (*.json)\0*.json\0";
 namespace Utils
 {
     /* Windows specific */
-#ifdef __WIN32
+#ifdef _WIN32
     std::string OpenFile(const char * filter = "All Files (*.*)\0*.*\0", HWND owner = nullptr)
     {
         OPENFILENAME ofn;

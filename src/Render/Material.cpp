@@ -1,8 +1,7 @@
 //
 // Created by Anton on 18.09.2022.
 //
-
-#include <iomanip>
+#include <iostream>
 #include "Material.h"
 #include "../Core/InGameException.h"
 #include "../Core/Profiler.hpp"
@@ -17,7 +16,7 @@ std::vector<std::shared_ptr<Texture>> Texture::texturesLoaded;
 Texture::Texture(const std::string& path, bool /*gamma*/) : path(path)
 {
     textureType = GL_TEXTURE_2D;
-    std::string filename = std::quoted(path)._M_string;
+
     stbi_set_flip_vertically_on_load(0);
 
     int nrComponents = 0;

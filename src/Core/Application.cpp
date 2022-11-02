@@ -3,6 +3,7 @@
 //
 
 #include "Global.h"
+#include "ResourcesManager.h"
 #include "Application.h"
 #include "../Render/Renderer.h"
 
@@ -58,4 +59,5 @@ void Application::Destroy()
     LOG(INFO) << "Average FPS: " << static_cast<double> (totalFrames) / executionTime;
     Window::Terminate();
     Renderer::ShutDown();
+    ResourcesManager::ShutDown();
 }

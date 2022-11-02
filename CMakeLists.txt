@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.17)
 project(Graphics)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+
+add_compile_definitions(NOMINMAX)
+add_compile_definitions(GLEW_STATIC)
 
 include_directories(vendors/include/GLFW)
 link_directories(vendors/lib/GLFW)
@@ -15,6 +17,8 @@ link_directories(vendors/lib/GLEW)
 include_directories(vendors/include/imgui)
 
 include_directories(vendors/include)
+
+link_directories(vendors/lib/assimp)
 
 set(ImGuizmoSource vendors/include/ImGuizmo/ImGuizmo.h vendors/include/ImGuizmo/ImGuizmo.cpp)
 set(EditorSource src/Editor/EditorLayer.cpp src/Editor/EditorLayer.h)
@@ -43,4 +47,4 @@ add_executable(Graphics
         src/main.cpp
         )
 
-target_link_libraries(Graphics glew32 OpenGL32.lib libglfw3.a libassimp.dll.a)
+target_link_libraries(Graphics glew32s OpenGL32.lib glfw3 assimp-vc142-mtd)

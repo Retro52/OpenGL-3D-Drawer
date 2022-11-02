@@ -6,128 +6,13 @@
     {
       "Name" : 
       {
-        "Name" : "Directional light"
+        "Name" : "Point light"
       },
       "Transform" : 
       {
-        "Position" : [0, 24.2536, 0],
-        "Rotation" : [-45.2807, -30.2824, 1.87849e-05],
-        "Scale" : [0.999997, 0.999998, 0.999997]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/sun.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      },
-      "Directional light" : 
-      {
-        "Ambient" : [1, 1, 1],
-        "Diffuse" : [1, 1, 1],
-        "Specular" : [1, 1, 1]
-      }
-    },
-    "Entity7" : 
-    {
-      "Name" : 
-      {
-        "Name" : "PL1_copy"
-      },
-      "Transform" : 
-      {
-        "Position" : [45.9591, 0.212254, -16.8521],
-        "Rotation" : [-4.27012, 0, 0],
-        "Scale" : [0.05, 0.05, 0.05]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/bulb.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      },
-      "Point light" : 
-      {
-        "Linear" : 0.09,
-        "Ambient" : [0.5, 0.5, 0.5],
-        "Diffuse" : [0.5, 0.5, 0.5],
-        "Constant" : 0.3,
-        "Specular" : [0.5, 0.5, 0.5],
-        "Quadratic" : 0.012
-      }
-    },
-    "Entity6" : 
-    {
-      "Name" : 
-      {
-        "Name" : "GraphicsTest"
-      },
-      "Transform" : 
-      {
-        "Position" : [33.604, 5.64575, 25.3043],
-        "Rotation" : [0, 0, -1.04292e-05],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/source/AC_Unit/AC_Unit.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      }
-    },
-    "Entity5" : 
-    {
-      "Name" : 
-      {
-        "Name" : "backpack"
-      },
-      "Transform" : 
-      {
-        "Position" : [29.1205, 0, 0],
-        "Rotation" : [0, -764.153, -0.00646498],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/backpack/backpack.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      }
-    },
-    "Entity4" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Floor_copy"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, -5, 0],
-        "Rotation" : [180, 0, 0],
-        "Scale" : [74.5271, 74.5271, 74.5271]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/brickwall/plane.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 20
-      }
-    },
-    "Entity3" : 
-    {
-      "Name" : 
-      {
-        "Name" : "PL1"
-      },
-      "Transform" : 
-      {
-        "Position" : [6.23538, -1.06854, -17.6371],
-        "Rotation" : [-4.27012, 0, 0],
-        "Scale" : [0.05, 0.05, 0.05]
+        "Position" : [-3.898, -1.04926, -23.4812],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [0.0500003, 0.0500003, 0.0500003]
       },
       "Model3D" : 
       {
@@ -146,7 +31,47 @@
         "Quadratic" : 0.012
       }
     },
-    "Entity2" : 
+    "Entity7" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Floor_copy"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, -4.74477, 0],
+        "Rotation" : [-180.175, 0, 0],
+        "Scale" : [74.5271, 74.5271, 74.5271]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/brickwall/plane.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 20
+      }
+    },
+    "Entity1048581" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Cube"
+      },
+      "Transform" : 
+      {
+        "Position" : [22.8388, -6.10352e-05, -57.6523],
+        "Rotation" : [0, -0, 0],
+        "Scale" : [2, 2, 2]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/cube.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity4" : 
     {
       "Name" : 
       {
@@ -154,8 +79,8 @@
       },
       "Transform" : 
       {
-        "Position" : [5.8054, 12.7203, 2.61534],
-        "Rotation" : [-17.6512, -1037.3, 0],
+        "Position" : [17.664, 9.30356, -57.8427],
+        "Rotation" : [-67.8483, -19172.3, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -163,6 +88,52 @@
         "FOV" : 1.0472,
         "isPrimary" : true,
         "Aspect" : [16, 9]
+      }
+    },
+    "Entity3" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Directional light"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 48.3869, 0],
+        "Rotation" : [221.539, 27.692, 0],
+        "Scale" : [0.999991, 0.999994, 0.999992]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sun.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      },
+      "Directional light" : 
+      {
+        "Ambient" : [0.8, 0.8, 0.8],
+        "Diffuse" : [0.8, 0.8, 0.8],
+        "Specular" : [0.5, 0.5, 0.5]
+      }
+    },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Backpack"
+      },
+      "Transform" : 
+      {
+        "Position" : [29.1205, 0, 0],
+        "Rotation" : [0, -764.153, -0.00646498],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/backpack/backpack.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
       }
     },
     "Entity1" : 
@@ -173,9 +144,9 @@
       },
       "Transform" : 
       {
-        "Position" : [7, -3, 3],
+        "Position" : [0, -3, 0],
         "Rotation" : [0, 0, 0],
-        "Scale" : [60, 1, 60]
+        "Scale" : [100, 1, 100]
       },
       "Model3D" : 
       {
@@ -193,7 +164,7 @@
       },
       "Transform" : 
       {
-        "Position" : [12.5566, -2.94273, 17.5596],
+        "Position" : [14.9483, -2.94273, 18.1369],
         "Rotation" : [0, 0, 0],
         "Scale" : [1, 1, 1]
       },

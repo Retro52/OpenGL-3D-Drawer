@@ -74,7 +74,7 @@ void Scene::LoadScene(const std::string &loadPath)
     }
     catch(std::exception& e)
     {
-        LOG(WARNING) << "Unable to parse " << loadPath << " file to load scene";
+        LOG(WARNING) << "Unable to parse " << loadPath << " file to load scene. Reason: " << e.what();
         return;
     }
 

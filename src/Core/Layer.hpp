@@ -12,14 +12,14 @@
 class Layer
 {
 public:
-    virtual void OnCreate();
-    virtual void OnDestroy();
+    virtual void OnCreate() = 0;
+    virtual void OnDestroy() = 0;
 
-    virtual void OnUiRender();
-    virtual void OnUpdate(double deltaTime);
+    virtual void OnUiRender() = 0;
+    virtual void OnUpdate(double deltaTime) = 0;
 
     // shader pointer is used for pointer arithmetics
-    virtual void OnEvent(const std::shared_ptr<Event>& event);
+    virtual void OnEvent(const std::shared_ptr<Event>& event) = 0;
 
     virtual ~Layer() = default;
 };
