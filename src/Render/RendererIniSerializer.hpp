@@ -25,7 +25,7 @@ public:
 
         std::ofstream fos(fileName);
 
-        GAME_ASSERT(fos.is_open(), "Failed to open file " + fileName + " to save the scene");
+        ASSERT(fos.is_open(), "Failed to open file " + fileName + " to save the scene");
 
         fos << std::boolalpha;
 

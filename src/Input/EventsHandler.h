@@ -6,22 +6,23 @@
 #define GRAPHICS_EVENTSHANDLER_H
 #define GLEW_STATIC
 
+#include <array>
 #include <memory>
+
 #include "glew.h"
 #include "glfw3.h"
 
-using uint = unsigned int;
 constexpr int MOUSE_BUTTONS_OFFSET = 1024;
 
 class EventsHandler
 {
 public:
-    static float deltaX;
-    static float deltaY;
-    static float x;
-    static float y;
-    static bool _cursor_locked;
-    static bool _cursor_started;
+    inline static float x;
+    inline static float y;
+    inline static float deltaX;
+    inline static float deltaY;
+    inline static bool isCursorLocked;
+    inline static bool isCursorStarted;
 
     /* Restriction to create an instance of this class */
     EventsHandler() = delete;
@@ -74,17 +75,17 @@ public:
 
     static void ToggleCursor(bool shouldBeVisible);
 
-    static void mouse_button_callback(GLFWwindow * window, int button, int action, int mode);
+    static void MouseCallback(GLFWwindow * window, int button, int action, int mode);
 
-    static void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
+    static void KeyCallback(GLFWwindow * window, int key, int scancode, int action, int mode);
 
-    static void cursor_position_callback(GLFWwindow * window, double xpos, double ypos);
+    static void CursorCallback(GLFWwindow * window, double xpos, double ypos);
 
-    static void window_size_callback(GLFWwindow * /*window*/, int width, int height);
+    static void WindowCallback(GLFWwindow * /*window*/, int width, int height);
 private:
-    static std::array<bool, 1032> _keys;
-    static std::array<uint, 1032> _frames;
-    static uint _current;
+    inline static unsigned int curFrame;
+    inline static std::array<bool, 1032> pressedKeys;
+    inline static std::array<unsigned int, 1032> keyPressFrame;
 };
 
 

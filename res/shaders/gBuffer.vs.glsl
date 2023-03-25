@@ -13,6 +13,7 @@ out vec2 TexCoords;
 uniform mat4 view;
 uniform mat4 model;
 uniform mat4 projection;
+uniform mat3 normalMatrix;
 
 void main()
 {
@@ -20,7 +21,7 @@ void main()
     FragPos = worldPos.xyz;
     TexCoords = aTexCoords;
 
-    mat3 normalMatrix = transpose(inverse(mat3(model)));
+//    mat3 normalMatrix = transpose(inverse(mat3(model)));
     Normal = normalMatrix * aNormal;
 
     vec3 T = normalize(normalMatrix * aTangent);

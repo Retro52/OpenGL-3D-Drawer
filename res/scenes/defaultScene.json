@@ -6,32 +6,67 @@
     {
       "Name" : 
       {
+        "Name" : "Tavern"
+      },
+      "Transform" : 
+      {
+        "Position" : [-9.68682, -3.02003, -2.6371],
+        "Rotation" : [-179.993, -88.1295, 179.992],
+        "Scale" : [0.999864, 1, 0.999864]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/tavern-medieval-house/source/Tavern.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity7" : 
+    {
+      "Name" : 
+      {
         "Name" : "Point light"
       },
       "Transform" : 
       {
-        "Position" : [-3.898, -1.04926, -23.4812],
+        "Position" : [-1.21335, -1.42783, -3.64944],
         "Rotation" : [0, 0, 0],
-        "Scale" : [0.0500003, 0.0500003, 0.0500003]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/bulb.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
+        "Scale" : [0.01, 0.01, 0.01]
       },
       "Point light" : 
       {
-        "Linear" : 0.09,
-        "Ambient" : [0.5, 0.5, 0.5],
-        "Diffuse" : [0.5, 0.5, 0.5],
-        "Constant" : 0.3,
-        "Specular" : [0.5, 0.5, 0.5],
-        "Quadratic" : 0.012
+        "Linear" : 1,
+        "Ambient" : [0.843137, 0.862745, 0.352941],
+        "Diffuse" : [0.843137, 0.862745, 0.352941],
+        "Constant" : 1,
+        "Specular" : [0.843137, 0.862745, 0.352941],
+        "Quadratic" : 1
       }
     },
-    "Entity7" : 
+    "Entity6" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Point light"
+      },
+      "Transform" : 
+      {
+        "Position" : [1.48942, -1.42783, -3.64944],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [0.01, 0.01, 0.01]
+      },
+      "Point light" : 
+      {
+        "Linear" : 1,
+        "Ambient" : [0.841874, 0.86413, 0.352227],
+        "Diffuse" : [0.843137, 0.862745, 0.352941],
+        "Constant" : 1,
+        "Specular" : [0.843137, 0.862745, 0.352941],
+        "Quadratic" : 1
+      }
+    },
+    "Entity5" : 
     {
       "Name" : 
       {
@@ -51,26 +86,6 @@
         "tilingFactor" : 20
       }
     },
-    "Entity1048581" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Cube"
-      },
-      "Transform" : 
-      {
-        "Position" : [22.8388, -6.10352e-05, -57.6523],
-        "Rotation" : [0, -0, 0],
-        "Scale" : [2, 2, 2]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/cube.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      }
-    },
     "Entity4" : 
     {
       "Name" : 
@@ -79,13 +94,13 @@
       },
       "Transform" : 
       {
-        "Position" : [17.664, 9.30356, -57.8427],
-        "Rotation" : [-67.8483, -19172.3, 0],
+        "Position" : [-15.8987, 18.1474, -44.7267],
+        "Rotation" : [-25.429, 1976.52, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
       {
-        "FOV" : 1.0472,
+        "FOV" : 0.785398,
         "isPrimary" : true,
         "Aspect" : [16, 9]
       }
@@ -94,39 +109,13 @@
     {
       "Name" : 
       {
-        "Name" : "Directional light"
-      },
-      "Transform" : 
-      {
-        "Position" : [0, 48.3869, 0],
-        "Rotation" : [221.539, 27.692, 0],
-        "Scale" : [0.999991, 0.999994, 0.999992]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/sun.obj",
-        "castsShadow" : false,
-        "shouldBeLit" : false,
-        "tilingFactor" : 1
-      },
-      "Directional light" : 
-      {
-        "Ambient" : [0.8, 0.8, 0.8],
-        "Diffuse" : [0.8, 0.8, 0.8],
-        "Specular" : [0.5, 0.5, 0.5]
-      }
-    },
-    "Entity2" : 
-    {
-      "Name" : 
-      {
         "Name" : "Backpack"
       },
       "Transform" : 
       {
-        "Position" : [29.1205, 0, 0],
-        "Rotation" : [0, -764.153, -0.00646498],
-        "Scale" : [1, 1, 1]
+        "Position" : [-1.75127, -2.65186, -3.83065],
+        "Rotation" : [167.191, 1.92419, -177.924],
+        "Scale" : [0.200016, 0.2, 0.200016]
       },
       "Model3D" : 
       {
@@ -136,7 +125,58 @@
         "tilingFactor" : 1
       }
     },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Tavern"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, -3.02, 0],
+        "Rotation" : [0, -1.86947, 0],
+        "Scale" : [0.999962, 1, 0.999962]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/tavern-medieval-house/source/Tavern.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
     "Entity1" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Directional light"
+      },
+      "Transform" : 
+      {
+        "Position" : [17.977, -0.606073, -48.6189],
+        "Rotation" : [-50.5608, 43.9072, -27.1159],
+        "Scale" : [0.999927, 0.999971, 0.999925]
+      },
+      "Directional light" : 
+      {
+        "Ambient" : [0.490196, 0.490196, 0.490196],
+        "Diffuse" : [1.96078, 1.96078, 1.96078],
+        "Specular" : [0.668478, 0.668478, 0.668478]
+      },
+      "SkyBox" : 
+      {
+        "Path" : 
+        {
+          "Front" : "../res/textures/front.png",
+          "Back" : "../res/textures/back.png",
+          "Left" : "../res/textures/left.png",
+          "Right" : "../res/textures/right.png",
+          "Top" : "../res/textures/top.png",
+          "Bottom" : "../res/textures/bottom.png"
+        }
+      }
+    },
+    "Entity0" : 
     {
       "Name" : 
       {
@@ -146,34 +186,14 @@
       {
         "Position" : [0, -3, 0],
         "Rotation" : [0, 0, 0],
-        "Scale" : [100, 1, 100]
+        "Scale" : [10000, 1, 10000]
       },
       "Model3D" : 
       {
         "Path" : "../res/assets/brickwall/plane.obj",
         "castsShadow" : true,
         "shouldBeLit" : true,
-        "tilingFactor" : 100
-      }
-    },
-    "Entity0" : 
-    {
-      "Name" : 
-      {
-        "Name" : "Church"
-      },
-      "Transform" : 
-      {
-        "Position" : [14.9483, -2.94273, 18.1369],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [1, 1, 1]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/monastyr/monastyr.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
+        "tilingFactor" : 10000
       }
     }
   }

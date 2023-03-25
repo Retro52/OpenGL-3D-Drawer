@@ -64,8 +64,9 @@ public:
      */
     void DrawIntoDepth() const;
 public:
-    Material material;
     std::string name;
+    Material material;
+    bool overrideDefaultMaterial = true;
 
 private:
     unsigned int VBO{}, EBO{};

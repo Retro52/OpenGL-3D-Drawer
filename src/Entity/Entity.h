@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "../Core/InGameException.h"
+#include "../Core/EngineException.h"
 #include "entt/entt.hpp"
 #include "Scene.h"
 
@@ -27,7 +27,7 @@ public:
     template<typename T, typename... Args>
     T& AddComponent(Args&&... args) const
     {
-        GAME_ASSERT(!HasComponent<T>(), "Trying to add already registered component");
+        ASSERT(!HasComponent<T>(), "Trying to add already registered component");
         return scene->registry.template emplace<T>(thisEntity, std::forward<Args>(args)...);
     }
 
@@ -39,7 +39,7 @@ public:
     template<typename T>
     [[nodiscard]] T& GetComponent() const
     {
-        GAME_ASSERT(HasComponent<T>(), "Trying to get unregistered component");
+        ASSERT(HasComponent<T>(), "Trying to get unregistered component");
         return scene->registry.template get<T>(thisEntity);
     }
 
@@ -62,7 +62,7 @@ public:
     template<typename T>
     void RemoveComponent() const
     {
-        GAME_ASSERT(HasComponent<T>(), "Trying to remove unregistered component");
+        ASSERT(HasComponent<T>(), "Trying to remove unregistered component");
         scene->registry.template remove<T>(thisEntity);
     }
 

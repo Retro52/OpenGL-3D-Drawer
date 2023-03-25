@@ -3,7 +3,7 @@
 //
 
 #include "Shader.h"
-#include "../Core/InGameException.h"
+#include "../Core/EngineException.h"
 #include "../Logging/easylogging++.h"
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath)
@@ -50,6 +50,8 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geo
     {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << std::endl;
     }
+    shaderPath = { vertexPath, fragmentPath, geometryPath == nullptr ? "" : geometryPath };
+
     const char* vShaderCode = vertexCode.c_str();
     const char * fShaderCode = fragmentCode.c_str();
     // 2. compile shaders
@@ -64,7 +66,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geo
     checkCompileErrors(vertex, "VERTEX");
     // fragment Shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment, 1, &fShaderCode, NULL);
+    glShaderSource(fragment, 1, &fShaderCode, nullptr);
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
     // if geometry shader is given, compile geometry shader
@@ -73,7 +75,7 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath, const char *geo
     {
         const char * gShaderCode = geometryCode.c_str();
         geometry = glCreateShader(GL_GEOMETRY_SHADER);
-        glShaderSource(geometry, 1, &gShaderCode, NULL);
+        glShaderSource(geometry, 1, &gShaderCode, nullptr);
         glCompileShader(geometry);
         checkCompileErrors(geometry, "GEOMETRY");
     }
@@ -232,7 +234,7 @@ void Shader::checkCompileErrors(GLuint shader, const std::string &type)
         {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-            throw InGameException("Failed to compile shader");
+            throw EngineException("Failed to compile shader");
         }
     }
     else
@@ -242,7 +244,7 @@ void Shader::checkCompileErrors(GLuint shader, const std::string &type)
         {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
             std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-            throw InGameException("Failed to link shaders");
+            throw EngineException("Failed to link shaders");
         }
     }
 }

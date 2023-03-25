@@ -10,7 +10,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtx/quaternion.hpp"
-#include "../Core/PerspectiveCamera.h"
+#include "../Core/Camera.h"
 #include "../Core/UniqueID.hpp"
 #include "../Render/Model.h"
 
@@ -43,8 +43,8 @@ struct NameComponent
 
 struct CameraComponent
 {
-    explicit CameraComponent() : camera(PerspectiveCamera(glm::radians(60.0f))) {};
-    explicit CameraComponent(float FOV) : camera(PerspectiveCamera(FOV)) {};
+    explicit CameraComponent() : camera(Camera(glm::radians(60.0f))) {};
+    explicit CameraComponent(float FOV) : camera(Camera(FOV)) {};
     CameraComponent(const CameraComponent&) = default;
 
     ~CameraComponent() = default;
@@ -56,10 +56,11 @@ struct CameraComponent
     inline void UpdateCamera(const glm::vec3& rotation) { return camera.Update(rotation); }
 
     [[nodiscard]] inline glm::mat4 GetCameraProjection() const { return camera.GetProjection(); }
+    [[nodiscard]] inline glm::mat4 GetCameraInfiniteProjection() const { return camera.GetInfiniteProjection(); }
 
     [[nodiscard]] inline glm::mat4 GetCameraView(const glm::vec3& position) { return camera.GetView(position); }
 
-    PerspectiveCamera camera;
+    Camera camera;
     bool isPrimary = false;
 };
 
@@ -101,16 +102,131 @@ struct PointLightComponent
     PointLight pointLight;
 };
 
-enum EngineDefaultTypes
+// TODO: remake
+struct SkyBoxComponent
 {
-    Axes
-};
+    SkyBoxComponent()
+    {
+        static const float skyboxVertices[] =
+        {
+                // positions
+                -1.0f,  1.0f, -1.0f,
+                -1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
 
-struct EngineDefaultComponent
-{
-    EngineDefaultComponent() = delete;
-    explicit EngineDefaultComponent(EngineDefaultTypes type) : type(type) {};
-    EngineDefaultTypes type;
+                -1.0f, -1.0f,  1.0f,
+                -1.0f, -1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f,  1.0f,
+                -1.0f, -1.0f,  1.0f,
+
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+
+                -1.0f, -1.0f,  1.0f,
+                -1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f, -1.0f,  1.0f,
+                -1.0f, -1.0f,  1.0f,
+
+                -1.0f,  1.0f, -1.0f,
+                1.0f,  1.0f, -1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                -1.0f,  1.0f,  1.0f,
+                -1.0f,  1.0f, -1.0f,
+
+                -1.0f, -1.0f, -1.0f,
+                -1.0f, -1.0f,  1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                -1.0f, -1.0f,  1.0f,
+                1.0f, -1.0f,  1.0f
+        };
+
+        glGenVertexArrays(1, &skyboxVAO);
+        glGenBuffers(1, &skyboxVBO);
+        glBindVertexArray(skyboxVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    }
+    ~SkyBoxComponent() = default;
+
+    [[nodiscard]] unsigned int GetTexture() const
+    {
+        return cubeMapTexture->GetId();
+    }
+
+    void Draw() const
+    {
+        if(!cubeMapTexture)
+        {
+            return;
+        }
+
+        GLint prevDepthFunc;
+        glGetIntegerv(GL_DEPTH_FUNC, &prevDepthFunc);
+
+        // draw skybox as last
+        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+
+        // skybox cube
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE0);
+        cubeMapTexture->Bind();
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+        glDepthFunc(prevDepthFunc); // set depth function back to default
+    }
+
+    unsigned int GetCubeTextureId()
+    {
+        if(cubeMapTexture)
+        {
+            return cubeMapTexture->GetId();
+        }
+        return 0;
+    }
+
+    void Reload()
+    {
+        cubeMapTexture = std::make_shared<CubeMap>( std::array<std::string, 6> (
+                {
+                        rightTexture,
+                        leftTexture,
+                        topTexture,
+                        bottomTexture,
+                        frontTexture,
+                        backTexture
+                }
+                ));
+    }
+
+    std::string topTexture;
+    std::string bottomTexture;
+
+    std::string leftTexture;
+    std::string rightTexture;
+
+    std::string backTexture;
+    std::string frontTexture;
+
+    std::shared_ptr<CubeMap> cubeMapTexture;
+private:
+    unsigned int skyboxVAO{}, skyboxVBO{};
 };
 
 #endif //GRAPHICS_COMPONENTS_H

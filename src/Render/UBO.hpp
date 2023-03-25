@@ -41,6 +41,7 @@ public:
      * Fills UBO with data of T type
      * @param data vector of data to fill
      */
+//    template<typename T, size_t size = 1>
     void FillData(const std::vector<T>& data, int offset = 0) const
     {
         size_t optSize = data.size() < size ? data.size() : size;
@@ -53,7 +54,7 @@ public:
     /**
      * Binds UBO to 0
      */
-    void Reset()
+    void Reset() const
     {
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }

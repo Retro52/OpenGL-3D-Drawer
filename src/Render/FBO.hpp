@@ -11,7 +11,7 @@
 #include "Material.h"
 #include <iostream>
 #include <unordered_map>
-#include "../Core/InGameException.h"
+#include "../Core/EngineException.h"
 
 class FBO
 {
@@ -139,10 +139,21 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void GenerateRenderBufferDepthAttachmentMultisample(int width, int height, int samples = 4)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, id);
+        glGenRenderbuffers(1, &rboId);
+        glBindRenderbuffer(GL_RENDERBUFFER, rboId);
+        glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboId);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
     void Check() const
     {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
-        GAME_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "WINDOW::ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+        ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE,
+               "WINDOW::ERROR::FRAMEBUFFER:: Framebuffer is not complete! Error code: " + std::to_string(glCheckFramebufferStatus(GL_FRAMEBUFFER)));
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 

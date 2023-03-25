@@ -41,7 +41,7 @@ public:
         size_t optSize = data.size() < size ? data.size() : size;
         for (size_t i = 0; i < optSize; ++i)
         {
-            glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(T), sizeof(T), &data[i]);
+            glBufferSubData(GL_UNIFORM_BUFFER, i * sizeof(T), sizeof(T), &data.at(i));
         }
     }
 

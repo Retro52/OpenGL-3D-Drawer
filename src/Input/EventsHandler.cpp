@@ -8,16 +8,6 @@
 #include <array>
 #include <iostream>
 
-std::array<bool, 1032> EventsHandler::_keys;
-std::array<uint, 1032> EventsHandler::_frames;
-uint EventsHandler::_current = 0;
-float EventsHandler::deltaX = 0.0F;
-float EventsHandler::deltaY = 0.0F;
-float EventsHandler::x = 0.0F;
-float EventsHandler::y = 0.0F;
-bool EventsHandler::_cursor_locked = false;
-bool EventsHandler::_cursor_started = false;
-
 
 /**
  * Cursor movement callback
@@ -25,16 +15,16 @@ bool EventsHandler::_cursor_started = false;
  * @param xpos mouse x position
  * @param ypos mouse y position
  */
-void EventsHandler::cursor_position_callback(GLFWwindow * /* window */, double xpos, double ypos)
+void EventsHandler::CursorCallback(GLFWwindow *window /* window */, double xpos, double ypos)
 {
-    if (EventsHandler::_cursor_started)
+    if (EventsHandler::isCursorStarted)
     {
         EventsHandler::deltaX += (float) xpos - EventsHandler::x;
         EventsHandler::deltaY += (float) ypos - EventsHandler::y;
     }
     else
     {
-        EventsHandler::_cursor_started = true;
+        EventsHandler::isCursorStarted = true;
     }
 
     EventsHandler::x = (float) xpos;
@@ -50,7 +40,7 @@ void EventsHandler::cursor_position_callback(GLFWwindow * /* window */, double x
  * @param action id of the action
  * @param mode id of the mode
  */
-void EventsHandler::mouse_button_callback(GLFWwindow * /* window */, int button, int action, int /* mode */)
+void EventsHandler::MouseCallback(GLFWwindow *window /* window */, int button, int action, int /* mode */mode)
 {
     if (MOUSE_BUTTONS_OFFSET + button > 1032 || button < 0)
     {
@@ -58,15 +48,15 @@ void EventsHandler::mouse_button_callback(GLFWwindow * /* window */, int button,
     }
     if (action == GLFW_PRESS)
     {
-        EventsHandler::_keys.at(MOUSE_BUTTONS_OFFSET + button) = true;
-        EventsHandler::_frames.at(MOUSE_BUTTONS_OFFSET + button) = EventsHandler::_current;
+        EventsHandler::pressedKeys.at(MOUSE_BUTTONS_OFFSET + button) = true;
+        EventsHandler::keyPressFrame.at(MOUSE_BUTTONS_OFFSET + button) = EventsHandler::curFrame;
 
         EventsStack::Emplace(std::make_shared<MouseButtonClick>(button));
     }
     else if (action == GLFW_RELEASE)
     {
-        EventsHandler::_keys.at(MOUSE_BUTTONS_OFFSET + button) = false;
-        EventsHandler::_frames.at(MOUSE_BUTTONS_OFFSET + button) = EventsHandler::_current;
+        EventsHandler::pressedKeys.at(MOUSE_BUTTONS_OFFSET + button) = false;
+        EventsHandler::keyPressFrame.at(MOUSE_BUTTONS_OFFSET + button) = EventsHandler::curFrame;
 
         EventsStack::Emplace(std::make_shared<MouseButtonRelease>(button));
     }
@@ -80,7 +70,7 @@ void EventsHandler::mouse_button_callback(GLFWwindow * /* window */, int button,
  * @param action action id
  * @param mode mode id
  */
-void EventsHandler::key_callback(GLFWwindow * /* window */, int key, int /* scancode */ , int action, int /* mode */)
+void EventsHandler::KeyCallback(GLFWwindow *window /* window */, int key, int /* scancode */ scancode, int action, int /* mode */mode)
 {
     if (key > MOUSE_BUTTONS_OFFSET || key < 0)
     {
@@ -88,14 +78,14 @@ void EventsHandler::key_callback(GLFWwindow * /* window */, int key, int /* scan
     }
     if (action == GLFW_PRESS)
     {
-        EventsHandler::_keys.at(key) = true;
-        EventsHandler::_frames.at(key) = EventsHandler::_current;
+        EventsHandler::pressedKeys.at(key) = true;
+        EventsHandler::keyPressFrame.at(key) = EventsHandler::curFrame;
         EventsStack::Emplace(std::make_shared<KeyPressedEvent>(key));
     }
     else if (action == GLFW_RELEASE)
     {
-        EventsHandler::_keys.at(key) = false;
-        EventsHandler::_frames.at(key) = EventsHandler::_current;
+        EventsHandler::pressedKeys.at(key) = false;
+        EventsHandler::keyPressFrame.at(key) = EventsHandler::curFrame;
         EventsStack::Emplace(std::make_shared<KeyReleasedEvent>(key));
     }
 }
@@ -106,7 +96,7 @@ void EventsHandler::key_callback(GLFWwindow * /* window */, int key, int /* scan
  * @param width new width
  * @param height new height
  */
-void EventsHandler::window_size_callback(GLFWwindow * /*window*/, int width, int height)
+void EventsHandler::WindowCallback(GLFWwindow * /*window*/, int width, int height)
 {
     glViewport(0,0, width, height);
     Window::SetHeight(height);
@@ -120,10 +110,10 @@ int EventsHandler::Initialize()
 {
     GLFWwindow * window = Window::GetCurrentWindow();
 
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetCursorPosCallback(window, cursor_position_callback);
-    glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetKeyCallback(window, KeyCallback);
+    glfwSetMouseButtonCallback(window, MouseCallback);
+    glfwSetCursorPosCallback(window, CursorCallback);
+    glfwSetWindowSizeCallback(window, WindowCallback);
     return 0;
 }
 
@@ -133,7 +123,7 @@ bool EventsHandler::IsPressed(int keycode)
     {
         return false;
     }
-    return _keys.at(keycode);
+    return pressedKeys.at(keycode);
 }
 
 bool EventsHandler::IsJustPressed(int keycode)
@@ -142,36 +132,36 @@ bool EventsHandler::IsJustPressed(int keycode)
     {
         return false;
     }
-    return _keys.at(keycode) && _frames.at(keycode) == _current;
+    return pressedKeys.at(keycode) && keyPressFrame.at(keycode) == curFrame;
 }
 
 bool EventsHandler::IsClicked(int button)
 {
     int index = MOUSE_BUTTONS_OFFSET + button;
-    return _keys.at(index);
+    return pressedKeys.at(index);
 }
 
 bool EventsHandler::IsJustClicked(int button)
 {
     int index = MOUSE_BUTTONS_OFFSET + button;
-    return _keys.at(index) && _frames.at(index) == _current;
+    return pressedKeys.at(index) && keyPressFrame.at(index) == curFrame;
 }
 
 void EventsHandler::ToggleCursor()
 {
-    _cursor_locked = !_cursor_locked;
-    Window::SetCursorMode(_cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    isCursorLocked = !isCursorLocked;
+    Window::SetCursorMode(isCursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 void EventsHandler::ToggleCursor(bool shouldBeVisible)
 {
-    _cursor_locked = shouldBeVisible;
-    Window::SetCursorMode(_cursor_locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    isCursorLocked = shouldBeVisible;
+    Window::SetCursorMode(isCursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 }
 
 void EventsHandler::PullEvents()
 {
-    _current++;
+    curFrame++;
     deltaX = 0.0f;
     deltaY = 0.0f;
     glfwPollEvents();

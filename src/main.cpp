@@ -12,7 +12,7 @@ INITIALIZE_EASYLOGGINGPP;
  */
 int main(int argc, char ** argv)
 {
-    Application::Create();
+    Application::Init();
     Application::Run();
     Application::Destroy();
 }

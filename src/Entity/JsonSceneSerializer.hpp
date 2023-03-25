@@ -20,7 +20,7 @@ public:
     {
         std::ofstream os(savePath);
 
-        GAME_ASSERT(os.is_open(), "Failed to open file " + savePath + " to save the scene");
+        ASSERT(os.is_open(), "Failed to open file " + savePath + " to save the scene");
 
         os << std::boolalpha;
         os << openBracket;
@@ -128,6 +128,28 @@ private:
             out << tabulation;
         }
         out << quote << variableName << quote << " : " << "[" << value.x << comma << " " << value.y << comma << " " << value.z << "]";
+    }
+
+    /**
+    * Inserts glm::vec3 variable into the current map
+    * @param out stream to write into
+    * @param variableName variable name
+    * @param value variable value
+    */
+    static void InsertVariable(std::ofstream& out, const std::string& variableName, const glm::vec4& value)
+    {
+        if (varOnLayer[currentLayer] > 0)
+        {
+            out << comma;
+        }
+        out << newLine;
+        varOnLayer[currentLayer] ++;
+
+        for (int i = 0; i < count; ++i)
+        {
+            out << tabulation;
+        }
+        out << quote << variableName << quote << " : " << "[" << value.x << comma << " " << value.y << comma << " " << value.z << comma << " " << value.w << "]";
     }
 
     /**
@@ -278,11 +300,18 @@ private:
             CloseMap(out);
         }
 
-        if (entity.HasComponent<EngineDefaultComponent>())
+        if (entity.HasComponent<SkyBoxComponent>())
         {
-            StartMap(out, "Engine default");
-            const auto& component = entity.GetComponent<EngineDefaultComponent>();
-            InsertVariable(out, "Type", component.type);
+            StartMap(out, "SkyBox");
+            StartMap(out, "Path");
+            const auto& component = entity.GetComponent<SkyBoxComponent>();
+            InsertVariable(out, "Front", component.frontTexture);
+            InsertVariable(out, "Back", component.backTexture);
+            InsertVariable(out, "Left", component.leftTexture);
+            InsertVariable(out, "Right", component.rightTexture);
+            InsertVariable(out, "Top", component.topTexture);
+            InsertVariable(out, "Bottom", component.bottomTexture);
+            CloseMap(out);
             CloseMap(out);
         }
     }

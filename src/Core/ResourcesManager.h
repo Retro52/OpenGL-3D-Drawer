@@ -12,7 +12,7 @@
 #include "../Render/Model.h"
 #include "../Lighting/PointLight.h"
 #include "../Lighting/DirectionalLight.h"
-#include "PerspectiveCamera.h"
+#include "Camera.h"
 #include "../Entity/Scene.h"
 #include "Layer.hpp"
 
@@ -80,6 +80,11 @@ public:
         return layers;
     }
 
+    static std::map<std::string, std::shared_ptr<Shader>>& GetShaders()
+    {
+        return shaders;
+    }
+
     static void ShutDown()
     {
         // destroying the opened scene
@@ -100,7 +105,6 @@ private:
     static std::unique_ptr<Scene> pScene;
     static std::vector<std::shared_ptr<Layer>> layers;
     static std::map<std::string, std::shared_ptr<Shader>> shaders;
-
 
     static std::mutex m;
 };

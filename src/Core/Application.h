@@ -17,9 +17,9 @@ public:
     Application(const Application&) = delete;
 
     /**
-     * Creates application
+     * Initializes application application
      */
-    static void Create();
+    static void Init();
 
     /**
      * Runs created application
@@ -31,7 +31,7 @@ public:
      */
     static void Destroy();
 private:
-    static double start;
+    inline static double start;
 };
 
 

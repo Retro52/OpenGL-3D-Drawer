@@ -1,7 +1,11 @@
 #version 330 core
+
 layout (location = 0) out vec3 gPosition;
 layout (location = 1) out vec3 gNormal;
 layout (location = 2) out vec4 gAlbedoSpec;
+layout (location = 3) out float gMetallic;
+layout (location = 4) out float gRoughness;
+
 
 // We might need more of this stuff here
 in mat3 TBN;
@@ -15,20 +19,22 @@ struct Material
     bool hasNormalTexture;
     bool hasDiffuseTexture;
     bool hasSpecularTexture;
-    bool hasTranslucencyTexture;
+    bool hasRoughnessTexture;
+    bool hasMetallicTexture;
 
     int tilingFactor;
 
-    float opacity;
     float specular;
+    float metallic;
+    float roughness;
 
     sampler2D mapNormal_1;
     sampler2D mapDiffuse_1;
     sampler2D mapSpecular_1;
+    sampler2D mapMetallic_1;
     sampler2D mapRoughness_1;
-    sampler2D mapTranslucency_1;
 
-    vec3 colorDiffuse;
+    vec4 colorDiffuse;
 };
 
 uniform Material material;
@@ -36,37 +42,31 @@ uniform Material material;
 void main()
 {
     vec2 texCoords = TexCoords * material.tilingFactor;
+    vec4 diffuseColor = material.hasDiffuseTexture ? texture(material.mapDiffuse_1, texCoords) : material.colorDiffuse;
 
-    // store the fragment position vector in the first gbuffer texture
+    // support of masked textures
+    if(diffuseColor.a < 1.0)
+    {
+        discard;
+    }
+
+    // store the fragment position vector in the first gbuffer texture, and diffuse color in the second one
     gPosition = FragPos;
+    gAlbedoSpec.rgb = diffuseColor.rgb;
 
     // also store the per-fragment normals into the gbuffer
-    if(material.hasNormalTexture)
+    gNormal = material.hasNormalTexture ? normalize((texture( material.mapNormal_1, texCoords).rgb * 2.0 - 1.0) * TBN) : normalize(Normal);
+
+    if (!material.shouldBeLit)
     {
-        gNormal = normalize((texture( material.mapNormal_1, texCoords).rgb * 2.0 - 1.0) * TBN);
+        gAlbedoSpec.a = -1.0;
     }
     else
     {
-        gNormal = normalize(Normal);
+        //specular color is stored into alpha chanel
+        gAlbedoSpec.a = material.hasSpecularTexture ? texture(material.mapSpecular_1, texCoords).r : material.specular;
     }
 
-    // store specular intensity in gAlbedoSpec's alpha component
-    if(material.hasSpecularTexture)
-    {
-        gAlbedoSpec.a = texture(material.mapSpecular_1, texCoords).r;
-    }
-    else
-    {
-        gAlbedoSpec.a = material.specular;
-    }
-
-    // and the diffuse per-fragment color
-    if(material.hasDiffuseTexture)
-    {
-        gAlbedoSpec.rgb = texture(material.mapDiffuse_1, texCoords).rgb;
-    }
-    else
-    {
-        gAlbedoSpec.rgb = material.colorDiffuse;
-    }
+    gMetallic = material.hasMetallicTexture ? texture(material.mapMetallic_1, texCoords).r : material.metallic;
+    gRoughness = material.hasRoughnessTexture ? texture(material.mapRoughness_1, texCoords).r : material.roughness;
 }

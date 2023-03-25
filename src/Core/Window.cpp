@@ -6,7 +6,7 @@
 #include "Window.h"
 #include "../Render/Renderer.h"
 #include "../Input/EventsHandler.h"
-#include "InGameException.h"
+#include "EngineException.h"
 #include <iostream>
 #include <thread>
 
@@ -38,7 +38,7 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, 
     if (Window::window == nullptr)
     {
         glfwTerminate();
-        throw InGameException("Failure during GLFW window creation");
+        throw EngineException("Failure during GLFW window creation");
     }
 
     glfwMakeContextCurrent(Window::window);
@@ -47,7 +47,7 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, 
 
     if (glewInit() != GLEW_OK)
     {
-        throw InGameException("Failure during GLEW initialization");
+        throw EngineException("Failure during GLEW initialization");
     }
 
     glDisable(GL_BLEND);
@@ -55,12 +55,6 @@ void Window::Initialize(int w, int h, const std::string &name, bool fullScreen, 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1);
-
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glEnable(GL_MULTISAMPLE);
-//    glEnable(GL_STENCIL_TEST);
-//    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     glfwSwapInterval(0);
     Window::width = w;

@@ -59,6 +59,7 @@ private:
     std::filesystem::path curDirectory;
     std::shared_ptr<Mesh> selectedMaterial = nullptr;
     std::shared_ptr<Entity> selectedEntity = nullptr;
+    std::shared_ptr<Texture> fileTexture = nullptr, folderTexture = nullptr;
 
     int selectedOperation;
 };

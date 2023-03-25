@@ -8,9 +8,6 @@
 #include "../Core/Profiler.hpp"
 
 
-std::unique_ptr<UBO<glm::mat4x4, 16>> Renderer::lightMatricesUBO;
-std::vector<float> Renderer::cascadeLevels({ 25.0f, 50.0f, 100.0f, 200.0f, 750.0f });
-
 constexpr float quadVertices[] = {
         // positions   // texCoords
         -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
@@ -21,7 +18,9 @@ constexpr float quadVertices[] = {
 
 void Renderer::Initialize()
 {
+//    lightMatricesUBO = std::make_unique<UBO>();
     lightMatricesUBO = std::make_unique<UBO<glm::mat4x4, 16>>();
+    pointLightsUBO = std::make_unique<UBO<PointLight, 1024>>(1);
 
     viewportFBO    = std::make_unique<FBO>();
     postProcessFBO = std::make_unique<FBO>();
@@ -55,16 +54,14 @@ void Renderer::Initialize()
 
     FBO::Reset();
 
-    shadowTexture = std::make_shared<Texture>(
+    shadowTexture = Texture::CreateTextureArray(
             shadowMapResolution,
             shadowMapResolution,
+            cascadesCount,
             GL_DEPTH_COMPONENT,
             GL_DEPTH_COMPONENT32F,
             GL_UNSIGNED_BYTE,
-            false,
-            true,
-            cascadesCount
-    );
+            false);
 
     shadowFBO = std::make_unique<FBO>();
 
@@ -75,7 +72,6 @@ void Renderer::Initialize()
     shadowFBO->Reset();
 
     gBufferFBO = std::make_unique<FBO>();
-    lBufferFBO = std::make_unique<FBO>();
 
     gBufferFBO->AddTexture(
             std::make_shared<Texture>
@@ -107,14 +103,39 @@ void Renderer::Initialize()
                             fboWidth,
                             fboHeight,
                             GL_RGBA,
-                            GL_RGBA,
+                            GL_RGBA8_SNORM,
                             GL_UNSIGNED_BYTE
                     ),
             GL_COLOR_ATTACHMENT2
     );
 
-    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    gBufferFBO->SetDrawBuffer(3, attachments);
+    // metalness and roughness for PBR
+    gBufferFBO->AddTexture(
+            std::make_shared<Texture>
+                    (
+                            fboWidth,
+                            fboHeight,
+                            GL_RED,
+                            GL_RED,
+                            GL_UNSIGNED_BYTE
+                    ),
+            GL_COLOR_ATTACHMENT3
+    );
+
+    gBufferFBO->AddTexture(
+            std::make_shared<Texture>
+                    (
+                            fboWidth,
+                            fboHeight,
+                            GL_RED,
+                            GL_RED,
+                            GL_UNSIGNED_BYTE
+                    ),
+            GL_COLOR_ATTACHMENT4
+    );
+
+    unsigned int attachments[5] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+    gBufferFBO->SetDrawBuffer(5, attachments);
     gBufferFBO->GenerateRenderBufferDepthAttachment(static_cast<int>(fboWidth), static_cast<int>(fboHeight));
     gBufferFBO->Check();
     FBO::Reset();
@@ -125,7 +146,7 @@ void Renderer::Initialize()
     glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
@@ -140,6 +161,7 @@ void Renderer::Prepare(Scene &scene)
 {
     Clear(glm::vec3(0, 0, 0));
 
+    std::shared_ptr<Shader>& sShader = ResourcesManager::GetShader("skyboxShader");
     std::shared_ptr<Shader>& gShader = ResourcesManager::GetShader("gBufferShader");
     std::shared_ptr<Shader>& lShader = ResourcesManager::GetShader("lBufferShader");
 
@@ -149,6 +171,7 @@ void Renderer::Prepare(Scene &scene)
     {
         return;
     }
+
     auto& cameraComponent = primaryCamera->GetComponent<CameraComponent>();
     auto& cameraTransform = primaryCamera->GetComponent<TransformComponent>();
     const auto& camera = cameraComponent.camera;
@@ -158,7 +181,12 @@ void Renderer::Prepare(Scene &scene)
 
     gShader->Use();
     gShader->setMat4("view", cameraView);
-    gShader->setMat4("projection", cameraComponent.GetCameraProjection());
+    gShader->setMat4("projection", cameraComponent.GetCameraInfiniteProjection());
+
+    sShader->Use();
+    sShader->setMat4("view", glm::mat4(glm::mat3(cameraView)));
+    sShader->setMat4("projection", cameraComponent.GetCameraInfiniteProjection());
+    sShader->setInt("skybox", 0);
 
     lShader->Use();
     lShader->setInt("drawMode", drawMode);
@@ -217,6 +245,8 @@ void Renderer::Render(Scene &scene)
     GeometryPass(scene);
     Profiler::EndGPass();
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     Profiler::StartSPass();
     RenderShadowMaps(scene);
     Profiler::EndSPass();
@@ -233,7 +263,7 @@ void Renderer::Render(Scene &scene)
 //    FBO::Reset();
 
 //    glBindFramebuffer(GL_READ_FRAMEBUFFER, gBufferFBO->Get());
-//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // write to default framebuffer
+//    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, viewportFBO->Get()); // write to default framebuffer
 //    // blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
 //    // the internal formats are implementation defined. This works on all of my systems, but if it doesn't on yours you'll likely have to write to the
 //    // depth buffer in another shader stage (or somehow see to match the default framebuffer's internal format with the FBO's internal format).
@@ -247,6 +277,7 @@ void Renderer::GeometryPass(Scene &scene)
 {
     const auto& view = scene.registry.view<TransformComponent, Model3DComponent>();
     auto& shader = ResourcesManager::GetShader("gBufferShader");
+    auto& sShader = ResourcesManager::GetShader("skyboxShader");
 
     gBufferFBO->Bind();
     Clear(glm::vec3(0, 0, 0));
@@ -254,12 +285,22 @@ void Renderer::GeometryPass(Scene &scene)
     glViewport(0, 0, static_cast<int>(fboWidth), static_cast<int>(fboHeight));
 
     shader->Use();
+
     for (const auto& entity : view)
     {
         auto [t, m] = view.get<TransformComponent, Model3DComponent>(entity);
 
         shader->setInt("material.tilingFactor", m.tilingFactor);
+        shader->setBool("material.shouldBeLit", m.shouldBeLit);
         m.model.Draw(shader, t.GetTransform());
+    }
+
+    sShader->Use();
+
+    if(const auto& skyBox = scene.GetSkyBox())
+    {
+        auto crap = skyBox->GetComponent<SkyBoxComponent>();
+        crap.Draw();
     }
 }
 
@@ -281,10 +322,13 @@ void Renderer::LightingPass(Scene &scene)
     auto& lShader = ResourcesManager::GetShader("lBufferShader");
 
     lShader->Use();
-    lShader->setInt("gNormal", 1);
-    lShader->setInt("gPosition", 0);
-    lShader->setInt("gAlbedoSpec", 2);
-    lShader->setInt("dLight.mapShadow", 3);
+    lShader->setInt("gPosition",        0);
+    lShader->setInt("gNormal",          1);
+    lShader->setInt("gAlbedoSpec",      2);
+    lShader->setInt("gMetallic",        3);
+    lShader->setInt("gRoughness",       4);
+    lShader->setInt("dLight.mapShadow", 5);
+    lShader->setInt("skybox",           6);
 
     glActiveTexture(GL_TEXTURE0);
     gBufferFBO->GetTexture(GL_COLOR_ATTACHMENT0)->Bind();
@@ -296,7 +340,20 @@ void Renderer::LightingPass(Scene &scene)
     gBufferFBO->GetTexture(GL_COLOR_ATTACHMENT2)->Bind();
 
     glActiveTexture(GL_TEXTURE3);
+    gBufferFBO->GetTexture(GL_COLOR_ATTACHMENT3)->Bind();
+
+    glActiveTexture(GL_TEXTURE4);
+    gBufferFBO->GetTexture(GL_COLOR_ATTACHMENT4)->Bind();
+
+    glActiveTexture(GL_TEXTURE5);
     glBindTexture(GL_TEXTURE_2D_ARRAY, shadowTexture->GetId());
+
+    if(const auto& skyBox = scene.GetSkyBox())
+    {
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skyBox->GetComponent<SkyBoxComponent>().GetCubeTextureId());
+    }
+
     glActiveTexture(GL_TEXTURE0);
     RenderQuad();
 

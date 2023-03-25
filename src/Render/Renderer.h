@@ -17,6 +17,9 @@
 #include "UBO.hpp"
 #include "FBO.hpp"
 
+/**
+ * Not implemented so far
+ */
 namespace LightingType
 {
     enum Type : unsigned int
@@ -150,6 +153,7 @@ public:
             FBO::Reset();
             glViewport(0, 0, Window::GetWidth(), Window::GetHeight());
         }
+
         DisableDepthTesting();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         Clear();
@@ -158,6 +162,7 @@ public:
         viewportFBO->GetColorTexture()->Bind();
         RenderQuad();
         FBO::Reset();
+        EnableDepthTesting();
     }
 
     static inline unsigned int GetFboWidth() { return fboWidth; }
@@ -202,49 +207,35 @@ private:
 
     static glm::mat4 getLightSpaceMatrix(float nearPlane, float farPlane, float zoom, float aspectRatio, const glm::vec3 &lightDir, const glm::mat4 &viewMatrix);
 public:
-    static int drawMode;
-    static glm::vec3 clearColor;
-    static bool isPostProcessingActivated, shouldDrawFinalToFBO;
+    inline static int drawMode = 1;
+    inline static glm::vec3 clearColor;
+    inline static bool isPostProcessingActivated = true, shouldDrawFinalToFBO = true;
 
     // way to calculate shadows
-    static LightingType::Type lightingType;
+    inline static LightingType::Type lightingType = LightingType::Dynamic;
 
     // constants
-    static float baseOffset;
-    static float deltaOffset;
-    static float factorMultiplier;
-    static std::vector<float> cascadeLevels;
+    inline static float baseOffset = 4.48f;
+    inline static float deltaOffset = 1.28f;
+    inline static float factorMultiplier = 4.0f;
+    inline static std::vector<float> cascadeLevels { 25.0f, 50.0f, 100.0f, 200.0f, 750.0f };
 
 private:
     // main render flow
-    static unsigned int quadVAO, quadVBO;
-    static unsigned int fboWidth, fboHeight;
-    static std::unique_ptr<FBO> viewportFBO, postProcessFBO, gBufferFBO, lBufferFBO;
+    inline static unsigned int quadVAO = 0, quadVBO = 0;
+    inline static unsigned int fboWidth = 0, fboHeight = 0;
+    inline static std::unique_ptr<FBO> viewportFBO = nullptr, postProcessFBO = nullptr, gBufferFBO = nullptr;
 
     // shadows
-    static std::unique_ptr<FBO> shadowFBO;
-    static std::shared_ptr<Texture> shadowTexture;
-    static std::unique_ptr<UBO<glm::mat4x4, 16>> lightMatricesUBO;
-    static int shadowMapResolution, cascadesCount;
+    inline static std::unique_ptr<FBO> shadowFBO = nullptr;
+    inline static std::shared_ptr<Texture> shadowTexture = nullptr;
+
+    inline static std::unique_ptr<UBO<glm::mat4x4, 16>> lightMatricesUBO;
+    inline static std::unique_ptr<UBO<PointLight, 1024>> pointLightsUBO;
+
+    inline static int shadowMapResolution = 2048, cascadesCount = 5;
 
     friend class RendererIniSerializer;
 };
-
-inline int Renderer::drawMode = 1;
-inline glm::vec3 Renderer::clearColor;
-inline bool Renderer::shouldDrawFinalToFBO = true;
-inline bool Renderer::isPostProcessingActivated = true;
-inline LightingType::Type Renderer::lightingType = LightingType::Dynamic;
-
-
-inline unsigned int Renderer::fboWidth = 0, Renderer::fboHeight = 0;
-inline unsigned int Renderer::quadVAO = 0, Renderer::quadVBO = 0;
-inline std::unique_ptr<FBO> Renderer::viewportFBO = nullptr, Renderer::postProcessFBO = nullptr, Renderer::shadowFBO = nullptr, Renderer::gBufferFBO = nullptr, Renderer::lBufferFBO = nullptr;
-inline std::shared_ptr<Texture> Renderer::shadowTexture = nullptr;
-inline int Renderer::shadowMapResolution = 2048, Renderer::cascadesCount = 5;
-
-inline float Renderer::baseOffset        = 4.48f;
-inline float Renderer::deltaOffset       = 1.28f;
-inline float Renderer::factorMultiplier  = 4.0f;
 
 #endif //GRAPHICS_RENDERER_H

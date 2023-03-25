@@ -28,7 +28,7 @@ void ResourcesManager::RegisterShader(const std::string &name, const std::string
         }
         LOG(INFO) << "Shader " + name + " successfully registered";
     }
-    catch(InGameException& e)
+    catch(EngineException& e)
     {
         LOG(WARNING) << "Failed to register shader" << name << ". Reason: " << e.what();
     }

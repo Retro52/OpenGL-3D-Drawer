@@ -8,7 +8,7 @@
 #include <queue>
 #include <vector>
 #include <iostream>
-#include "../Core/InGameException.h"
+#include "../Core/EngineException.h"
 
 namespace EventTypes
 {
@@ -37,7 +37,7 @@ public:
         {
             return std::dynamic_pointer_cast<T>(baseEvent);
         }
-        throw InGameException("Event cast failed, type id`s does not match.");
+        throw EngineException("Event cast failed, type id`s does not match.");
     }
 };
 

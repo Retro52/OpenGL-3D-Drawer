@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Config.h"
 #include "ResourcesManager.h"
-#include "InGameException.h"
+#include "EngineException.h"
 #include "inipp.h"
 #include "json.hpp"
 #include "../Logging/easylogging++.h"
@@ -24,7 +24,7 @@ void Config::LoadIni(const std::string &configPath)
 
     std::ifstream is(configPath);
 
-    GAME_ASSERT(is.is_open(), ".ini config file not found");
+    ASSERT(is.is_open(), ".ini config file not found");
 
     inipp::Ini<char> ini;
 
@@ -59,17 +59,16 @@ void Config::LoadJson(const std::string &jsonConfigPath)
     LOG(INFO) << "Start loading " << jsonConfigPath << " config file";
     std::ifstream is(jsonConfigPath);
 
-    GAME_ASSERT(is.is_open(), "Failed to load .json config file");
+    ASSERT(is.is_open(), "Failed to load .json config file");
 
     json data = json::parse(is);
 
-    GAME_ASSERT(!data.empty(), "Json file is empty");
+    ASSERT(!data.empty(), "Json file is empty");
 
     for (const auto& shader : data["Shaders"].items())
     {
         if(!shader.value()[2].is_null())
         {
-            // TODO: re-write with template<typename .. Args>
             ResourcesManager::RegisterShader(shader.key(), shader.value()[0], shader.value()[1], shader.value()[2]);
         }
         else

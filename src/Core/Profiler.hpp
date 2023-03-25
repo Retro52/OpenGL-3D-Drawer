@@ -29,7 +29,7 @@ public:
     template <class T = DT>
     [[nodiscard]] auto duration() const
     {
-        assert(_end != timep_t{} && "toc before reporting");
+        ASSERT(_end != timep_t{}, "Timer: toc before reporting");
         return std::chrono::duration_cast<T>(_end - _start);
     }
 };

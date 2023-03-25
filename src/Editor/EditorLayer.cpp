@@ -8,13 +8,14 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "ImGuizmo/ImGuizmo.h"
 
 #include "../Core/Window.h"
-#include "../Core/Global.h"
+#include "../Core/MainLoop.h"
 #include "../Input/EventsHandler.h"
 #include "../Core/Utils.hpp"
 #include "../Core/Profiler.hpp"
@@ -25,6 +26,9 @@ void EditorLayer::OnCreate()
     LoadImGui();
     curDirectory = std::filesystem::current_path();
     selectedOperation = ImGuizmo::OPERATION::TRANSLATE;
+
+    fileTexture = std::make_shared<Texture>("../res/editor/textures/file.png");
+    folderTexture = std::make_shared<Texture>("../res/editor/textures/folder.png");
 
     ImGuiStyle& style = ImGui::GetStyle();
 
@@ -232,6 +236,13 @@ void EditorLayer::DrawImGuiTest()
 
     auto& scene = ResourcesManager::GetPlayerScene();
 
+    if(EventsHandler::IsJustPressed(Key::Delete) && selectedEntity)
+    {
+        scene->DeleteEntity(* selectedEntity);
+        selectedEntity = nullptr;
+        selectedMaterial = nullptr;
+    }
+
     RenderEntitiesListPanel(isEntitiesListOpened, scene);
     DrawEntityProperties(scene);
     RenderViewportPanel(isViewportOpened, scene);
@@ -288,6 +299,7 @@ void EditorLayer::RenderEntitiesListPanel(bool& isOpen, std::unique_ptr<Scene>& 
                              if(ImGui::Button(label.c_str(), ImVec2(bWidth, bHeight > minHeight ? bHeight : minHeight)))
                              {
                                  selectedEntity = entity;
+                                 selectedMaterial = nullptr;
                              }
                          });
 
@@ -383,10 +395,8 @@ void EditorLayer::RenderViewportPanel(bool& isOpen, std::unique_ptr<Scene>& scen
                     glm::value_ptr(scale)
             );
 
-            auto deltaRot = rotation - transformComponent.rotation;
-
             transformComponent.translation = translation;
-            transformComponent.rotation = rotation;
+            transformComponent.rotation = glm::radians(rotation);
             transformComponent.scale = scale;
         }
     }
@@ -408,8 +418,8 @@ void EditorLayer::RenderSettingsPanel(bool& isOpen)
     ImGui::Begin("Settings", &isOpen);
     ImGui::Separator();
     ImGui::Text("Current resolution: %u x %u", Renderer::GetFboWidth(), Renderer::GetFboHeight());
-    ImGui::Text("Total frames: %ul", Global::GetTotalFrames());
-    ImGui::Text("Frame rate: %f FPS", 1.0f / Global::GetWorldDeltaTime());
+    ImGui::Text("Total frames: %ul", MainLoop::GetTotalFrames());
+    ImGui::Text("Frame rate: %f FPS", 1.0f / MainLoop::GetWorldDeltaTime());
     ImGui::Text("Total meshes:               %u", Profiler::totalMeshes);
     ImGui::Text("Total vertices:             %u", Profiler::totalVertices);
     ImGui::Text("Update time (ms):           %f", cTime);
@@ -420,9 +430,9 @@ void EditorLayer::RenderSettingsPanel(bool& isOpen)
     ImGui::Separator();
     ImGui::Text("Total CPU time:             %f", ctTotal);
     ImGui::Separator();
-    ImGui::Text("ImGui and SwapBuffers:      %f", Global::GetWorldDeltaTime() * 1000 - ctTotal);
+    ImGui::Text("ImGui and SwapBuffers:      %f", MainLoop::GetWorldDeltaTime() * 1000 - ctTotal);
     ImGui::Separator();
-    ImGui::Text("Total frame time (s):       %f", Global::GetWorldDeltaTime() * 1000);
+    ImGui::Text("Total frame time (s):       %f", MainLoop::GetWorldDeltaTime() * 1000);
     ImGui::Separator();
     ImGui::Checkbox("Should draw final results to the FBO (Shift + F2)", &Renderer::shouldDrawFinalToFBO);
     ImGui::Checkbox("Should apply post process effects", &Renderer::isPostProcessingActivated);
@@ -482,6 +492,25 @@ void EditorLayer::RenderSettingsPanel(bool& isOpen)
         ImGui::Text("Cascade level[%d]", i);
         ImGui::InputFloat(("##cascade_level_" + std::to_string(i)).c_str(), &Renderer::cascadeLevels.at(i));
     }
+
+    ImGui::Separator();
+    ImGui::Text("Shaders:");
+    for(auto& [name, shader] : ResourcesManager::GetShaders())
+    {
+        ImGui::Text(name.c_str());
+        for (const auto& path : shader->GetShaderPath())
+        {
+            ImGui::SameLine();
+            ImGui::Text(path.c_str());
+        }
+        ImGui::PushID(shader.get());
+        if (ImGui::Button("Reload"))
+        {
+            auto path = shader->GetShaderPath();
+            shader = std::make_shared<Shader>(path[0].c_str(), path[1].c_str(), path[2].empty() ? nullptr : path[2].c_str());
+        }
+        ImGui::PopID();
+    }
     ImGui::End();
 }
 
@@ -496,7 +525,7 @@ void EditorLayer::RenderBrowserPanel(bool& isOpen)
         curDirectory = curDirectory.parent_path();
     }
 
-    static int buttonsPerRow = 5;
+    static int buttonsPerRow = 10;
 
     float buttonWidth = ImGui::GetContentRegionAvail().x / static_cast<float>(buttonsPerRow);
     float buttonHeight = ImGui::GetFontSize() + 5.0f;
@@ -507,23 +536,27 @@ void EditorLayer::RenderBrowserPanel(bool& isOpen)
     {
         std::string itemFilenameStr = item.path().filename().string();
         const char * itemFilename = itemFilenameStr.c_str();
-        ImGui::Button(itemFilename, ImVec2(buttonWidth, buttonHeight));
-        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+
+        bool hovered = false;
+
+        ImGui::Image(reinterpret_cast<void*>((item.is_directory() ? folderTexture : fileTexture)->GetId()), ImVec2(buttonWidth / 2, buttonWidth / 2));
+        hovered |= ImGui::IsItemHovered();
+
+        ImGui::Selectable(itemFilename, false, 0, ImVec2(buttonWidth, buttonHeight));
+
+        hovered |= ImGui::IsItemHovered();
+        if (hovered && ImGui::IsMouseDoubleClicked(0))
         {
             if(item.is_directory())
             {
                 curDirectory = item;
             }
         }
+
         if (ImGui::BeginDragDropSource() && !item.is_directory())
         {
             auto relPathStr = std::filesystem::relative(item.path()).string();
             auto relPath = relPathStr.c_str();
-
-            if(relPathStr.length() > 32)
-            {
-                LOG(WARNING) << "Path is too long\n";
-            }
 
             // adding one to catch null terminator to the passed string
             ImGui::SetDragDropPayload("FILE_SELECTED", relPath, (relPathStr.length() + 1) * sizeof(const char));
@@ -533,7 +566,6 @@ void EditorLayer::RenderBrowserPanel(bool& isOpen)
         ImGui::NextColumn();
     }
     ImGui::Columns();
-    ImGui::SliderInt("BPR", &buttonsPerRow, 1, 20);
     ImGui::End();
 }
 
@@ -569,9 +601,9 @@ void EditorLayer::AddComponent(const std::string& componentName)
 
 void EditorLayer::ShutImGui()
 {
-    ImGui::DestroyContext();
-    ImGui_ImplGlfw_Shutdown();
     ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
@@ -603,6 +635,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
             AddComponent<Model3DComponent>("3D mesh");
             AddComponent<PointLightComponent>("Point light");
             AddComponent<DirectionalLightComponent>("Directional light");
+            AddComponent<SkyBoxComponent>("SkyBox");
             ImGui::EndPopup();
         }
 
@@ -653,7 +686,7 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                     {
                         modelComponent.model = Model(modelComponent.model.path);
                     }
-                    catch(const InGameException& e)
+                    catch(const EngineException& e)
                     {
                         LOG(WARNING) << "Failed to reload model. Reason: " << e.what();
                     }
@@ -721,6 +754,10 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
                 ImGui::ColorEdit3("Diffuse", (float *)&pointLightComponent.pointLight.diffuse);
                 ImGui::ColorEdit3("Specular", (float *)&pointLightComponent.pointLight.specular);
 
+                ImGui::DragFloat("Linear", (float *)&pointLightComponent.pointLight.linear, 0.01);
+                ImGui::DragFloat("Constant", (float *)&pointLightComponent.pointLight.constant, 0.01);
+                ImGui::DragFloat("Quadratic", (float *)&pointLightComponent.pointLight.quadratic, 0.01);
+
                 if(shouldDelete)
                 {
                     selectedEntity->RemoveComponent<Model3DComponent>();
@@ -733,25 +770,80 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
             if(ImGui::CollapsingHeader("Camera"))
             {
                 bool shouldDelete = false;
+
                 if (ImGui::Button("Delete component"))
                 {
                     shouldDelete = true;
                 }
 
+                auto& camera = selectedEntity->GetComponent<CameraComponent>().camera;
                 auto& cameraComponent = selectedEntity->GetComponent<CameraComponent>();
+                float fov = glm::degrees(camera.GetFieldOfView());
+                float oWidth = camera.GetOrthoWidth();
+                float oHeight = camera.GetOrthoHeight();
+
                 ImGui::Checkbox("Is primary", &cameraComponent.isPrimary);
                 ImGui::InputFloat2("Aspect ratio", (float *)&cameraComponent.camera.aspectRatio);
-                float fov = glm::degrees(cameraComponent.camera.GetFieldOfView());
                 ImGui::SliderFloat("FOV", &fov, 0, 360);
-                cameraComponent.camera.SetFieldOfView(glm::radians(fov));
+
+                ImGui::Text("Camera projection:");
+
+                if(ImGui::RadioButton("Orthogonal", camera.projection == CameraProjection::Ortho))
+                {
+                    camera.projection = CameraProjection::Ortho;
+                }
+
+                if(ImGui::RadioButton("Perspective", camera.projection == CameraProjection::Perspective))
+                {
+                    camera.projection = CameraProjection::Perspective;
+                }
+
+                if (camera.projection != CameraProjection::Ortho)
+                {
+                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                }
+
+                ImGui::DragFloat("Ortho width", &oWidth);
+                ImGui::DragFloat("Ortho height", &oHeight);
+
+                camera.SetOrthoWidth(oWidth);
+                camera.SetOrthoHeight(oHeight);
+
+                if (camera.projection != CameraProjection::Ortho)
+                {
+                    ImGui::PopItemFlag();
+                    ImGui::PopStyleVar();
+                }
+
+                camera.SetFieldOfView(glm::radians(fov));
 
                 if(shouldDelete)
                 {
-                    selectedEntity->RemoveComponent<Model3DComponent>();
+                    selectedEntity->RemoveComponent<CameraComponent>();
                 }
             }
         }
 
+        if(selectedEntity->HasComponent<SkyBoxComponent>())
+        {
+            if(ImGui::CollapsingHeader("SkyBox"))
+            {
+                auto& component = selectedEntity->GetComponent<SkyBoxComponent>();
+
+                ImGui::InputText("Front texture", &component.frontTexture);
+                ImGui::InputText("Back texture", &component.backTexture);
+                ImGui::InputText("Top texture", &component.topTexture);
+                ImGui::InputText("Bottom texture", &component.bottomTexture);
+                ImGui::InputText("Left texture", &component.leftTexture);
+                ImGui::InputText("Right texture", &component.rightTexture);
+
+                if(ImGui::Button("Reload skybox"))
+                {
+                    component.Reload();
+                }
+            }
+        }
         ImGui::End();
     }
 
@@ -763,6 +855,9 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
 
         auto& material = selectedMaterial->material;
         ImGui::SliderFloat("Specular: ", &material.specular, 0.0, 1.0);
+        ImGui::SliderFloat("Roughness: ", &material.roughness, 0.0, 1.0);
+        ImGui::SliderFloat("Metallic: ", &material.metallic, 0.0, 1.0);
+
         ImGui::ColorEdit3("Material color: ", (float *) &material.defaultColor);
 
         ImGui::Text("Diffuse texture");
@@ -773,6 +868,12 @@ void EditorLayer::DrawEntityProperties(std::unique_ptr<Scene>& scene)
 
         ImGui::Text("Specular texture");
         RenderMaterialTextures(material.materialTextures.at(TextureType::Specular));
+
+        ImGui::Text("Roughness texture");
+        RenderMaterialTextures(material.materialTextures.at(TextureType::Roughness));
+
+        ImGui::Text("Metallic texture");
+        RenderMaterialTextures(material.materialTextures.at(TextureType::Metallic));
 
         ImGui::End();
     }
@@ -787,6 +888,7 @@ void EditorLayer::RenderMaterialTextures(TextureStack& stack)
         {
             stack.push_back(std::make_shared<Texture>(64, 64));
         }
+        ImGui::PopID();
     }
     for (auto i = stack.begin(); i != stack.end();)
     {
@@ -841,6 +943,7 @@ void EditorLayer::RenderMaterialTextures(TextureStack& stack)
         {
             i++;
         }
+        ImGui::PopID();
     }
 }
 
@@ -867,7 +970,7 @@ void EditorLayer::OnKeyReleasedEvent(const std::shared_ptr<KeyReleasedEvent> &ev
                 break;
             }
         case Key::D:
-            if (!isControlPressed || EventsHandler::_cursor_locked)
+            if (!isControlPressed || EventsHandler::isCursorLocked)
             {
                 break;
             }

@@ -6,7 +6,6 @@
 #define GRAPHICS_CONFIG_H
 
 #include <iostream>
-#include "../Core/Structures.h"
 
 class Config
 {

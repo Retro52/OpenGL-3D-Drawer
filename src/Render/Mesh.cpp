@@ -11,7 +11,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, cons
     SetUpMesh();
 
     Profiler::totalMeshes++;
-    Profiler::totalVertices += this->vertices.size();
+    Profiler::totalVertices += this->indices.size();
 }
 
 void Mesh::Draw(const std::shared_ptr<Shader> &shader) const

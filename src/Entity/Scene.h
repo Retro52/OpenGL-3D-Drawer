@@ -48,6 +48,8 @@ public:
      */
     std::unique_ptr<Entity> GetDirectionalLight();
 
+    std::unique_ptr<Entity> GetSkyBox();
+
     /**
      * Saves current scene
      * @param savePath path to save scene by

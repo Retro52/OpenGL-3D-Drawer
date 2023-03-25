@@ -62,23 +62,33 @@ std::unique_ptr<Entity> Scene::GetDirectionalLight()
     return nullptr;
 }
 
+std::unique_ptr<Entity> Scene::GetSkyBox()
+{
+    auto view = registry.view<SkyBoxComponent>();
+    for (auto entity : view)
+    {
+        return std::make_unique<Entity>(entity, this);
+    }
+    return nullptr;
+}
+
 void Scene::LoadScene(const std::string &loadPath)
 {
-    std::ifstream is(loadPath);
-    GAME_ASSERT(is.is_open(), "Failed to open scene: " + loadPath);
-
     json data;
     try
     {
-         data = json::parse(is);
+        std::ifstream is(loadPath);
+        ASSERT(is.is_open(), "Failed to open scene: " + loadPath);
+
+        data = json::parse(is);
+        ASSERT(!data.empty(), "Failed to open scene: " + loadPath);
+
     }
     catch(std::exception& e)
     {
         LOG(WARNING) << "Unable to parse " << loadPath << " file to load scene. Reason: " << e.what();
         return;
     }
-
-    GAME_ASSERT(!data.empty(), "Failed to open scene: " + loadPath);
 
     if (!data["Name"].is_null())
     {
@@ -96,15 +106,10 @@ void Scene::LoadScene(const std::string &loadPath)
 
             const auto& components = model.value();
 
-            const auto& nameComponent = components["Name"];
-            const auto& cameraComponent = components["Camera"];
-            const auto& model3Component = components["Model3D"];
-            const auto& transformComponent = components["Transform"];
-            const auto& pointLightComponent = components["Point light"];
-            const auto& engineDefaultComponent = components["Engine default"];
-            const auto& directionalLightComponent = components["Directional light"];
             if (components.contains("Transform"))
             {
+                const auto& transformComponent = components["Transform"];
+
                 e.GetComponent<TransformComponent>().scale       = glm::vec3(glm::vec3(transformComponent["Scale"][0], transformComponent["Scale"][1], transformComponent["Scale"][2]));
                 e.GetComponent<TransformComponent>().rotation    = glm::radians(glm::vec3(transformComponent["Rotation"][0], transformComponent["Rotation"][1], transformComponent["Rotation"][2]));
                 e.GetComponent<TransformComponent>().translation = glm::vec3(glm::vec3(transformComponent["Position"][0], transformComponent["Position"][1], transformComponent["Position"][2]));
@@ -117,6 +122,8 @@ void Scene::LoadScene(const std::string &loadPath)
 
             if (components.contains("Name"))
             {
+                const auto& nameComponent = components["Name"];
+
                 e.GetComponent<NameComponent>().name = nameComponent["Name"];
                 LOG(INFO) << "Name component successfully loaded for " << model.key();
             }
@@ -128,6 +135,8 @@ void Scene::LoadScene(const std::string &loadPath)
 
             if (components.contains("Camera"))
             {
+                const auto& cameraComponent = components["Camera"];
+
                 e.AddComponent<CameraComponent>(cameraComponent["FOV"]);
                 e.GetComponent<CameraComponent>().isPrimary = cameraComponent["isPrimary"];
                 e.GetComponent<CameraComponent>().camera.aspectRatio = glm::vec2(cameraComponent["Aspect"][0], cameraComponent["Aspect"][1]);
@@ -136,6 +145,8 @@ void Scene::LoadScene(const std::string &loadPath)
 
             if (components.contains("Model3D"))
             {
+                const auto& model3Component = components["Model3D"];
+
                 auto& component = e.AddComponent<Model3DComponent>(model3Component["Path"]);
                 try
                 {
@@ -152,6 +163,8 @@ void Scene::LoadScene(const std::string &loadPath)
 
             if (components.contains("Point light"))
             {
+                const auto& pointLightComponent = components["Point light"];
+
                 glm::vec3 amb(pointLightComponent["Ambient"][0], pointLightComponent["Ambient"][1], pointLightComponent["Ambient"][2]);
                 glm::vec3 diff(pointLightComponent["Diffuse"][0], pointLightComponent["Diffuse"][1], pointLightComponent["Diffuse"][2]);
                 glm::vec3 spec(pointLightComponent["Specular"][0], pointLightComponent["Specular"][1], pointLightComponent["Specular"][2]);
@@ -166,6 +179,8 @@ void Scene::LoadScene(const std::string &loadPath)
 
             if (components.contains("Directional light"))
             {
+                const auto& directionalLightComponent = components["Directional light"];
+
                 glm::vec3 amb(directionalLightComponent["Ambient"][0], directionalLightComponent["Ambient"][1], directionalLightComponent["Ambient"][2]);
                 glm::vec3 diff(directionalLightComponent["Diffuse"][0], directionalLightComponent["Diffuse"][1], directionalLightComponent["Diffuse"][2]);
                 glm::vec3 spec(directionalLightComponent["Specular"][0], directionalLightComponent["Specular"][1], directionalLightComponent["Specular"][2]);
@@ -175,9 +190,21 @@ void Scene::LoadScene(const std::string &loadPath)
                 LOG(INFO) << "Directional light component successfully loaded for " << model.key();
             }
 
-            if (components.contains("Engine default"))
+            if (components.contains("SkyBox"))
             {
-                e.AddComponent<EngineDefaultComponent>(engineDefaultComponent["Type"]);
+                const auto& skyBoxComponent = components["SkyBox"];
+
+                auto& component = e.AddComponent<SkyBoxComponent>();
+                auto paths = skyBoxComponent["Path"];
+
+                component.frontTexture = paths["Front"];
+                component.backTexture = paths["Back"];
+                component.leftTexture = paths["Left"];
+                component.rightTexture = paths["Right"];
+                component.topTexture = paths["Top"];
+                component.bottomTexture = paths["Bottom"];
+                component.Reload();
+
                 LOG(INFO) << "Engine default component successfully loaded for " << model.key();
             }
 
@@ -198,7 +225,7 @@ void Scene::SaveScene(const std::string& savePath)
 
 void Scene::OnUpdate(double deltaTime)
 {
-    if(!EventsHandler::_cursor_locked)
+    if(!EventsHandler::isCursorLocked)
     {
         return;
     }
@@ -256,7 +283,7 @@ void Scene::OnUpdate(double deltaTime)
     }
 
     /* PerspectiveCamera world orientation */
-    if (EventsHandler::_cursor_locked)
+    if (EventsHandler::isCursorLocked)
     {
         t.rotation.x = glm::clamp(static_cast<float>(t.rotation.x - EventsHandler::deltaY * deltaTime * mouseSensitivity / (float) Renderer::GetFboHeight() * 2),
                                   - glm::radians(89.0f),
@@ -288,9 +315,9 @@ Entity Scene::CopyEntity(const Entity &source)
         newEntity.AddComponent<DirectionalLightComponent>(source.GetComponent<DirectionalLightComponent>());
     }
 
-    if (source.HasComponent<EngineDefaultComponent>())
+    if (source.HasComponent<SkyBoxComponent>())
     {
-        newEntity.AddComponent<EngineDefaultComponent>(source.GetComponent<EngineDefaultComponent>());
+        newEntity.AddComponent<SkyBoxComponent>(source.GetComponent<SkyBoxComponent>());
     }
 
     return newEntity;

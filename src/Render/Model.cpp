@@ -20,7 +20,7 @@ void Model::LoadModel(const std::string& loadPath)
     if((scene == nullptr) || ((scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) != 0) || (scene->mRootNode == nullptr))
     {
         LOG(ERROR) << "ERROR::ASSIMP:: " << importer.GetErrorString();
-        throw InGameException("Failed to load model");
+        throw EngineException("Failed to load model");
     }
 
     // retrieve the directory path of the filepath

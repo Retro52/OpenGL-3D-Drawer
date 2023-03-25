@@ -12,7 +12,7 @@
 
 #include "Mesh.h"
 #include "Shader.h"
-#include "../Core/InGameException.h"
+#include "../Core/EngineException.h"
 
 #include <map>
 #include <string>
@@ -43,6 +43,7 @@ public:
     void Draw(const std::shared_ptr<Shader> &shader, const glm::mat4& model) const
     {
         shader->setMat4("model", model);
+        shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
         for(const auto& mesh : meshes)
         {
             mesh->Draw(shader);

@@ -35,6 +35,8 @@ struct PointLight
 uniform sampler2D gNormal; // 2 active texture
 uniform sampler2D gPosition; // 1 active texture
 uniform sampler2D gAlbedoSpec; // 3 active texture
+uniform sampler2D gMetallic; // 4 active texture
+uniform sampler2D gRoughness; // 5 active texture
 
 
 // TODO: bind pointligts using SSBO or UBO
@@ -77,13 +79,24 @@ float rand(vec2 co)
 
 void main()
 {
+    FragColor = vec4(texture(dLight.mapShadow, vec3(TexCoords, 0)).r, 1.0 - texture(dLight.mapShadow, vec3(TexCoords, 0)).r, 0.0, 1.0);
+//    return;
+
     // retrieve data from gbuffer
     vec3 fragPosition = texture(gPosition, TexCoords).rgb;
     vec3 normalVector = texture(gNormal, TexCoords).rgb;
     vec3 diffuseColor = texture(gAlbedoSpec, TexCoords).rgb;
-    float specularFactor = texture(gAlbedoSpec, TexCoords).a;
-
     vec3 viewDirection = normalize((ProjPos - fragPosition));
+
+    float specularFactor = texture(gAlbedoSpec, TexCoords).a;
+    float metallicFactor = texture(gMetallic, TexCoords).r;
+    float roughnessFactor = texture(gRoughness, TexCoords).r;
+
+    if(specularFactor == -1.0)
+    {
+        FragColor = vec4(diffuseColor, 1.0);
+        return;
+    }
 
     float shadowFactor = 0.0f;
     vec3 diffuseLighting  = vec3(0.0, 0.0, 0.0);
@@ -94,11 +107,11 @@ void main()
     {
         shadowFactor = CalculateDirecionalShadowFactor(normalize(-dLight.direction), normalVector, viewDirection, fragPosition);
         ambientLighting  += CalculateDirectionalAmbientLighting(dLight, normalVector, viewDirection);
-        diffuseLighting  += CalculateDirectionalDiffuseLighting(dLight, normalVector, viewDirection)  * (1.0 - shadowFactor);
-        specularLighting += CalculateDirectionalSpecularLighting(dLight, normalVector, viewDirection) * (1.0 - shadowFactor);
+        diffuseLighting  += CalculateDirectionalDiffuseLighting(dLight, normalVector, viewDirection)  * clamp(1.0 - shadowFactor, 0.0, 1.0);
+        specularLighting += CalculateDirectionalSpecularLighting(dLight, normalVector, viewDirection) * clamp(1.0 - shadowFactor, 0.0, 1.0);
     }
 
-    for(int i = 0; i < pointLightsCount; i++)
+    for(int i = 0; i < (pointLightsCount > MaxPointLightAmount ? MaxPointLightAmount : pointLightsCount); i++)
     {
         diffuseLighting  += CalculatePointDiffuseLighting(pointLights[i], normalVector, viewDirection , fragPosition);
         ambientLighting  += CalculatePointAmbientLighting(pointLights[i], normalVector, viewDirection , fragPosition);
