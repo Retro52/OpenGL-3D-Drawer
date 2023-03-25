@@ -1,0 +1,236 @@
+{
+  "Name" : "SceneDefaultName",
+  "Entities" : 
+  {
+    "Entity10" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Mars"
+      },
+      "Transform" : 
+      {
+        "Position" : [100, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1.5, 1.5, 1.5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity9" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Venus"
+      },
+      "Transform" : 
+      {
+        "Position" : [50, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [2, 2, 2]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity8" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Earth"
+      },
+      "Transform" : 
+      {
+        "Position" : [75, 0, 0.648318],
+        "Rotation" : [-180, 12.558, -180],
+        "Scale" : [2, 1.95, 2]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity7" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Sun"
+      },
+      "Transform" : 
+      {
+        "Position" : [-500, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [524, 524, 524]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : false,
+        "shouldBeLit" : false,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity6" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Camera"
+      },
+      "Transform" : 
+      {
+        "Position" : [77.7264, 139.022, -3.27462],
+        "Rotation" : [61.7343, 720.742, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Camera" : 
+      {
+        "FOV" : 1.0472,
+        "isPrimary" : true,
+        "Aspect" : [16, 9]
+      }
+    },
+    "Entity5" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Mercury"
+      },
+      "Transform" : 
+      {
+        "Position" : [33.9266, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [0.5, 0.5, 0.5]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity4" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Uranus"
+      },
+      "Transform" : 
+      {
+        "Position" : [275, 16.9061, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [8, 8, 8]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity3" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Saturn"
+      },
+      "Transform" : 
+      {
+        "Position" : [225, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [20, 20, 20]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Jupiter"
+      },
+      "Transform" : 
+      {
+        "Position" : [150, -0.964345, -17.7283],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [20, 20, 20]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity1" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Neptune"
+      },
+      "Transform" : 
+      {
+        "Position" : [325, 0, 15.5068],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [8, 8, 8]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity0" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Directional light"
+      },
+      "Transform" : 
+      {
+        "Position" : [2.83074, 0, 0],
+        "Rotation" : [0, 270, 1.26863e-05],
+        "Scale" : [0.999998, 0.999996, 0.999996]
+      },
+      "Directional light" : 
+      {
+        "Ambient" : [0.501961, 0.501961, 0.501961],
+        "Diffuse" : [1.17647, 1.17647, 1.17647],
+        "Specular" : [0.5, 0.5, 0.5]
+      },
+      "SkyBox" : 
+      {
+        "Path" : 
+        {
+          "Front" : "",
+          "Back" : "",
+          "Left" : "",
+          "Right" : "",
+          "Top" : "",
+          "Bottom" : ""
+        }
+      }
+    }
+  }
+}
