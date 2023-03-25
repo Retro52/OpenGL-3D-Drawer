@@ -2,5 +2,25 @@
   "Name" : "SceneDefaultName",
   "Entities" : 
   {
+    "Entity0" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Mesh"
+      },
+      "Transform" : 
+      {
+        "Position" : [0, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1, 1, 1]
+      },
+      "Model3D" : 
+      {
+        "Path" : "",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    }
   }
 }

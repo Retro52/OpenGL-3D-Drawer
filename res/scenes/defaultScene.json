@@ -74,9 +74,9 @@
       },
       "Transform" : 
       {
-        "Position" : [0, -4.74477, 0],
-        "Rotation" : [-180.175, 0, 0],
-        "Scale" : [74.5271, 74.5271, 74.5271]
+        "Position" : [-1.02942, -4.74477, 0],
+        "Rotation" : [179.825, -0, 0],
+        "Scale" : [74.5271, 74.5187, 74.5187]
       },
       "Model3D" : 
       {
@@ -94,8 +94,8 @@
       },
       "Transform" : 
       {
-        "Position" : [-15.8987, 18.1474, -44.7267],
-        "Rotation" : [-25.429, 1976.52, 0],
+        "Position" : [27.396, 20.4398, -30.6218],
+        "Rotation" : [-14.3022, 2284.67, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -154,8 +154,8 @@
       "Transform" : 
       {
         "Position" : [17.977, -0.606073, -48.6189],
-        "Rotation" : [-50.5608, 43.9072, -27.1159],
-        "Scale" : [0.999927, 0.999971, 0.999925]
+        "Rotation" : [27.7196, -66.7969, -73.6915],
+        "Scale" : [0.999953, 0.999958, 0.999906]
       },
       "Directional light" : 
       {
@@ -186,14 +186,14 @@
       {
         "Position" : [0, -3, 0],
         "Rotation" : [0, 0, 0],
-        "Scale" : [10000, 1, 10000]
+        "Scale" : [100, 100, 100]
       },
       "Model3D" : 
       {
         "Path" : "../res/assets/brickwall/plane.obj",
         "castsShadow" : true,
         "shouldBeLit" : true,
-        "tilingFactor" : 10000
+        "tilingFactor" : 100
       }
     }
   }

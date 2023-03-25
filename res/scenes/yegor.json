@@ -6,26 +6,6 @@
     {
       "Name" : 
       {
-        "Name" : "Mars"
-      },
-      "Transform" : 
-      {
-        "Position" : [100, 0, 0],
-        "Rotation" : [0, 0, 0],
-        "Scale" : [1.5, 1.5, 1.5]
-      },
-      "Model3D" : 
-      {
-        "Path" : "../res/assets/Basics/sphere.obj",
-        "castsShadow" : true,
-        "shouldBeLit" : true,
-        "tilingFactor" : 1
-      }
-    },
-    "Entity9" : 
-    {
-      "Name" : 
-      {
         "Name" : "Venus"
       },
       "Transform" : 
@@ -42,7 +22,7 @@
         "tilingFactor" : 1
       }
     },
-    "Entity8" : 
+    "Entity9" : 
     {
       "Name" : 
       {
@@ -62,7 +42,7 @@
         "tilingFactor" : 1
       }
     },
-    "Entity7" : 
+    "Entity8" : 
     {
       "Name" : 
       {
@@ -82,7 +62,7 @@
         "tilingFactor" : 1
       }
     },
-    "Entity6" : 
+    "Entity7" : 
     {
       "Name" : 
       {
@@ -90,8 +70,8 @@
       },
       "Transform" : 
       {
-        "Position" : [77.7264, 139.022, -3.27462],
-        "Rotation" : [61.7343, 720.742, 0],
+        "Position" : [95.7237, 65.2078, 105.07],
+        "Rotation" : [-21.8876, 1082.19, 0],
         "Scale" : [1, 1, 1]
       },
       "Camera" : 
@@ -101,7 +81,7 @@
         "Aspect" : [16, 9]
       }
     },
-    "Entity5" : 
+    "Entity6" : 
     {
       "Name" : 
       {
@@ -121,7 +101,7 @@
         "tilingFactor" : 1
       }
     },
-    "Entity4" : 
+    "Entity5" : 
     {
       "Name" : 
       {
@@ -141,7 +121,7 @@
         "tilingFactor" : 1
       }
     },
-    "Entity3" : 
+    "Entity4" : 
     {
       "Name" : 
       {
@@ -161,7 +141,7 @@
         "tilingFactor" : 1
       }
     },
-    "Entity2" : 
+    "Entity3" : 
     {
       "Name" : 
       {
@@ -172,6 +152,26 @@
         "Position" : [150, -0.964345, -17.7283],
         "Rotation" : [0, 0, 0],
         "Scale" : [20, 20, 20]
+      },
+      "Model3D" : 
+      {
+        "Path" : "../res/assets/Basics/sphere.obj",
+        "castsShadow" : true,
+        "shouldBeLit" : true,
+        "tilingFactor" : 1
+      }
+    },
+    "Entity2" : 
+    {
+      "Name" : 
+      {
+        "Name" : "Mars"
+      },
+      "Transform" : 
+      {
+        "Position" : [100, 0, 0],
+        "Rotation" : [0, 0, 0],
+        "Scale" : [1.5, 1.5, 1.5]
       },
       "Model3D" : 
       {

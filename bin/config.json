@@ -1,0 +1,10 @@
+{
+  "Shaders":
+  {
+    "gBufferShader" : ["../res/shaders/gBuffer.vs.glsl", "../res/shaders/gBuffer.fs.glsl"],
+    "lBufferShader" : ["../res/shaders/lBuffer.vs.glsl", "../res/shaders/lBuffer.fs.glsl"],
+    "skyboxShader" : ["../res/shaders/skybox.vs.glsl", "../res/shaders/skybox.fs.glsl"],
+    "postProcessShader" : ["../res/shaders/postProcess.vs.glsl", "../res/shaders/postProcess.fs.glsl"],
+    "shadowShader"      : ["../res/shaders/shadow.vs.glsl", "../res/shaders/shadow.fs.glsl", "../res/shaders/shadow.gs.glsl"]
+  }
+}

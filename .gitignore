@@ -36,6 +36,7 @@ Build/
 Debug/
 Release/
 x64/
+*.dir/
 
 # Visual studio files (I will, probably, add them later)
 *.vcxproj
