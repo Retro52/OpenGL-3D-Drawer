@@ -4,6 +4,8 @@ project(Graphics)
 set(CMAKE_CXX_STANDARD 17)
 set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/bin>)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Disabling min and max functions defined into the Windows.h header if compiling with MSVC (causes problems with std::numeric limits)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -54,3 +56,8 @@ add_executable(Graphics
         )
 
 target_link_libraries(Graphics glew32s OpenGL32.lib glfw3 ${ASSIMP_LINK_LIBRARY})
+
+add_custom_command(TARGET Graphics POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/vendors/bin"
+        "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
